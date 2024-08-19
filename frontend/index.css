@@ -1,0 +1,135 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #333;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100vh;
+    margin: 0;
+}
+
+.navbar {
+    background-color: #555;
+    padding: 1rem;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.navbar button {
+    background-color: #000000;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    margin: 0 10px;
+}
+
+.navbar button:hover {
+    background-color: #666;
+}
+
+.Archivo {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #0a0000;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: white;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #555;
+}
+
+.Archivo:hover .dropdown-content {
+    display: block;
+}
+
+.Archivo .dropbtn {
+    background-color: #000000;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    margin: 0 10px;
+}
+
+.Archivo .dropbtn:hover {
+    background-color: #666;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 80%;
+    height: calc(100% - 120px); /* Restar la altura de la barra de navegación */
+    padding: 10px;
+}
+
+.text-box {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.text-box h2 {
+    margin: 0;
+    padding: 0.5rem 0;
+    font-size: 1.2rem;
+}
+
+.code-container {
+    display: flex;
+    height: 400px; /* Altura fija para los cuadros de texto */
+    border: 1px solid #444;
+    background-color: #1e1e1e;
+    overflow: hidden; /* Asegura que el contenido no se desborde */
+}
+
+.line-numbers {
+    background-color: #2b2b2b;
+    color: #999;
+    padding: 10px;
+    text-align: right;
+    user-select: none;
+    width: 40px;
+    box-sizing: border-box;
+    overflow: auto; /* Permite el desplazamiento si es necesario */
+}
+
+textarea {
+    flex-grow: 1;
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border: none;
+    padding: 10px;
+    box-sizing: border-box;
+    resize: none;
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    line-height: 1.5;
+    overflow: auto; /* Asegura que el texto se pueda desplazar si excede el área visible */
+}
+
+.text-box-salida textarea {
+    color: #00c10a;
+}

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OakLand 202201947</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+    <div class="navbar">
+        <button id="executeButton">Ejecutar</button>
+        <div class="Archivo">
+            <button class="dropbtn">Archivo</button>
+            <div class="dropdown-content">
+                <a href="#" id="newFile">Nuevo Archivo</a> <!-- Cambiado a "newFile" -->
+                <a href="#" id="loadFile">Abrir Archivo</a>
+                <a href="#" id="saveFile">Guardar Archivo</a> <!-- Añadido un id para "Guardar Archivo" -->
+            </div>
+        </div>
+        <div class="Archivo">
+            <button class="dropbtn">Reportes</button>
+            <div class="dropdown-content">
+                <a href="#">Reporte Errores</a>
+                <a href="#">Reporte Tabla de Símbolos</a>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" style="display: none;" accept=".oak"> <!-- Esto sigue igual -->
+
+    <div class="container">
+        <div class="text-box text-box-entrada">
+            <h2>Entrada</h2>
+            <div class="code-container">
+                <div class="line-numbers" id="lineNumbersInput"></div>
+                <textarea id="inputBox" placeholder="Escribe aquí..."></textarea>
+            </div>
+        </div>
+
+        <div class="text-box text-box-salida">
+            <h2>Consola</h2>
+            <div class="code-container">
+                <div class="line-numbers" id="lineNumbersOutput"></div>
+                <textarea id="outputBox" readonly></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+    
+</body>
+</html>
