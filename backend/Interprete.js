@@ -1,5 +1,6 @@
 import { BaseVisitor } from './Patron/Visitor.js';
 import { Entorno } from './Entorno/Entorno.js';
+import { operacionAritmeticaVisitor} from './Expresiones/Aritmetica.js';
 
 export class InterpreterVisitor extends BaseVisitor {
 
@@ -7,27 +8,14 @@ export class InterpreterVisitor extends BaseVisitor {
         super();
         this.entornoActual = new Entorno();
         this.salida = '';
+        this.operacionAritmeticaVisitor = new operacionAritmeticaVisitor(this);
     }
 
     /**
       * @type {BaseVisitor['visitOperacionBinaria']}
       */
-    visitOperacionBinaria(node) {
-        const izq = node.izq.accept(this);
-        const der = node.der.accept(this);
-
-        switch (node.op) {
-            case '+':
-                return izq + der;
-            case '-':
-                return izq - der;
-            case '*':
-                return izq * der;
-            case '/':
-                return izq / der;
-            default:
-                throw new Error(`Operador no soportado: ${node.op}`);
-        }
+    visitOperacionAritmetica(node) {
+        return this.operacionAritmeticaVisitor.visitOperacionAritmetica(node);
     }
 
     /**

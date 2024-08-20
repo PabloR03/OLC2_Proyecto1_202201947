@@ -4,7 +4,7 @@ const crearHoja = (tipoHoja, props) =>{
     const tipos = {
         'numero': hojas.Numero,
         'agrupacion': hojas.Agrupacion,
-        'binaria': hojas.OperacionBinaria,
+        'aritmetica': hojas.OperacionAritmetica,
         'unaria': hojas.OperacionUnaria,
         'declaracionVariable': hojas.DeclaracionVariable,
         'referenciaVariable': hojas.ReferenciaVariable,
@@ -29,7 +29,7 @@ expresion = exp:Aritmetica {return exp}
             / referenciaVariable:referenciaVariable {return referenciaVariable}
 
 
-declaracionVariable = "var" _ id:identificador _ "=" _ exp:expresion _ ";" _ {return crearHoja('declaracionVariable', {id, exp})}
+declaracionVariable = tipoVariable _ id:identificador _ "=" _ exp:expresion _ ";" _ {return crearHoja('declaracionVariable', {id, exp})}
 
 print = "print" _ "(" _ exp:expresion _ ")" _ ";" _ {return crearHoja('print', {exp})}
 
@@ -40,30 +40,30 @@ Agrupacion = "(" _ exp:Aritmetica _ ")" {return crearHoja('agrupacion', {exp})}
 referenciaVariable = id:identificador {return crearHoja('referenciaVariable', {id})}
 
 
-
+tipoVariable = "int" / "float" / "string" / "boolean" / "char"
 
 Aritmetica = Suma
-
 Suma = izq:Multiplicacion expansion:( _ op:("+" / "-") _ der:Multiplicacion {return {tipo: op, der}})* {
     return expansion.reduce(
         (operacionAnterior, operacionActual) => {
             const {tipo, der} = operacionActual
-            return crearHoja('binaria', {op: tipo, izq: operacionAnterior, der})
+            return crearHoja('aritmetica', {op: tipo, izq: operacionAnterior, der})
         },
         izq
     )
 }
-Multiplicacion = izq:Unaria expansion:( _ op:("*" / "/") _ der:Unaria {return {tipo: op, der}})* {
+Multiplicacion = izq:Unaria expansion:( _ op:("*" / "/" / "%") _ der:Unaria {return {tipo: op, der}})* {
     return expansion.reduce(
         (operacionAnterior, operacionActual) => {
             const {tipo, der} = operacionActual
-            return crearHoja('binaria', {op: tipo, izq: operacionAnterior, der})
+            return crearHoja('aritmetica', {op: tipo, izq: operacionAnterior, der})
         },
         izq
     )
 }
 Unaria = "-" _ num:Numero {return crearHoja('unaria', {op: '-', exp: num})}
         / Numero
+        
 
 Numero = [0-9]+ ("." [0-9]+)? {return crearHoja('numero', {valor: parseFloat(text(), 10)})}
 

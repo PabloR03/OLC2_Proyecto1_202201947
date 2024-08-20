@@ -41,7 +41,7 @@ export class Expresion  {
     }
 }
     
-export class OperacionBinaria extends Expresion {
+export class OperacionAritmetica extends Expresion {
 
     /**
     * @param {Object} options
@@ -78,7 +78,7 @@ export class OperacionBinaria extends Expresion {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitOperacionBinaria(this);
+        return visitor.visitOperacionAritmetica(this);
     }
 }
     
@@ -273,4 +273,4 @@ export class ExpresionStmt extends Expresion {
     }
 }
     
-export default { Expresion, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt }
+export default { Expresion, OperacionAritmetica, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt }

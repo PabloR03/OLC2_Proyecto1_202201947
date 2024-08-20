@@ -187,7 +187,7 @@ function peg$parse(input, options) {
   var peg$c7 = ".";
 
   var peg$r0 = /^[+\-]/;
-  var peg$r1 = /^[*\/]/;
+  var peg$r1 = /^[%*\/]/;
   var peg$r2 = /^[0-9]/;
   var peg$r3 = /^[ \t\n\r]/;
   var peg$r4 = /^[a-zA-Z_]/;
@@ -200,7 +200,7 @@ function peg$parse(input, options) {
   var peg$e4 = peg$literalExpectation("(", false);
   var peg$e5 = peg$literalExpectation(")", false);
   var peg$e6 = peg$classExpectation(["+", "-"], false, false);
-  var peg$e7 = peg$classExpectation(["*", "/"], false, false);
+  var peg$e7 = peg$classExpectation(["%", "*", "/"], false, false);
   var peg$e8 = peg$literalExpectation("-", false);
   var peg$e9 = peg$classExpectation([["0", "9"]], false, false);
   var peg$e10 = peg$literalExpectation(".", false);
@@ -225,7 +225,7 @@ function peg$parse(input, options) {
     return expansion.reduce(
         (operacionAnterior, operacionActual) => {
             const {tipo, der} = operacionActual
-            return crearHoja('binaria', {op: tipo, izq: operacionAnterior, der})
+            return crearHoja('aritmetica', {op: tipo, izq: operacionAnterior, der})
         },
         izq
     )
@@ -235,7 +235,7 @@ function peg$parse(input, options) {
     return expansion.reduce(
         (operacionAnterior, operacionActual) => {
             const {tipo, der} = operacionActual
-            return crearHoja('binaria', {op: tipo, izq: operacionAnterior, der})
+            return crearHoja('aritmetica', {op: tipo, izq: operacionAnterior, der})
         },
         izq
     )
@@ -1021,7 +1021,7 @@ const crearHoja = (tipoHoja, props) =>{
     const tipos = {
         'numero': hojas.Numero,
         'agrupacion': hojas.Agrupacion,
-        'binaria': hojas.OperacionBinaria,
+        'aritmetica': hojas.OperacionAritmetica,
         'unaria': hojas.OperacionUnaria,
         'declaracionVariable': hojas.DeclaracionVariable,
         'referenciaVariable': hojas.ReferenciaVariable,

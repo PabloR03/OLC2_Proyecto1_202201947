@@ -4,7 +4,7 @@
  * @typedef {import('../Hojas/Hojas.js').Expresion} Expresion
 
 
- * @typedef {import('../Hojas/Hojas.js').OperacionBinaria} OperacionBinaria
+ * @typedef {import('../Hojas/Hojas.js').OperacionAritmetica} OperacionAritmetica
 
 
  * @typedef {import('../Hojas/Hojas.js').OperacionUnaria} OperacionUnaria
@@ -47,11 +47,11 @@ export class BaseVisitor {
     
 
     /**
-     * @param {OperacionBinaria} node
+     * @param {OperacionAritmetica} node
      * @returns {any}
      */
-    visitOperacionBinaria(node) {
-        throw new Error('Metodo visitOperacionBinaria no implementado');
+    visitOperacionAritmetica(node) {
+        throw new Error('Metodo visitOperacionAritmetica no implementado');
     }
     
 
