@@ -1,3 +1,4 @@
+/* Estilos globales */
 body {
     font-family: Arial, sans-serif;
     background-color: #333;
@@ -10,7 +11,8 @@ body {
     margin: 0;
 }
 
-.navbar {
+/* Barra de navegación */
+.barraNavegacion {
     background-color: #555;
     padding: 1rem;
     width: 100%;
@@ -20,7 +22,7 @@ body {
     align-items: center;
 }
 
-.navbar button {
+.barraNavegacion button {
     background-color: #000000;
     color: white;
     padding: 10px 20px;
@@ -29,16 +31,16 @@ body {
     margin: 0 10px;
 }
 
-.navbar button:hover {
+.barraNavegacion button:hover {
     background-color: #666;
 }
 
-.Archivo {
+.btnDesplegable {
     position: relative;
     display: inline-block;
 }
 
-.dropdown-content {
+.contenidoDesplegable {
     display: none;
     position: absolute;
     background-color: #0a0000;
@@ -47,22 +49,22 @@ body {
     z-index: 1;
 }
 
-.dropdown-content a {
+.contenidoDesplegable a {
     color: white;
     padding: 12px 16px;
     text-decoration: none;
     display: block;
 }
 
-.dropdown-content a:hover {
+.contenidoDesplegable a:hover {
     background-color: #555;
 }
 
-.Archivo:hover .dropdown-content {
+.btnDesplegable:hover .contenidoDesplegable {
     display: block;
 }
 
-.Archivo .dropbtn {
+.btnDesplegable .dropbtn {
     background-color: #000000;
     color: white;
     padding: 10px 20px;
@@ -71,19 +73,21 @@ body {
     margin: 0 10px;
 }
 
-.Archivo .dropbtn:hover {
+.btnDesplegable .dropbtn:hover {
     background-color: #666;
 }
 
+/* Contenedor principal */
 .container {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     width: 80%;
-    height: calc(100% - 120px); /* Restar la altura de la barra de navegación */
+    height: calc(100% - 120px);
     padding: 10px;
 }
 
+/* Estilos para las cajas de texto */
 .text-box {
     display: flex;
     flex-direction: column;
@@ -97,14 +101,16 @@ body {
     font-size: 1.2rem;
 }
 
+/* Estilos para el contenedor del código */
 .code-container {
     display: flex;
-    height: 400px; /* Altura fija para los cuadros de texto */
+    height: 400px;
     border: 1px solid #444;
     background-color: #1e1e1e;
-    overflow: hidden; /* Asegura que el contenido no se desborde */
+    overflow: hidden;
 }
 
+/* Estilos para los números de línea */
 .line-numbers {
     background-color: #2b2b2b;
     color: #999;
@@ -113,9 +119,10 @@ body {
     user-select: none;
     width: 40px;
     box-sizing: border-box;
-    overflow: auto; /* Permite el desplazamiento si es necesario */
+    overflow: auto;
 }
 
+/* Estilos para los textareas */
 textarea {
     flex-grow: 1;
     background-color: #1e1e1e;
@@ -127,9 +134,10 @@ textarea {
     font-family: 'Courier New', monospace;
     font-size: 1rem;
     line-height: 1.5;
-    overflow: auto; /* Asegura que el texto se pueda desplazar si excede el área visible */
+    overflow: auto;
 }
 
-.text-box-salida textarea {
-    color: #00c10a;
+/* Estilo específico para el área de salida */
+.textSalida textarea {
+    color: #00c10a; /* Verde para el texto de salida */
 }
