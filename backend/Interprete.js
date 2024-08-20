@@ -1,87 +1,98 @@
-import { parse } from './Analizador.js';
+import { BaseVisitor } from './Patron/Visitor.js';
+import { Entorno } from './Entorno/Entorno.js';
 
-let lastAST = null;
+export class InterpreterVisitor extends BaseVisitor {
 
-export function inicializarInterprete() {
-    const txtEntrada = document.getElementById('txtEntrada');
-    const txtSalida = document.getElementById('txtSalida');
-    const nlEntrada = document.getElementById('nlEntrada');
-    const nlSalida = document.getElementById('nlSalida');
-    const btnEjecutar = document.getElementById('btnEjecutar');
-    const btnReporteAST = document.getElementById('btnReporteAST');
-
-    if (!txtEntrada || !txtSalida || !nlEntrada || !nlSalida || !btnEjecutar) {
-        console.error("Uno o más elementos necesarios no se encontraron en el DOM");
-        return;
+    constructor() {
+        super();
+        this.entornoActual = new Entorno();
+        this.salida = '';
     }
 
-    function actualizarNumLineas(textarea, lineNumbers) {
-        const lines = textarea.value.split('\n').length;
-        lineNumbers.innerHTML = Array.from({ length: lines }, (_, i) => i + 1).join('<br>');
-    }
+    /**
+      * @type {BaseVisitor['visitOperacionBinaria']}
+      */
+    visitOperacionBinaria(node) {
+        const izq = node.izq.accept(this);
+        const der = node.der.accept(this);
 
-    function syncScroll(textarea, lineNumbers) {
-        lineNumbers.scrollTop = textarea.scrollTop;
-    }
-
-    function handleInput() {
-        actualizarNumLineas(txtEntrada, nlEntrada);
-        actualizarNumLineas(txtSalida, nlSalida);
-    }
-
-    function ejecutarCodigo() {
-        const codigo = txtEntrada.value;
-        try {
-            const arbol = parse(codigo);
-            lastAST = arbol;
-            console.log("AST:", JSON.stringify(arbol, null, 2));
-            const resultado = recorrer(arbol);
-            txtSalida.value = resultado.toString();
-            console.log("Resultado:", resultado);
-        } catch (error) {
-            txtSalida.value = "Error: " + error.message;
-            console.error("Error al ejecutar:", error);
-            lastAST = null;
-        }
-        actualizarNumLineas(txtSalida, nlSalida);
-    }
-
-    function recorrer(nodo) {
-        if (nodo.tipo === 'numero') return nodo.valor;
-
-        const num1 = recorrer(nodo.num1);
-        const num2 = recorrer(nodo.num2);
-
-        switch (nodo.tipo) {
-            case "suma":
-                return num1 + num2;
-            case "multiplicacion":
-                return num1 * num2;
+        switch (node.op) {
+            case '+':
+                return izq + der;
+            case '-':
+                return izq - der;
+            case '*':
+                return izq * der;
+            case '/':
+                return izq / der;
             default:
-                return 0;
+                throw new Error(`Operador no soportado: ${node.op}`);
         }
     }
 
-    function generarReporteAST() {
-        if (lastAST) {
-            console.log("Reporte AST:", JSON.stringify(lastAST, null, 2));
-            alert("Reporte AST generado. Revisa la consola.");
-        } else {
-            alert("No hay AST disponible. Ejecuta el código primero.");
+    /**
+      * @type {BaseVisitor['visitOperacionUnaria']}
+      */
+    visitOperacionUnaria(node) {
+        const exp = node.exp.accept(this);
+
+        switch (node.op) {
+            case '-':
+                return -exp;
+            default:
+                throw new Error(`Operador no soportado: ${node.op}`);
         }
     }
 
-    txtEntrada.addEventListener('input', handleInput);
-    txtEntrada.addEventListener('scroll', () => syncScroll(txtEntrada, nlEntrada));
-    txtSalida.addEventListener('scroll', () => syncScroll(txtSalida, nlSalida));
-    btnEjecutar.addEventListener('click', ejecutarCodigo);
-    if (btnReporteAST) {
-        btnReporteAST.addEventListener('click', generarReporteAST);
+    /**
+      * @type {BaseVisitor['visitAgrupacion']}
+      */
+    visitAgrupacion(node) {
+        return node.exp.accept(this);
     }
 
-    handleInput();
-}
+    /**
+      * @type {BaseVisitor['visitNumero']}
+      */
+    visitNumero(node) {
+        return node.valor;
+    }
 
-export function obtenerAST() {
-    return lastAST;
+
+    /**
+     * @type {BaseVisitor['visitDeclaracionVariable']}
+     */
+    visitDeclaracionVariable(node) {
+        const nombreVariable = node.id;
+        const valorVariable = node.exp.accept(this);
+
+        this.entornoActual.setVariable(nombreVariable, valorVariable);
+    }
+
+
+    /**
+      * @type {BaseVisitor['visitReferenciaVariable']}
+      */
+    visitReferenciaVariable(node) {
+        const nombreVariable = node.id;
+        return this.entornoActual.getVariable(nombreVariable);
+    }
+
+
+    /**
+      * @type {BaseVisitor['visitPrint']}
+      */
+    visitPrint(node) {
+        const valor = node.exp.accept(this);
+        this.salida += valor + '\n';
+    }
+
+
+    /**
+      * @type {BaseVisitor['visitExpresionStmt']}
+      */
+    visitExpresionStmt(node) {
+        node.exp.accept(this);
+    }
+
 }

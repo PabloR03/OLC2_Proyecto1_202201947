@@ -1,5 +1,4 @@
-import { inicializarInterprete } from '../backend/Interprete.js';
-import { inicializarManejadorArchivos } from '../backend/ManejadorArchivos.js';
+import { inicializarInterprete, inicializarManejadorArchivos } from './ManejadorArchivos.js';
 
 document.addEventListener("DOMContentLoaded", function() {
     inicializarInterprete();
