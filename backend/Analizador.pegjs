@@ -29,7 +29,7 @@ expresion = exp:Aritmetica {return exp}
             / referenciaVariable:referenciaVariable {return referenciaVariable}
 
 
-declaracionVariable = tipoVariable _ id:identificador _ "=" _ exp:expresion _ ";" _ {return crearHoja('declaracionVariable', {id, exp})}
+declaracionVariable = _ tipoVar:tipoVariable _ id:identificador _ "=" _ exp:expresion _ ";" _ {return crearHoja('declaracionVariable', {tipoVar, id, exp})}
 
 print = "print" _ "(" _ exp:expresion _ ")" _ ";" _ {return crearHoja('print', {exp})}
 
@@ -40,7 +40,11 @@ Agrupacion = "(" _ exp:Aritmetica _ ")" {return crearHoja('agrupacion', {exp})}
 referenciaVariable = id:identificador {return crearHoja('referenciaVariable', {id})}
 
 
-tipoVariable = "int" / "float" / "string" / "boolean" / "char"
+tipoVariable = "int" {return text()}
+                / "float" {return text()}
+                / "string" {return text()}
+                / "boolean" {return text()}
+                / "char" {return text()}
 
 Aritmetica = Suma
 Suma = izq:Multiplicacion expansion:( _ op:("+" / "-") _ der:Multiplicacion {return {tipo: op, der}})* {

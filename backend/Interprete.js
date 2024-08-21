@@ -1,6 +1,7 @@
 import { BaseVisitor } from './Patron/Visitor.js';
-import { Entorno } from './Entorno/Entorno.js';
-import { operacionAritmeticaVisitor} from './Expresiones/Aritmetica.js';
+import { Entorno } from './oakLand/Entorno/Entorno.js';
+import { operacionAritmeticaVisitor} from './oakLand/Expresiones/Aritmetica.js';
+//import { DeclaracionVarVisitor } from './oakLand/Declaraciones/DeclaracionVar.js';
 
 export class InterpreterVisitor extends BaseVisitor {
 
@@ -9,10 +10,11 @@ export class InterpreterVisitor extends BaseVisitor {
         this.entornoActual = new Entorno();
         this.salida = '';
         this.operacionAritmeticaVisitor = new operacionAritmeticaVisitor(this);
+        //this.DeclaracionVariable = new DeclaracionVarVisitor(this);
     }
 
     /**
-      * @type {BaseVisitor['visitOperacionBinaria']}
+      * @type {BaseVisitor['visitOperacionAritmetica']}
       */
     visitOperacionAritmetica(node) {
         return this.operacionAritmeticaVisitor.visitOperacionAritmetica(node);
@@ -51,10 +53,11 @@ export class InterpreterVisitor extends BaseVisitor {
      * @type {BaseVisitor['visitDeclaracionVariable']}
      */
     visitDeclaracionVariable(node) {
+        const tipoVariable = node.tipoVar;
         const nombreVariable = node.id;
         const valorVariable = node.exp.accept(this);
-
-        this.entornoActual.setVariable(nombreVariable, valorVariable);
+//verificar tipos con cada variable sino muere
+        this.entornoActual.setVariable(tipoVariable, nombreVariable, valorVariable);
     }
 
 

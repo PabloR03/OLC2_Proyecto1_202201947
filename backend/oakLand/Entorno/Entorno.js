@@ -4,10 +4,12 @@ export class Entorno {
     }
 
     /**
+     * @param {string} tipo
      * @param {string} nombre
      * @param {any} valor
      */
-    setVariable(nombre, valor) {
+    setVariable(tipo, nombre, valor) {
+        this.tipo = tipo;
         this.valores[nombre] = valor;
     }
 

@@ -1,4 +1,4 @@
-import { BaseVisitor } from '../Patron/Visitor.js';
+import { BaseVisitor } from '../../Patron/Visitor.js';
 
 export class operacionAritmeticaVisitor extends BaseVisitor {
     /**
