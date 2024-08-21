@@ -27,15 +27,19 @@ instrucciones = declaracionVariable:declaracionVariable {return declaracionVaria
 expresion = exp:Aritmetica {return exp}
             / agrupacion:Agrupacion {return agrupacion}
             / referenciaVariable:referenciaVariable {return referenciaVariable}
+            / cadena:Cadena {return cadena}
+            / caracter:Caracter {return caracter}
 
 
 declaracionVariable = _ tipoVar:tipoVariable _ id:identificador _ "=" _ exp:expresion _ ";" _ {return crearHoja('declaracionVariable', {tipoVar, id, exp})}
+    / _ tipoVar:tipoVariable _ id:identificador _ ";" _ {return crearHoja('declaracionVariable', {tipoVar, id})}
+    / _ "var" _ id:identificador _ "=" _ exp:expresion _ ";" _ {return crearHoja('declaracionVariable', {tipoVar: 'var', id, exp})}
 
 print = "print" _ "(" _ exp:expresion _ ")" _ ";" _ {return crearHoja('print', {exp})}
 
 expresionStmt = exp:expresion _ ";" _ {return crearHoja('expresionStmt', {exp})}
 
-Agrupacion = "(" _ exp:Aritmetica _ ")" {return crearHoja('agrupacion', {exp})}
+Agrupacion = _ "(" _ exp:expresion _ ")"_ {return crearHoja('agrupacion', {exp})}
 
 referenciaVariable = id:identificador {return crearHoja('referenciaVariable', {id})}
 
@@ -67,9 +71,8 @@ Multiplicacion = izq:Unaria expansion:( _ op:("*" / "/" / "%") _ der:Unaria {ret
 }
 Unaria = "-" _ num:Numero {return crearHoja('unaria', {op: '-', exp: num})}
         / Numero
-        
 
-Numero = [0-9]+ ("." [0-9]+)? {return crearHoja('numero', {valor: parseFloat(text(), 10)})}
+
 
 
 
@@ -78,3 +81,6 @@ Numero = [0-9]+ ("." [0-9]+)? {return crearHoja('numero', {valor: parseFloat(tex
 _ = [ \t\n\r]*
 // considerar que el identificador peude llevar un guion bajo
 identificador = [a-zA-Z_][a-zA-Z0-9_]* {return text()}
+Numero = [0-9]+ ("." [0-9]+)? {return crearHoja('numero', {valor: parseFloat(text(), 10)})}
+Cadena = "\"" [a-zA-Z0-9_]* "\"" {return text()}
+Caracter = "'" [a-zA-Z0-9_]? "'" {return text()}

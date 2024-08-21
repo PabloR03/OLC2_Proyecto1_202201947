@@ -1,0 +1,19 @@
+int a;
+print(a);
+
+string b;
+print(b);
+
+float c;
+print(c);
+
+boolean d;
+print(d);
+
+char e;
+print(e);
+
+var f = 12;
+print (f);
+
+
