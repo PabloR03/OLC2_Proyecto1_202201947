@@ -1,0 +1,37 @@
+int a = 10;
+float b = 10.5;
+string c = "ho";
+string d = "la";
+
+//Suma
+print(a+a);
+print(a+b);
+print(b+a);
+print(b+b);
+print(c+d);
+
+//Resta
+print(a-a);
+print(a-b);
+print(b-a);
+print(b-b);
+
+//Multiplicacion
+
+print(a*a);
+print(a*b);
+print(b*a);
+print(b*b);
+
+
+//Division
+print(0/0)
+print(a/a);
+print(a/b);
+print(b/a);
+print(b/b);
+
+//Modulo
+print(a%a);
+
+

@@ -165,6 +165,131 @@ export class Numero extends Expresion {
     }
 }
     
+export class Cadena extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {String} options.valor Valor de la cadena
+    */
+    constructor({ valor }) {
+        super();
+        
+        /**
+         * Valor de la cadena
+         * @type {String}
+        */
+        this.valor = valor;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitCadena(this);
+    }
+}
+    
+export class Caracter extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {String} options.valor Valor del caracter
+    */
+    constructor({ valor }) {
+        super();
+        
+        /**
+         * Valor del caracter
+         * @type {String}
+        */
+        this.valor = valor;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitCaracter(this);
+    }
+}
+    
+export class Decimal extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {float} options.valor Valor del decimal
+    */
+    constructor({ valor }) {
+        super();
+        
+        /**
+         * Valor del decimal
+         * @type {float}
+        */
+        this.valor = valor;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDecimal(this);
+    }
+}
+    
+export class Booleanos extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {boolean} options.valor Valor del booleano
+    */
+    constructor({ valor }) {
+        super();
+        
+        /**
+         * Valor del booleano
+         * @type {boolean}
+        */
+        this.valor = valor;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitBooleanos(this);
+    }
+}
+    
+export class SecuenciaEscape extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.valor Valor de la secuencia de escape
+    */
+    constructor({ valor }) {
+        super();
+        
+        /**
+         * Valor de la secuencia de escape
+         * @type {string}
+        */
+        this.valor = valor;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitSecuenciaEscape(this);
+    }
+}
+    
 export class DeclaracionVariable extends Expresion {
 
     /**
@@ -281,4 +406,37 @@ export class ExpresionStmt extends Expresion {
     }
 }
     
-export default { Expresion, OperacionAritmetica, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt }
+export class AsignacionVariable extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador de la variable
+ * @param {Expresion} options.exp Expresion a asignar
+    */
+    constructor({ id, exp }) {
+        super();
+        
+        /**
+         * Identificador de la variable
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Expresion a asignar
+         * @type {Expresion}
+        */
+        this.exp = exp;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitAsignacionVariable(this);
+    }
+}
+    
+export default { Expresion, OperacionAritmetica, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, AsignacionVariable }

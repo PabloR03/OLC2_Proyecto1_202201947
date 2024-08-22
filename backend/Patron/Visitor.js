@@ -16,6 +16,21 @@
  * @typedef {import('../Hojas/Hojas.js').Numero} Numero
 
 
+ * @typedef {import('../Hojas/Hojas.js').Cadena} Cadena
+
+
+ * @typedef {import('../Hojas/Hojas.js').Caracter} Caracter
+
+
+ * @typedef {import('../Hojas/Hojas.js').Decimal} Decimal
+
+
+ * @typedef {import('../Hojas/Hojas.js').Booleanos} Booleanos
+
+
+ * @typedef {import('../Hojas/Hojas.js').SecuenciaEscape} SecuenciaEscape
+
+
  * @typedef {import('../Hojas/Hojas.js').DeclaracionVariable} DeclaracionVariable
 
 
@@ -26,6 +41,9 @@
 
 
  * @typedef {import('../Hojas/Hojas.js').ExpresionStmt} ExpresionStmt
+
+
+ * @typedef {import('../Hojas/Hojas.js').AsignacionVariable} AsignacionVariable
 
  */
 
@@ -83,6 +101,51 @@ export class BaseVisitor {
     
 
     /**
+     * @param {Cadena} node
+     * @returns {any}
+     */
+    visitCadena(node) {
+        throw new Error('Metodo visitCadena no implementado');
+    }
+    
+
+    /**
+     * @param {Caracter} node
+     * @returns {any}
+     */
+    visitCaracter(node) {
+        throw new Error('Metodo visitCaracter no implementado');
+    }
+    
+
+    /**
+     * @param {Decimal} node
+     * @returns {any}
+     */
+    visitDecimal(node) {
+        throw new Error('Metodo visitDecimal no implementado');
+    }
+    
+
+    /**
+     * @param {Booleanos} node
+     * @returns {any}
+     */
+    visitBooleanos(node) {
+        throw new Error('Metodo visitBooleanos no implementado');
+    }
+    
+
+    /**
+     * @param {SecuenciaEscape} node
+     * @returns {any}
+     */
+    visitSecuenciaEscape(node) {
+        throw new Error('Metodo visitSecuenciaEscape no implementado');
+    }
+    
+
+    /**
      * @param {DeclaracionVariable} node
      * @returns {any}
      */
@@ -115,6 +178,15 @@ export class BaseVisitor {
      */
     visitExpresionStmt(node) {
         throw new Error('Metodo visitExpresionStmt no implementado');
+    }
+    
+
+    /**
+     * @param {AsignacionVariable} node
+     * @returns {any}
+     */
+    visitAsignacionVariable(node) {
+        throw new Error('Metodo visitAsignacionVariable no implementado');
     }
     
 }
