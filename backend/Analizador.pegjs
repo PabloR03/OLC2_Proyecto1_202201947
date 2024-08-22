@@ -30,7 +30,6 @@ instrucciones = declaracionVariable:declaracionVariable {return declaracionVaria
                 / sentencia:Sentencias {return sentencia}
 
 Sentencias =    prt:print {return prt} 
-                / exp:expresion {return exp}
 
 expresion = boolean:Booleanos {return boolean}
             / referenciaVariable:referenciaVariable {return referenciaVariable}
@@ -107,7 +106,7 @@ multiLineComment "multi line comment" = "/*" (!"*/" .)* "*/"
 // considerar que el identificador peude llevar un guion bajo
 identificador = [a-zA-Z_][a-zA-Z0-9_]* {return text()}
 
-Datos =   Decimal / Numero / Cadena / Caracter / Booleanos / identificador / Agrupacion 
+Datos =   Numero / Decimal / Cadena / Caracter / Booleanos / identificador / Agrupacion 
 
 Decimal = [0-9]+ ("." [0-9]+)?     {return crearHoja('decimal', {valor: parseFloat(text(), 10)})}
 Numero = [0-9]+                     {return crearHoja('numero', {valor: parseInt(text(), 10)})}

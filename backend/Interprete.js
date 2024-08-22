@@ -263,10 +263,9 @@ export class InterpreterVisitor extends BaseVisitor {
       * @type {BaseVisitor['visitAsignacionVariable']}
       */  
     visitAsignacionVariable(node) {
-      const valor = node.accept(this);
+      const valor = node.exp.accept(this);  // Evalúa la expresión
       this.entornoActual.assignVariable(node.id, valor);
-      return valor;
-
-  }
+      return valor;
+    }
 
 }
