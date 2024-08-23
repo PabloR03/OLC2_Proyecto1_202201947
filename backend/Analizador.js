@@ -995,7 +995,7 @@ return expansion.reduce(
       }
       if (s3 !== peg$FAILED) {
         s4 = peg$parse_();
-        s5 = peg$parseinstrucciones();
+        s5 = peg$parsedeclaracionVariable();
         if (s5 !== peg$FAILED) {
           s6 = peg$parse_();
           s7 = peg$parseexpresion();

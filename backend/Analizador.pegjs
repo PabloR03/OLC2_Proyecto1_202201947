@@ -67,7 +67,7 @@ If = "if" _ "(" _ cond:expresion _ ")" _ verdad:Sentencias
 While = _ "while" _ "(" _ cond:expresion _ ")" _ bloques:Bloque 
         { return crearHoja('while', { cond, bloques }) }
 
-For = "for" _ "("_ vars:instrucciones _ cond:expresion _ ";" _ incremento:expresion _ ")" _ sentencia:Sentencias { return crearHoja('for', { vars, cond, incremento, sentencia }) }
+For = "for" _ "("_ vars:declaracionVariable _ cond:expresion _ ";" _ incremento:expresion _ ")" _ sentencia:Sentencias { return crearHoja('for', { vars, cond, incremento, sentencia }) }
 
 declaracionVariable = _ tipoVar:tipoVariable _ id:identificador _ "=" _ exp:expresion _ ";" _  {return crearHoja('declaracionVariable', {tipoVar, id, exp})}
     / _ tipoVar:tipoVariable _ id:identificador _ ";" _ {return crearHoja('declaracionVariable', {tipoVar, id})}

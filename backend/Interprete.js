@@ -220,7 +220,7 @@ export class InterpreterVisitor extends BaseVisitor {
       const entornoAnterior = this.entornoActual
       this.entornoActual = new Entorno(entornoAnterior)
       // Visitar la inicialización
-      node.init.accept(this);
+      node.vars.accept(this);
 
       while(node.cond.accept(this)){
           // Visitar el cuerpo
