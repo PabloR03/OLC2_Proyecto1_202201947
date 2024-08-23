@@ -33,6 +33,7 @@ Bloque = _ "{" _ instrucciones:instrucciones* _ "}" _ {return crearHoja('bloque'
 
 instrucciones = declaracionVariable:declaracionVariable {return declaracionVariable}
                 / sentencia:Sentencias {return sentencia}
+                
 
 Sentencias =    prt:print {return prt} 
                 / bloque:Bloque {return bloque}
@@ -51,8 +52,9 @@ expresion = arit:Ternario {return arit}
 Typeof = "typeof" _ exp:expresion _ {return crearHoja('tipoOf', {exp})}
 
 
-declaracionVariable = _ tipoVar:tipoVariable _ id:identificador _ "=" _ exp:expresion _ ";" _ {return crearHoja('declaracionVariable', {tipoVar, id, exp})}
+declaracionVariable = _ tipoVar:tipoVariable _ id:identificador _ "=" _ exp:expresion _ ";" _  {return crearHoja('declaracionVariable', {tipoVar, id, exp})}
     / _ tipoVar:tipoVariable _ id:identificador _ ";" _ {return crearHoja('declaracionVariable', {tipoVar, id})}
+    / _ "var" _ id:identificador _ "=" _ exp:expresion _ ";" _ {return crearHoja('declaracionVariable', {tipoVar: 'var', id, exp})}
 
 AsignacionVariable =  _ id:identificador _ "=" _ exp:expresion _ ";" _ {return crearHoja('asignacionVariable', {id, exp})}
 
@@ -71,7 +73,7 @@ tipoVariable = "int" {return text()}
                 / "var" {return text()}
 
 Ternario =  condicion:Logico _ "?" _ verdadero:Logico _ ":"_ falso:Logico _ 
-            { return crearHoja('ternario', {condicion, veradero, falso }) }
+            { return crearHoja('ternario', {condicion, verdadero, falso }) }
             / Logico
 
 Logico = Or

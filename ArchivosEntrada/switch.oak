@@ -1,0 +1,17 @@
+ var numero = 2;
+ switch (numero) {
+    case 1:
+        print(1);
+        print(123);
+    case 2:
+        print(2);
+         print(123);
+         var numero=200;
+         print(numero);
+         var numero=900;
+         print(numero);
+    case 3:
+        print(3);
+    default:
+        print(100);
+ }
