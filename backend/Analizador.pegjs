@@ -73,8 +73,10 @@ declaracionVariable = _ tipoVar:tipoVariable _ id:identificador _ "=" _ exp:expr
     / _ tipoVar:tipoVariable _ id:identificador _ ";" _ {return crearHoja('declaracionVariable', {tipoVar, id})}
     / _ "var" _ id:identificador _ "=" _ exp:expresion _ ";" _ {return crearHoja('declaracionVariable', {tipoVar: 'var', id, exp})}
 
-AsignacionVariable =  _ id:identificador _ "=" _ exp:expresion _ ";" _ {return crearHoja('asignacionVariable', {id, exp})}
-        / _ id:identificador _ op:("+="/"-=")_ exp:expresion _ ";" _ { return crearHoja('asignacionVariable', { id, exp: crearHoja('aritmetica', { op, izq: crearHoja('referenciaVariable', { id }) , der: exp }) }) }
+AsignacionVariable =  _ id:identificador _ "=" _ exp:expresion _ ";" _ { return crearHoja('asignacionVariable', { id, exp }) }
+    / _ id:identificador _ op:("+=" / "-=") _ exp:expresion _ ";" _ { return crearHoja('asignacionVariable', { id, exp: crearHoja('aritmetica', { op, izq: crearHoja('referenciaVariable', { id }), der: exp }) }) }
+    / _ id:identificador _ op:("++" / "--") _ ";" _ { return crearHoja('asignacionVariable', { id, exp: crearHoja('unaria', { op, datos: crearHoja('referenciaVariable', { id }) }) }) }
+    / _ id:identificador op:("++" / "--") { return crearHoja('asignacionVariable', { id, exp: crearHoja('unaria', { op, datos: crearHoja('referenciaVariable', { id }) }) }) }
 
 print = _ "print" _ "(" _ exp:expresion _ ")" _ ";" _ {return crearHoja('print', {exp})}
 
@@ -158,7 +160,7 @@ Multiplicacion = izq:Unaria expansion:( _ op:("*" / "/" / "%") _ der:Unaria {ret
     )
 }
 Unaria = "-" _ datos:Datos {return crearHoja('unaria', {op: '-', datos: datos})}
-    /id:identificador _ op:("++"/"--")_ { return crearNodo('asignacionVariable', { id, exp: crearNodo('unaria', { op, datos: crearNodo('referenciaVariable', { id }) }) }) }
+    /id:identificador _ op:("++"/"--")_ { return crearHoja('asignacionVariable', { id, exp: crearHoja('unaria', { op, datos: crearHoja('referenciaVariable', { id }) }) }) }
         / Datos 
 
 // Regla principal para ignorar espacios en blanco y comentarios

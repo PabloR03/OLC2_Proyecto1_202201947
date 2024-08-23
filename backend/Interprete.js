@@ -236,14 +236,30 @@ export class InterpreterVisitor extends BaseVisitor {
       * @type {BaseVisitor['visitOperacionUnaria']}
       */
     visitOperacionUnaria(node) {
-        const exp = node.exp.accept(this);
+      const exp = node.datos.accept(this);
 
-        switch (node.op) {
-            case '-':
-                return -exp;
-            default:
-                throw new Error(`Operador no soportado: ${node.op}`);
-        }
+      switch (node.op) {
+          case '-':
+              if (typeof exp === 'number') {
+                  return -exp;  // Negación
+              }
+              break;
+          case '++':
+              if (typeof exp === 'number') {
+                  return exp + 1;  // Incremento
+              }
+              break;
+          case '--':
+              if (typeof exp === 'number') {
+                  return exp - 1;  // Decremento
+              }
+              break;
+          default:
+              throw new Error(`Operador no soportado: ${node.op}`);
+      }
+      
+      throw new Error(`Operación no válida para el tipo de dato: ${typeof exp}`);
+      
     }
 
     /**
