@@ -21,7 +21,8 @@ const crearHoja = (tipoHoja, props) =>{
         'ternario': hojas.Ternario,
         'if': hojas.If,
         'while': hojas.While,
-        'for': hojas.For
+        'for': hojas.For,
+        'switch': hojas.Switch,
     }
 
     const nodo = new tipos[tipoHoja](props)
@@ -43,6 +44,7 @@ Sentencias = prt:print {return prt}
             / ifs:If {return ifs}
             / whiles:While {return whiles}
             / fors:For {return fors}
+            / switchs:Switch {return switchs}
             / asignacion:AsignacionVariable {return asignacion}
 
 
@@ -68,6 +70,12 @@ While = _ "while" _ "(" _ cond:expresion _ ")" _ bloques:Bloque
         { return crearHoja('while', { cond, bloques }) }
 
 For = "for" _ "("_ vars:declaracionVariable _ cond:expresion _ ";" _ incremento:expresion _ ")" _ sentencia:Sentencias { return crearHoja('for', { vars, cond, incremento, sentencia }) }
+
+Switch = "switch" _ "(" _ exp:expresion _ ")" _ "{" _ cases:SwitchCase* def:DefaultCase? _ "}" { return crearHoja('switch', { exp, cases, def }) }
+
+SwitchCase = _ "case" _ valor:expresion _ ":" _ bloqueCase:Sentencias* { return { valor, bloqueCase } }
+DefaultCase = _ "default" _ ":" _ stmts:Sentencias* { return { stmts } }
+
 
 declaracionVariable = _ tipoVar:tipoVariable _ id:identificador _ "=" _ exp:expresion _ ";" _  {return crearHoja('declaracionVariable', {tipoVar, id, exp})}
     / _ tipoVar:tipoVariable _ id:identificador _ ";" _ {return crearHoja('declaracionVariable', {tipoVar, id})}

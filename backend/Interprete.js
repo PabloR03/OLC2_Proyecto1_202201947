@@ -232,6 +232,31 @@ export class InterpreterVisitor extends BaseVisitor {
     }
 
 
+     /**
+     * @type {BaseVisitor['visitSwitch']}
+     */
+    visitSwitch(node) {
+      // Visitar la inicialización
+     // node.exp.accept(this);
+     var resto=false;
+      for (const caso of node.cases) {
+
+          if (caso.valor.accept(this)==node.exp.accept(this)) {
+              resto=true;
+            }
+          if(resto){
+              const entornoAnterior = this.entornoActual;
+              this.entornoActual = new Entorno(entornoAnterior);
+              for (const stmt of caso.bloqueCase) {
+                  stmt.accept(this);}
+              this.entornoActual = entornoAnterior;
+          }
+      }
+      for(const stmt of node.def.stmts){
+          stmt.accept(this);
+        }
+    }
+
     /**
       * @type {BaseVisitor['visitOperacionUnaria']}
       */

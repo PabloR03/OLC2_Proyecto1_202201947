@@ -428,6 +428,47 @@ export class For extends Expresion {
     }
 }
     
+export class Switch extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.exp Condicion del case
+ * @param {Expresion} options.cases Cuerpo del case
+ * @param {Expresion} options.def Cuerpo del default
+    */
+    constructor({ exp, cases, def }) {
+        super();
+        
+        /**
+         * Condicion del case
+         * @type {Expresion}
+        */
+        this.exp = exp;
+
+
+        /**
+         * Cuerpo del case
+         * @type {Expresion}
+        */
+        this.cases = cases;
+
+
+        /**
+         * Cuerpo del default
+         * @type {Expresion}
+        */
+        this.def = def;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitSwitch(this);
+    }
+}
+    
 export class Decimal extends Expresion {
 
     /**
@@ -693,4 +734,4 @@ export class AsignacionVariable extends Expresion {
     }
 }
     
-export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Bloque, ExpresionStmt, AsignacionVariable }
+export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, Switch, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Bloque, ExpresionStmt, AsignacionVariable }

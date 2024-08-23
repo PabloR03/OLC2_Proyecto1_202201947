@@ -37,6 +37,9 @@
  * @typedef {import('../Hojas/Hojas.js').For} For
 
 
+ * @typedef {import('../Hojas/Hojas.js').Switch} Switch
+
+
  * @typedef {import('../Hojas/Hojas.js').Decimal} Decimal
 
 
@@ -178,6 +181,15 @@ export class BaseVisitor {
      */
     visitFor(node) {
         throw new Error('Metodo visitFor no implementado');
+    }
+    
+
+    /**
+     * @param {Switch} node
+     * @returns {any}
+     */
+    visitSwitch(node) {
+        throw new Error('Metodo visitSwitch no implementado');
     }
     
 
