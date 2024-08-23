@@ -19,6 +19,7 @@ export class InterpreterVisitor extends BaseVisitor {
     visitOperacionAritmetica(node) {
       const izq = node.izq.accept(this);
       const der = node.der.accept(this);
+      const tiposValidos = ['number', 'string'];
       
       // Función auxiliar para determinar si un número es entero
       const esEntero = (num) => Number.isInteger(num);
@@ -45,6 +46,7 @@ export class InterpreterVisitor extends BaseVisitor {
         case '*':
           if (typeof izq === 'number' && typeof der === 'number') {
             const resultado = izq * der;
+            console.log(typeof resultado);
             return esEntero(izq) && esEntero(der) ? Math.floor(resultado) : resultado;
           } else {
             throw new Error(`Operación no válida: ${typeof izq} * ${typeof der}`);
@@ -54,8 +56,11 @@ export class InterpreterVisitor extends BaseVisitor {
             if (der === 0) {
               throw new Error('División por cero');
             }
+            const resultado = izq / der;
+            console.log(typeof resultado);
             return izq / der; // Siempre devuelve un float
           } else {
+
             throw new Error(`Operación no válida: ${typeof izq} / ${typeof der}`);
           }
         case '%':
@@ -67,6 +72,90 @@ export class InterpreterVisitor extends BaseVisitor {
           } else {
             throw new Error(`Operación de módulo solo válida para enteros: ${typeof izq} % ${typeof der}`);
           }
+        case '==':
+          if (typeof izq !== typeof der) {
+              throw new Error(`Error: No se puede comparar tipos diferentes ${typeof izq} y ${typeof der}`);
+          }
+          if (typeof izq === 'number' && typeof der === 'number') {
+              return izq === der;
+          } else if (typeof izq === 'string' && typeof der === 'string') {
+              return izq.localeCompare(der) === 0;
+          } else {
+              return izq === der;
+          }
+          case '!=':  
+            if (typeof izq !== typeof der) {
+              throw new Error(`Error: No se puede comparar tipos diferentes ${typeof izq} y ${typeof der}`);
+            }
+            if (typeof izq === 'number' && typeof der === 'number') {
+                return izq !== der;
+            } else if (typeof izq === 'string' && typeof der === 'string') {
+                return izq.localeCompare(der) !== 0;
+            } else {
+                return izq !== der;
+            }
+          case '>':
+            if (!tiposValidos.includes(typeof izq) || !tiposValidos.includes(typeof der)) {
+                throw new Error(`Error: Operación no permitida entre tipos ${typeof izq} y ${typeof der}`);
+            }
+            if (typeof izq !== typeof der) {
+                throw new Error(`Error: No se puede comparar tipos diferentes ${typeof izq} y ${typeof der}`);
+            }
+            if (typeof izq === 'string' && izq.length !== 1 && der.length !== 1) {
+                throw new Error(`Error: Comparación de caracteres solo permitida entre literales de un solo carácter.`);
+            }
+            return izq > der;
+          case '>=':
+            if (!tiposValidos.includes(typeof izq) || !tiposValidos.includes(typeof der)) {
+                throw new Error(`Error: Operación no permitida entre tipos ${typeof izq} y ${typeof der}`);
+            }
+            if (typeof izq !== typeof der) {
+                throw new Error(`Error: No se puede comparar tipos diferentes ${typeof izq} y ${typeof der}`);
+            }
+            if (typeof izq === 'string' && izq.length !== 1 && der.length !== 1) {
+                throw new Error(`Error: Comparación de caracteres solo permitida entre literales de un solo carácter.`);
+            }
+            return izq >= der;
+          case '<':
+            if (!tiposValidos.includes(typeof izq) || !tiposValidos.includes(typeof der)) {
+              throw new Error(`Error: Operación no permitida entre tipos ${typeof izq} y ${typeof der}`);
+            }
+            if (typeof izq !== typeof der) {
+                throw new Error(`Error: No se puede comparar tipos diferentes ${typeof izq} y ${typeof der}`);
+            }
+            if (typeof izq === 'string' && izq.length !== 1 && der.length !== 1) {
+                throw new Error(`Error: Comparación de caracteres solo permitida entre literales de un solo carácter.`);
+            }
+            return izq < der;
+          case '<=':
+            if (!tiposValidos.includes(typeof izq) || !tiposValidos.includes(typeof der)) {
+              throw new Error(`Error: Operación no permitida entre tipos ${typeof izq} y ${typeof der}`);
+            }
+            if (typeof izq !== typeof der) {
+                throw new Error(`Error: No se puede comparar tipos diferentes ${typeof izq} y ${typeof der}`);
+            }
+            if (typeof izq === 'string' && izq.length !== 1 && der.length !== 1) {
+                throw new Error(`Error: Comparación de caracteres solo permitida entre literales de un solo carácter.`);
+            }
+            return izq <= der;
+          case '&&':
+            if (typeof izq === 'boolean' && typeof der === 'boolean') {
+              return izq && der;
+            } else {
+                throw new Error(`Error: Operación AND solo se permite entre valores booleanos.`);
+            }
+          case '||':
+            if (typeof izq === 'boolean' && typeof der === 'boolean') {
+              return izq || der;
+            } else {
+                throw new Error(`Error: Operación OR solo se permite entre valores booleanos.`);
+            }
+          case '!':
+            if (typeof izq === 'boolean') {
+              return !izq;
+            } else {
+                throw new Error(`Error: Operación NOT solo se permite sobre un valor booleano.`);
+            }
         default:
           throw new Error(`Operador no soportado: ${node.op}`);
       }
@@ -92,6 +181,32 @@ export class InterpreterVisitor extends BaseVisitor {
     visitAgrupacion(node) {
         return node.exp.accept(this);
     }
+
+        /**
+      * @type {BaseVisitor['visitTipoOf']}
+      */
+        visitTipoOf(node) {
+          const valor = node.exp.accept(this);
+    
+          if (typeof valor === 'number') {
+              if (Number.isInteger(valor)) {
+                  return 'int';
+              } else {
+                  return 'float';
+              }
+          } else if (typeof valor === 'boolean') {
+              return 'bool';
+          } else if (typeof valor === 'string') {
+              if (valor.length === 1) {
+                  return 'char';
+              } else {
+                  return 'string';
+              }
+          } else {
+              // En caso de que el valor no coincida con ninguno de los tipos esperados
+              return 'undefined';
+          }
+      }
 
     /**
       * @type {BaseVisitor['visitNumero']}
@@ -155,7 +270,7 @@ export class InterpreterVisitor extends BaseVisitor {
               valorVariable = true;
               break;
             case 'char':
-              valorVariable = '';
+              valorVariable = '\0';
               break;
             case 'var':
               valorVariable = null;
@@ -191,17 +306,20 @@ export class InterpreterVisitor extends BaseVisitor {
           } else {
             throw new Error(`La variable "${nombreVariable}" debe ser de tipo booleano.`);
           }
-        } else if (tipoInferido === 'char') {
-          if (typeof valorVariable === 'string' && valorVariable.length <= 1) {
+        }else if (tipoInferido === 'char') {
+          if (typeof valorVariable === 'string' && valorVariable.length === 1) {
             this.entornoActual.setVariable(tipoInferido, nombreVariable, valorVariable);
           } else {
-            throw new Error(`La variable "${nombreVariable}" debe ser de tipo carácter.`);
+            throw new Error(`El valor de la variable "${nombreVar}" debe ser de tipo carácter.`);
           }
+        } else if (tipoInferido === 'string' && typeof valor === 'string') {
+          entorno.setVariable(tipoInferido, this.nombre, valor);
         } else if (tipoInferido === 'var') {
           this.entornoActual.setVariable(tipoInferido, nombreVariable, valorVariable);
         } else {
           throw new Error(`Tipo de variable "${tipoInferido}" no válido.`);
         }
+        console.log(this.entornoActual);
       }
   
 
@@ -210,7 +328,7 @@ export class InterpreterVisitor extends BaseVisitor {
      */
     visitCadena(node) {
       // Quitar comillas dobles de la cadena que traen las hojas
-      return node.valor.slice(1, -1);
+      return node.valor;
     }
 
     /**
@@ -218,8 +336,23 @@ export class InterpreterVisitor extends BaseVisitor {
      */
     visitCaracter(node) {
       // Quitar las comillas simples del caracter que traen las hojas
-        return node.valor.slice(1, -1);
+        return node.valor;
     }
+
+        /**
+     * @type {BaseVisitor['visitTernario']}
+     */
+      visitTernario(node) {
+          const condic = node.condicion.accept(this);
+    
+          if (condic) {
+              
+              return node.verdadero.accept(this);
+          }
+          return node.falso.accept(this);
+      
+          }
+    
 
     /**
       * @type {BaseVisitor['visitReferenciaVariable']}
@@ -258,6 +391,18 @@ export class InterpreterVisitor extends BaseVisitor {
     visitExpresionStmt(node) {
         node.exp.accept(this);
     }
+
+        /**
+     * @type {BaseVisitor['visitBloque']}
+     */
+      visitBloque(node) {
+          const entornoAnterior = this.entornoActual;
+          this.entornoActual = new Entorno(entornoAnterior);
+  
+          node.instrucciones.forEach(instruccion => instruccion.accept(this));
+          
+          this.entornoActual = entornoAnterior;
+      }
 
     /**
       * @type {BaseVisitor['visitAsignacionVariable']}

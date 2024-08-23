@@ -14,7 +14,7 @@ export class Entorno {
      */
     setVariable(tipo, nombre, valor) {
         if (this.valores[nombre]) {
-            throw new Error(`La variable ${nombre} ya está definida`);
+            throw new Error(`Variable ${nombre} ya definida`);
         }
         this.valores[nombre] = { tipo, valor };
     }
@@ -49,6 +49,7 @@ export class Entorno {
                 (variable.tipo === 'bool' && typeof valor !== 'boolean')
             ) 
             {
+                
                 throw new Error(`Tipo incorrecto. Se Esperaba: "${variable.tipo}" Para La Variable: "${nombre}"`);
             }
             this.valores[nombre].valor = valor;
@@ -59,6 +60,5 @@ export class Entorno {
             return;
         }
         throw new Error(`La Variable: "${nombre}" No Está Definida.`);
-    }
-    
+    }
 }

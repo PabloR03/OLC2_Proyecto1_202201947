@@ -82,21 +82,46 @@ export class OperacionAritmetica extends Expresion {
     }
 }
     
+export class TipoOf extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.exp typeOf de la operacion
+    */
+    constructor({ exp }) {
+        super();
+        
+        /**
+         * typeOf de la operacion
+         * @type {string}
+        */
+        this.exp = exp;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitTipoOf(this);
+    }
+}
+    
 export class OperacionUnaria extends Expresion {
 
     /**
     * @param {Object} options
-    * @param {Expresion} options.exp Expresion de la operacion
+    * @param {Expresion} options.datos Expresion de la operacion
  * @param {string} options.op Operador de la operacion
     */
-    constructor({ exp, op }) {
+    constructor({ datos, op }) {
         super();
         
         /**
          * Expresion de la operacion
          * @type {Expresion}
         */
-        this.exp = exp;
+        this.datos = datos;
 
 
         /**
@@ -145,8 +170,9 @@ export class Numero extends Expresion {
     /**
     * @param {Object} options
     * @param {number} options.valor Valor del numero
+ * @param {string} options.tipo Tipo del numero
     */
-    constructor({ valor }) {
+    constructor({ valor, tipo }) {
         super();
         
         /**
@@ -154,6 +180,13 @@ export class Numero extends Expresion {
          * @type {number}
         */
         this.valor = valor;
+
+
+        /**
+         * Tipo del numero
+         * @type {string}
+        */
+        this.tipo = tipo;
 
     }
 
@@ -170,8 +203,9 @@ export class Cadena extends Expresion {
     /**
     * @param {Object} options
     * @param {String} options.valor Valor de la cadena
+ * @param {String} options.tipo Tipo de la cadena
     */
-    constructor({ valor }) {
+    constructor({ valor, tipo }) {
         super();
         
         /**
@@ -179,6 +213,13 @@ export class Cadena extends Expresion {
          * @type {String}
         */
         this.valor = valor;
+
+
+        /**
+         * Tipo de la cadena
+         * @type {String}
+        */
+        this.tipo = tipo;
 
     }
 
@@ -195,8 +236,9 @@ export class Caracter extends Expresion {
     /**
     * @param {Object} options
     * @param {String} options.valor Valor del caracter
+ * @param {String} options.tipo Tipo del caracter
     */
-    constructor({ valor }) {
+    constructor({ valor, tipo }) {
         super();
         
         /**
@@ -204,6 +246,13 @@ export class Caracter extends Expresion {
          * @type {String}
         */
         this.valor = valor;
+
+
+        /**
+         * Tipo del caracter
+         * @type {String}
+        */
+        this.tipo = tipo;
 
     }
 
@@ -215,13 +264,55 @@ export class Caracter extends Expresion {
     }
 }
     
+export class Ternario extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.condicion Condicion del ternario
+ * @param {Expresion} options.verdadero Expresion si la condicion es verdadera
+ * @param {Expresion} options.falso Expresion si la condicion es falsa
+    */
+    constructor({ condicion, verdadero, falso }) {
+        super();
+        
+        /**
+         * Condicion del ternario
+         * @type {Expresion}
+        */
+        this.condicion = condicion;
+
+
+        /**
+         * Expresion si la condicion es verdadera
+         * @type {Expresion}
+        */
+        this.verdadero = verdadero;
+
+
+        /**
+         * Expresion si la condicion es falsa
+         * @type {Expresion}
+        */
+        this.falso = falso;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitTernario(this);
+    }
+}
+    
 export class Decimal extends Expresion {
 
     /**
     * @param {Object} options
     * @param {float} options.valor Valor del decimal
+ * @param {string} options.tipo Tipo del decimal
     */
-    constructor({ valor }) {
+    constructor({ valor, tipo }) {
         super();
         
         /**
@@ -229,6 +320,13 @@ export class Decimal extends Expresion {
          * @type {float}
         */
         this.valor = valor;
+
+
+        /**
+         * Tipo del decimal
+         * @type {string}
+        */
+        this.tipo = tipo;
 
     }
 
@@ -245,8 +343,9 @@ export class Booleanos extends Expresion {
     /**
     * @param {Object} options
     * @param {boolean} options.valor Valor del booleano
+ * @param {string} options.tipo Tipo del booleano
     */
-    constructor({ valor }) {
+    constructor({ valor, tipo }) {
         super();
         
         /**
@@ -254,6 +353,13 @@ export class Booleanos extends Expresion {
          * @type {boolean}
         */
         this.valor = valor;
+
+
+        /**
+         * Tipo del booleano
+         * @type {string}
+        */
+        this.tipo = tipo;
 
     }
 
@@ -381,6 +487,31 @@ export class Print extends Expresion {
     }
 }
     
+export class Bloque extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion[]} options.instrucciones Sentencias dentro del bloque
+    */
+    constructor({ instrucciones }) {
+        super();
+        
+        /**
+         * Sentencias dentro del bloque
+         * @type {Expresion[]}
+        */
+        this.instrucciones = instrucciones;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitBloque(this);
+    }
+}
+    
 export class ExpresionStmt extends Expresion {
 
     /**
@@ -439,4 +570,4 @@ export class AsignacionVariable extends Expresion {
     }
 }
     
-export default { Expresion, OperacionAritmetica, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, AsignacionVariable }
+export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Bloque, ExpresionStmt, AsignacionVariable }

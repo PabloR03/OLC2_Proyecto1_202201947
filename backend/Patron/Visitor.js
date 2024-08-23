@@ -7,6 +7,9 @@
  * @typedef {import('../Hojas/Hojas.js').OperacionAritmetica} OperacionAritmetica
 
 
+ * @typedef {import('../Hojas/Hojas.js').TipoOf} TipoOf
+
+
  * @typedef {import('../Hojas/Hojas.js').OperacionUnaria} OperacionUnaria
 
 
@@ -20,6 +23,9 @@
 
 
  * @typedef {import('../Hojas/Hojas.js').Caracter} Caracter
+
+
+ * @typedef {import('../Hojas/Hojas.js').Ternario} Ternario
 
 
  * @typedef {import('../Hojas/Hojas.js').Decimal} Decimal
@@ -38,6 +44,9 @@
 
 
  * @typedef {import('../Hojas/Hojas.js').Print} Print
+
+
+ * @typedef {import('../Hojas/Hojas.js').Bloque} Bloque
 
 
  * @typedef {import('../Hojas/Hojas.js').ExpresionStmt} ExpresionStmt
@@ -70,6 +79,15 @@ export class BaseVisitor {
      */
     visitOperacionAritmetica(node) {
         throw new Error('Metodo visitOperacionAritmetica no implementado');
+    }
+    
+
+    /**
+     * @param {TipoOf} node
+     * @returns {any}
+     */
+    visitTipoOf(node) {
+        throw new Error('Metodo visitTipoOf no implementado');
     }
     
 
@@ -115,6 +133,15 @@ export class BaseVisitor {
      */
     visitCaracter(node) {
         throw new Error('Metodo visitCaracter no implementado');
+    }
+    
+
+    /**
+     * @param {Ternario} node
+     * @returns {any}
+     */
+    visitTernario(node) {
+        throw new Error('Metodo visitTernario no implementado');
     }
     
 
@@ -169,6 +196,15 @@ export class BaseVisitor {
      */
     visitPrint(node) {
         throw new Error('Metodo visitPrint no implementado');
+    }
+    
+
+    /**
+     * @param {Bloque} node
+     * @returns {any}
+     */
+    visitBloque(node) {
+        throw new Error('Metodo visitBloque no implementado');
     }
     
 
