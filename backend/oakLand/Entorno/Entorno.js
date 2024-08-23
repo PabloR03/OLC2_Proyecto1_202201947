@@ -46,7 +46,7 @@ export class Entorno {
                 (variable.tipo === 'float' && typeof valor !== 'number') ||
                 (variable.tipo === 'string' && typeof valor !== 'string') ||
                 (variable.tipo === 'char' && (typeof valor !== 'string' || valor.length !== 1)) ||
-                (variable.tipo === 'bool' && typeof valor !== 'boolean')
+                (variable.tipo === 'bolean' && typeof valor !== 'boolean')
             ) 
             {
                 

@@ -18,7 +18,10 @@ const crearHoja = (tipoHoja, props) =>{
         'asignacionVariable': hojas.AsignacionVariable, 
         'bloque': hojas.Bloque,
         'tipoOf': hojas.TipoOf,
-        'ternario': hojas.Ternario
+        'ternario': hojas.Ternario,
+        'if': hojas.If,
+        'while': hojas.While,
+        'for': hojas.For
     }
 
     const nodo = new tipos[tipoHoja](props)
@@ -31,13 +34,17 @@ programa = _ inst:instrucciones* _ {return inst}
 
 Bloque = _ "{" _ instrucciones:instrucciones* _ "}" _ {return crearHoja('bloque', {instrucciones})}
 
-instrucciones = declaracionVariable:declaracionVariable {return declaracionVariable}
+instrucciones =  declaracionVariable:declaracionVariable {return declaracionVariable}
                 / sentencia:Sentencias {return sentencia}
                 
 
-Sentencias =    prt:print {return prt} 
-                / bloque:Bloque {return bloque}
-                / asignacion:AsignacionVariable {return asignacion}
+Sentencias = prt:print {return prt} 
+            / bloque:Bloque {return bloque}
+            / ifs:If {return ifs}
+            / whiles:While {return whiles}
+            / fors:For {return fors}
+            / asignacion:AsignacionVariable {return asignacion}
+
 
 expresion = arit:Ternario {return arit}
             / boolean:Booleanos {return boolean}
@@ -51,12 +58,23 @@ expresion = arit:Ternario {return arit}
 
 Typeof = "typeof" _ exp:expresion _ {return crearHoja('tipoOf', {exp})}
 
+If = "if" _ "(" _ cond:expresion _ ")" _ verdad:Sentencias 
+            falso:(
+            _ "else" _ falso:Sentencias 
+            { return falso } )? 
+            { return crearHoja('if', { cond, verdad, falso}) }
+
+While = _ "while" _ "(" _ cond:expresion _ ")" _ bloques:Bloque 
+        { return crearHoja('while', { cond, bloques }) }
+
+For = "for" _ "("_ vars:instrucciones _ cond:expresion _ ";" _ incremento:expresion _ ")" _ sentencia:Sentencias { return crearHoja('for', { vars, cond, incremento, sentencia }) }
 
 declaracionVariable = _ tipoVar:tipoVariable _ id:identificador _ "=" _ exp:expresion _ ";" _  {return crearHoja('declaracionVariable', {tipoVar, id, exp})}
     / _ tipoVar:tipoVariable _ id:identificador _ ";" _ {return crearHoja('declaracionVariable', {tipoVar, id})}
     / _ "var" _ id:identificador _ "=" _ exp:expresion _ ";" _ {return crearHoja('declaracionVariable', {tipoVar: 'var', id, exp})}
 
 AsignacionVariable =  _ id:identificador _ "=" _ exp:expresion _ ";" _ {return crearHoja('asignacionVariable', {id, exp})}
+        / _ id:identificador _ op:("+="/"-=")_ exp:expresion _ ";" _ { return crearHoja('asignacionVariable', { id, exp: crearHoja('aritmetica', { op, izq: crearHoja('referenciaVariable', { id }) , der: exp }) }) }
 
 print = _ "print" _ "(" _ exp:expresion _ ")" _ ";" _ {return crearHoja('print', {exp})}
 
@@ -64,11 +82,10 @@ Agrupacion = _ "(" _ exp:expresion _ ")"_ {return crearHoja('agrupacion', {exp})
 
 referenciaVariable = id:identificador {return crearHoja('referenciaVariable', {id})}
 
-
 tipoVariable = "int" {return text()}
                 / "float" {return text()}
                 / "string" {return text()}
-                / "bool" {return text()}
+                / "boolean" {return "bolean"}
                 / "char" {return text()}
                 / "var" {return text()}
 
@@ -141,6 +158,7 @@ Multiplicacion = izq:Unaria expansion:( _ op:("*" / "/" / "%") _ der:Unaria {ret
     )
 }
 Unaria = "-" _ datos:Datos {return crearHoja('unaria', {op: '-', datos: datos})}
+    /id:identificador _ op:("++"/"--")_ { return crearNodo('asignacionVariable', { id, exp: crearNodo('unaria', { op, datos: crearNodo('referenciaVariable', { id }) }) }) }
         / Datos 
 
 // Regla principal para ignorar espacios en blanco y comentarios
@@ -169,7 +187,14 @@ Numero = [0-9]+                     {return crearHoja('numero', {valor: parseInt
 Caracter = "'" carac:[\x00-\x7F] "'"  {return crearHoja('caracter', {valor: carac})}
 Booleanos = "true" { return crearHoja('booleanos', { valor: true }); }
             / "false" { return crearHoja('booleanos', { valor: false }); }
-Cadena = "\"" [a-zA-Z0-9_]* "\""    {return crearHoja('cadena', {valor: text()})}
+Cadena = "\"" contenido:[^"]* "\""{ var text = contenido.join(''); 
+            text = text.replace(/\\n/g, "\n");
+            text = text.replace(/\\\\/g, "\\");
+            text = text.replace(/\\\"/g,"\"");
+            text = text.replace(/\\r/g, "\r");
+            text = text.replace(/\\t/g, "\t");
+            text = text.replace(/\\\'/g, "'");
+            return crearHoja('cadena', {valor: text});}
 
 
 

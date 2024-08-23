@@ -25,6 +25,33 @@ export class InterpreterVisitor extends BaseVisitor {
       const esEntero = (num) => Number.isInteger(num);
     
       switch (node.op) {
+        case '+=': 
+        if (typeof izq === 'number' && typeof der === 'number') {
+          if (Number.isInteger(izq) && Number.isInteger(der)) {
+              return parseInt(izq + der);
+          } else if (!Number.isInteger(izq)) {
+              return parseFloat(izq + der);
+          } else if (Number.isInteger(izq) && !Number.isInteger(der)) {
+              throw new Error(`Error: No se puede realizar la operación 'int += float'.`);
+          }
+        } else if (typeof izq === 'string' && typeof der === 'string') {
+            return izq + der;
+        } else {
+            throw new Error(`Error: Operación no permitida entre tipos ${typeof izq} y ${typeof der}`);
+        }
+        case '-=': 
+        if (typeof izq === 'number' && typeof der === 'number') {
+          if (Number.isInteger(izq) && Number.isInteger(der)) {
+              return parseInt(izq - der);
+          } else if (!Number.isInteger(izq)) {
+              return parseFloat(izq - der);
+          } else if (Number.isInteger(izq) && !Number.isInteger(der)) {
+              throw new Error(`Error: No se puede realizar la operación 'int -= float'. La variable 'var1' es de tipo int.`);
+          }
+          } else {
+          throw new Error(`Error: Operación no permitida entre tipos ${typeof izq} y ${typeof der}`);
+          }
+
         case '+':
           if (typeof izq === 'number' && typeof der === 'number') {
             // Suma de números
@@ -93,7 +120,7 @@ export class InterpreterVisitor extends BaseVisitor {
                 return izq.localeCompare(der) !== 0;
             } else {
                 return izq !== der;
-            }
+          }
           case '>':
             if (!tiposValidos.includes(typeof izq) || !tiposValidos.includes(typeof der)) {
                 throw new Error(`Error: Operación no permitida entre tipos ${typeof izq} y ${typeof der}`);
@@ -162,6 +189,50 @@ export class InterpreterVisitor extends BaseVisitor {
     }
 
     /**
+      * @type {BaseVisitor['visitIf']}
+      */
+
+
+    visitIf(node) {
+      const condicion = node.cond.accept(this);
+      if (condicion) {
+          node.verdad.accept(this);
+          return;
+      }
+      if (node.falso) {
+          node.falso.accept(this);
+        }
+    }
+
+/**
+      * @type {BaseVisitor['visitWhile']}
+      */
+    visitWhile(node) {
+      while (node.cond.accept(this)) {
+          node.bloques.accept(this);
+      }
+    }
+
+    /**
+     * @type {BaseVisitor['visitFor']}
+     */
+    visitFor(node) {
+      const entornoAnterior = this.entornoActual
+      this.entornoActual = new Entorno(entornoAnterior)
+      // Visitar la inicialización
+      node.init.accept(this);
+
+      while(node.cond.accept(this)){
+          // Visitar el cuerpo
+          node.sentencia.accept(this);
+          // Visitar la actualización
+          node.incremento.accept(this);
+      }    
+      this.entornoActual = entornoAnterior
+    }
+
+
+    /**
       * @type {BaseVisitor['visitOperacionUnaria']}
       */
     visitOperacionUnaria(node) {
@@ -195,7 +266,7 @@ export class InterpreterVisitor extends BaseVisitor {
                   return 'float';
               }
           } else if (typeof valor === 'boolean') {
-              return 'bool';
+              return 'bolean';
           } else if (typeof valor === 'string') {
               if (valor.length === 1) {
                   return 'char';
@@ -247,7 +318,7 @@ export class InterpreterVisitor extends BaseVisitor {
               } else {
                 tipoInferido = 'string';
               }
-            } else if (typeof valorVariable === 'bool') {
+            } else if (typeof valorVariable === 'bolean') {
               tipoInferido = 'boolean';
             } else {
               throw new Error(`No se puede determinar el tipo de la variable "${nombreVariable}".`);
@@ -266,7 +337,7 @@ export class InterpreterVisitor extends BaseVisitor {
             case 'string':
               valorVariable = '';
               break;
-            case 'bool':
+            case 'bolean':
               valorVariable = true;
               break;
             case 'char':
@@ -300,7 +371,7 @@ export class InterpreterVisitor extends BaseVisitor {
           } else {
             throw new Error(`La variable "${nombreVariable}" debe ser de tipo cadena de texto.`);
           }
-        } else if (tipoInferido === 'bool') {
+        } else if (tipoInferido === 'bolean') {
           if (typeof valorVariable === 'boolean') {
             this.entornoActual.setVariable(tipoInferido, nombreVariable, valorVariable);
           } else {

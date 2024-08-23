@@ -28,6 +28,15 @@
  * @typedef {import('../Hojas/Hojas.js').Ternario} Ternario
 
 
+ * @typedef {import('../Hojas/Hojas.js').If} If
+
+
+ * @typedef {import('../Hojas/Hojas.js').While} While
+
+
+ * @typedef {import('../Hojas/Hojas.js').For} For
+
+
  * @typedef {import('../Hojas/Hojas.js').Decimal} Decimal
 
 
@@ -142,6 +151,33 @@ export class BaseVisitor {
      */
     visitTernario(node) {
         throw new Error('Metodo visitTernario no implementado');
+    }
+    
+
+    /**
+     * @param {If} node
+     * @returns {any}
+     */
+    visitIf(node) {
+        throw new Error('Metodo visitIf no implementado');
+    }
+    
+
+    /**
+     * @param {While} node
+     * @returns {any}
+     */
+    visitWhile(node) {
+        throw new Error('Metodo visitWhile no implementado');
+    }
+    
+
+    /**
+     * @param {For} node
+     * @returns {any}
+     */
+    visitFor(node) {
+        throw new Error('Metodo visitFor no implementado');
     }
     
 

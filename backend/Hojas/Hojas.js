@@ -305,6 +305,129 @@ export class Ternario extends Expresion {
     }
 }
     
+export class If extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.cond Condicion del if
+ * @param {Expresion} options.verdad Cuerpo del if
+ * @param {Expresion|undefined} options.falso Cuerpo del else
+    */
+    constructor({ cond, verdad, falso }) {
+        super();
+        
+        /**
+         * Condicion del if
+         * @type {Expresion}
+        */
+        this.cond = cond;
+
+
+        /**
+         * Cuerpo del if
+         * @type {Expresion}
+        */
+        this.verdad = verdad;
+
+
+        /**
+         * Cuerpo del else
+         * @type {Expresion|undefined}
+        */
+        this.falso = falso;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitIf(this);
+    }
+}
+    
+export class While extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.cond Condicion del while
+ * @param {Expresion} options.bloques Cuerpo del while
+    */
+    constructor({ cond, bloques }) {
+        super();
+        
+        /**
+         * Condicion del while
+         * @type {Expresion}
+        */
+        this.cond = cond;
+
+
+        /**
+         * Cuerpo del while
+         * @type {Expresion}
+        */
+        this.bloques = bloques;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitWhile(this);
+    }
+}
+    
+export class For extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.vars Inicializacion del for
+ * @param {Expresion} options.cond Condicion del for
+ * @param {Expresion} options.incremento Incremento del for
+ * @param {Expresion} options.sentencia Cuerpo del for
+    */
+    constructor({ vars, cond, incremento, sentencia }) {
+        super();
+        
+        /**
+         * Inicializacion del for
+         * @type {Expresion}
+        */
+        this.vars = vars;
+
+
+        /**
+         * Condicion del for
+         * @type {Expresion}
+        */
+        this.cond = cond;
+
+
+        /**
+         * Incremento del for
+         * @type {Expresion}
+        */
+        this.incremento = incremento;
+
+
+        /**
+         * Cuerpo del for
+         * @type {Expresion}
+        */
+        this.sentencia = sentencia;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitFor(this);
+    }
+}
+    
 export class Decimal extends Expresion {
 
     /**
@@ -570,4 +693,4 @@ export class AsignacionVariable extends Expresion {
     }
 }
     
-export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Bloque, ExpresionStmt, AsignacionVariable }
+export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Bloque, ExpresionStmt, AsignacionVariable }
