@@ -1,13 +1,18 @@
 import { BaseVisitor } from './Patron/Visitor.js';
 import { Entorno } from './oakLand/Entorno/Entorno.js';
 import { BreakException, ContinueException } from './oakLand/Instrucciones/Transferencia.js';
+import { Invocable } from './oakLand/Instrucciones/Invocaciones.js';
+import { Embebidas } from './oakLand/Instrucciones/funEmbebidas.js';
 
 export class InterpreterVisitor extends BaseVisitor {
-
     constructor() {
         super();
         this.entornoActual = new Entorno();
+        Object.entries(Embebidas).forEach(([nombre, funcion]) => {
+          this.entornoActual.setVariable('funcion', nombre, funcion);
+        });
         this.salida = '';
+
     }
 
     interpretar(nodo) {
@@ -263,13 +268,6 @@ visitAsignacionVariable(node) {
   return valor;
 }
 
-/**
-* @type {BaseVisitor['visitPrint']}
-*/
-visitPrint(node) {
-  const valor = node.exp.accept(this).valor;
-  this.salida += valor + '\n';
-}
 //////////////////////////////////////////// MENORES AUXILIARES ////////////////////////////////////////////
 
 /**
@@ -496,5 +494,23 @@ visitReturn(node) {
   throw new ReturnException(valor);
 }
 
+//////////////////////////////////////////// FUNCIONES ////////////////////////////////////////////
 
+/**
+ * @type {BaseVisitor['visitLlamada']}
+ */
+
+visitLlamada(node) {
+  const funcion = node.call.accept(this);
+  const argumentos = node.argumentos.map(arg => arg.accept(this));
+  if (!(funcion instanceof Invocable)) {
+      throw new Error(`La variable "${node.call.id}" no es invocable`);
+  }
+  if (funcion.aridad() !== argumentos.length) {
+      throw new Error(`La función espera ${funcion.aridad()} argumentos, pero se recibieron ${argumentos.length}`);
+  }
+  return funcion.invocar(this, argumentos);
+    } 
 }
+
+

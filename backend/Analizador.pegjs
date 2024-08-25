@@ -24,8 +24,9 @@ const crearHoja = (tipoHoja, props) =>{
         'switch': hojas.Switch,
         'break': hojas.Break,
         'continue': hojas.Continue,
-        'return': hojas.Return
-    }
+        'return': hojas.Return,
+        'llamada': hojas.Llamada,
+        }
 
     const nodo = new tipos[tipoHoja](props)
     nodo.location = location()
@@ -56,6 +57,7 @@ Sentencias = ifs:If {return ifs}
 
 expresion = arit:Ternario {return arit}
             / boolean:Booleanos {return boolean}
+            / parseint:ParseInt {return parseint}
             / tipoOf:Typeof {return tipoOf}
             / agrupacion:Agrupacion {return agrupacion}
             / referenciaVariable:referenciaVariable {return referenciaVariable}
@@ -64,6 +66,10 @@ expresion = arit:Ternario {return arit}
             / numero:Numero {return numero}
 
 Typeof = _ "typeof" _ exp:expresion _ {return crearHoja('tipoOf', {exp})}
+
+ParseInt = _ "parseInt" _ "(" _ exp:expresion _ ")" _ {
+    return crearHoja('parseInt', {exp})
+}
 
 If = "if" _ "(" _ cond:expresion _ ")" _ verdad:Sentencias 
     falso:(
@@ -188,10 +194,13 @@ Multiplicacion = izq:Unaria expansion:( _ op:("*" / "/" / "%") _ der:Unaria {ret
         izq
     )
 }
-Unaria = ("-") _ datos:Datos {return crearHoja('unaria', {op: ('-'), datos: datos})}
+Unaria = ("-") _ datos:Unaria {return crearHoja('unaria', {op: ('-'), datos: datos})}
+    / Llamada 
     / id:identificador _ op:("++"/"--")_ { return crearHoja('asignacionVariable', { id, exp: crearHoja('unaria', { op, datos: crearHoja('referenciaVariable', { id }) }) }) }
     /("!") _ datos:Datos {return crearHoja('unaria', {op: ('!'), datos: datos})}
-    / Datos 
+
+Llamada = call:Datos _ params:("(" argumentos:expresiones? ")" { return argumentos })* {return params.reduce((call, argumentos) => {return crearHoja('llamada', { call, argumentos: argumentos || [] })}, call)}
+
 
 // Regla principal para ignorar espacios en blanco y comentarios
 _ "whitespace" = (whitespace / comment)*
