@@ -100,8 +100,10 @@ export function inicializarInterprete() {
             sentencias.forEach(sentencia => sentencia.accept(interprete));
             txtSalida.value = interprete.salida;
         } catch (error) {
-            txtSalida.value = "Error: " + error.message;
-            console.error("Error al ejecutar:", error);
+            console.log(JSON.stringify(error, null, 2));
+            //txtSalida.innerHTML = "Error: "+ error.message + "En Linea: " + error.location.start.line + " Columna: " + error.location.start.column;
+            console.error("Error:", error);
+
             lastAST = null;
         }
         actualizarNumLineas(txtSalida, nlSalida);

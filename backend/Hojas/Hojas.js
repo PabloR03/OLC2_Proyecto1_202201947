@@ -351,9 +351,9 @@ export class While extends Expresion {
     /**
     * @param {Object} options
     * @param {Expresion} options.cond Condicion del while
- * @param {Expresion} options.bloques Cuerpo del while
+ * @param {Expresion} options.sentencias Cuerpo del while
     */
-    constructor({ cond, bloques }) {
+    constructor({ cond, sentencias }) {
         super();
         
         /**
@@ -367,7 +367,7 @@ export class While extends Expresion {
          * Cuerpo del while
          * @type {Expresion}
         */
-        this.bloques = bloques;
+        this.sentencias = sentencias;
 
     }
 
@@ -383,19 +383,19 @@ export class For extends Expresion {
 
     /**
     * @param {Object} options
-    * @param {Expresion} options.vars Inicializacion del for
+    * @param {Expresion} options.init Inicializacion del for
  * @param {Expresion} options.cond Condicion del for
- * @param {Expresion} options.incremento Incremento del for
- * @param {Expresion} options.sentencia Cuerpo del for
+ * @param {Expresion} options.inc Incremento del for
+ * @param {Expresion} options.sentencias Cuerpo del for
     */
-    constructor({ vars, cond, incremento, sentencia }) {
+    constructor({ init, cond, inc, sentencias }) {
         super();
         
         /**
          * Inicializacion del for
          * @type {Expresion}
         */
-        this.vars = vars;
+        this.init = init;
 
 
         /**
@@ -409,14 +409,14 @@ export class For extends Expresion {
          * Incremento del for
          * @type {Expresion}
         */
-        this.incremento = incremento;
+        this.inc = inc;
 
 
         /**
          * Cuerpo del for
          * @type {Expresion}
         */
-        this.sentencia = sentencia;
+        this.sentencias = sentencias;
 
     }
 
@@ -428,22 +428,118 @@ export class For extends Expresion {
     }
 }
     
+export class Break extends Expresion {
+
+    /**
+    * @param {Object} options
+    * 
+    */
+    constructor() {
+        super();
+        
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitBreak(this);
+    }
+}
+    
+export class Continue extends Expresion {
+
+    /**
+    * @param {Object} options
+    * 
+    */
+    constructor() {
+        super();
+        
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitContinue(this);
+    }
+}
+    
+export class Return extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion|undefined} options.exp Expresion a retornar
+    */
+    constructor({ exp }) {
+        super();
+        
+        /**
+         * Expresion a retornar
+         * @type {Expresion|undefined}
+        */
+        this.exp = exp;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitReturn(this);
+    }
+}
+    
+export class Llamada extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.call Expresion a llamar
+ * @param {Expresion[]} options.argumentos Argumentos de la llamada
+    */
+    constructor({ call, argumentos }) {
+        super();
+        
+        /**
+         * Expresion a llamar
+         * @type {Expresion}
+        */
+        this.call = call;
+
+
+        /**
+         * Argumentos de la llamada
+         * @type {Expresion[]}
+        */
+        this.argumentos = argumentos;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitLlamada(this);
+    }
+}
+    
 export class Switch extends Expresion {
 
     /**
     * @param {Object} options
-    * @param {Expresion} options.exp Condicion del case
+    * @param {Expresion} options.expre Condicion del case
  * @param {Expresion} options.cases Cuerpo del case
  * @param {Expresion} options.def Cuerpo del default
     */
-    constructor({ exp, cases, def }) {
+    constructor({ expre, cases, def }) {
         super();
         
         /**
          * Condicion del case
          * @type {Expresion}
         */
-        this.exp = exp;
+        this.expre = expre;
 
 
         /**
@@ -734,4 +830,4 @@ export class AsignacionVariable extends Expresion {
     }
 }
     
-export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, Switch, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Bloque, ExpresionStmt, AsignacionVariable }
+export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, Break, Continue, Return, Llamada, Switch, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Bloque, ExpresionStmt, AsignacionVariable }
