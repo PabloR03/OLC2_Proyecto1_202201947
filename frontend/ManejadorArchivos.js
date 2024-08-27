@@ -93,6 +93,7 @@ export function inicializarInterprete() {
     function ejecutarCodigo() {
         const codigo = txtEntrada.value;
         try {
+            //txtSalida.value = '';
             const sentencias = parse(codigo);
             // ast.innerHTML = JSON.stringify(sentencias, null, 2); // Asegúrate de que `ast` esté correctamente definido en el DOM.
             const interprete = new InterpreterVisitor();
@@ -100,8 +101,9 @@ export function inicializarInterprete() {
             sentencias.forEach(sentencia => sentencia.accept(interprete));
             txtSalida.value = interprete.salida;
         } catch (error) {
+            //txtSalida.value = '';
             console.log(JSON.stringify(error, null, 2));
-            //txtSalida.innerHTML = "Error: "+ error.message + "En Linea: " + error.location.start.line + " Columna: " + error.location.start.column;
+            txtSalida.innerHTML = "Error: "+ error.message;
             console.error("Error:", error);
 
             lastAST = null;
