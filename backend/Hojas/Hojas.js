@@ -780,6 +780,294 @@ export class Embebidas extends Expresion {
     }
 }
     
+export class DeclaracionArreglo extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.tipo Tipo de los elementos del arreglo
+ * @param {Expresion} options.id Identificador del arreglo
+ * @param {Expresion} options.valores Valores del arreglo
+    */
+    constructor({ tipo, id, valores }) {
+        super();
+        
+        /**
+         * Tipo de los elementos del arreglo
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+
+        /**
+         * Identificador del arreglo
+         * @type {Expresion}
+        */
+        this.id = id;
+
+
+        /**
+         * Valores del arreglo
+         * @type {Expresion}
+        */
+        this.valores = valores;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDeclaracionArreglo(this);
+    }
+}
+    
+export class Declaracion2Arreglo extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.tipo1 Tipo de los elementos del arreglo
+ * @param {Expresion} options.id Identificador del arreglo
+ * @param {string} options.tipo2 Tipo de los elementos del arreglo
+ * @param {Expresion} options.numero Tamaño del arreglo
+    */
+    constructor({ tipo1, id, tipo2, numero }) {
+        super();
+        
+        /**
+         * Tipo de los elementos del arreglo
+         * @type {string}
+        */
+        this.tipo1 = tipo1;
+
+
+        /**
+         * Identificador del arreglo
+         * @type {Expresion}
+        */
+        this.id = id;
+
+
+        /**
+         * Tipo de los elementos del arreglo
+         * @type {string}
+        */
+        this.tipo2 = tipo2;
+
+
+        /**
+         * Tamaño del arreglo
+         * @type {Expresion}
+        */
+        this.numero = numero;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDeclaracion2Arreglo(this);
+    }
+}
+    
+export class Declaracion3Arreglo extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.tipo Tipo de los elementos del arreglo
+ * @param {Expresion} options.id1 Identificador del arreglo
+ * @param {string} options.id2 Valor del arreglo
+    */
+    constructor({ tipo, id1, id2 }) {
+        super();
+        
+        /**
+         * Tipo de los elementos del arreglo
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+
+        /**
+         * Identificador del arreglo
+         * @type {Expresion}
+        */
+        this.id1 = id1;
+
+
+        /**
+         * Valor del arreglo
+         * @type {string}
+        */
+        this.id2 = id2;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDeclaracion3Arreglo(this);
+    }
+}
+    
+export class IndexArreglo extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador del arreglo
+ * @param {Expresion} options.index Indice a buscar
+    */
+    constructor({ id, index }) {
+        super();
+        
+        /**
+         * Identificador del arreglo
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Indice a buscar
+         * @type {Expresion}
+        */
+        this.index = index;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitIndexArreglo(this);
+    }
+}
+    
+export class JoinArreglo extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Expresiones a unir
+    */
+    constructor({ id }) {
+        super();
+        
+        /**
+         * Expresiones a unir
+         * @type {string}
+        */
+        this.id = id;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitJoinArreglo(this);
+    }
+}
+    
+export class LengthArreglo extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Expresiones a unir
+    */
+    constructor({ id }) {
+        super();
+        
+        /**
+         * Expresiones a unir
+         * @type {string}
+        */
+        this.id = id;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitLengthArreglo(this);
+    }
+}
+    
+export class AccesoArreglo extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador del arreglo
+ * @param {Expresion} options.index Indice a buscar
+    */
+    constructor({ id, index }) {
+        super();
+        
+        /**
+         * Identificador del arreglo
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Indice a buscar
+         * @type {Expresion}
+        */
+        this.index = index;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitAccesoArreglo(this);
+    }
+}
+    
+export class AsignacionArreglo extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador del arreglo
+ * @param {Expresion} options.index Indice a buscar
+ * @param {Expresion} options.valor Valor a asignar
+    */
+    constructor({ id, index, valor }) {
+        super();
+        
+        /**
+         * Identificador del arreglo
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Indice a buscar
+         * @type {Expresion}
+        */
+        this.index = index;
+
+
+        /**
+         * Valor a asignar
+         * @type {Expresion}
+        */
+        this.valor = valor;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitAsignacionArreglo(this);
+    }
+}
+    
 export class Bloque extends Expresion {
 
     /**
@@ -863,4 +1151,4 @@ export class AsignacionVariable extends Expresion {
     }
 }
     
-export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, Break, Continue, Return, Llamada, Switch, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Embebidas, Bloque, ExpresionStmt, AsignacionVariable }
+export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, Break, Continue, Return, Llamada, Switch, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Embebidas, DeclaracionArreglo, Declaracion2Arreglo, Declaracion3Arreglo, IndexArreglo, JoinArreglo, LengthArreglo, AccesoArreglo, AsignacionArreglo, Bloque, ExpresionStmt, AsignacionVariable }

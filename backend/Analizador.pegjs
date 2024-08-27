@@ -27,6 +27,14 @@ const crearHoja = (tipoHoja, props) =>{
         'return': hojas.Return,
         'llamada': hojas.Llamada,
         'Embebida': hojas.Embebidas,
+        'declaracionArreglo': hojas.DeclaracionArreglo,
+        'declaracion2Arreglo': hojas.Declaracion2Arreglo,
+        'declaracion3Arreglo': hojas.Declaracion3Arreglo,
+        'indexArreglo': hojas.IndexArreglo,
+        'joinArreglo': hojas.JoinArreglo,
+        'lenghtArreglo': hojas.LengthArreglo,
+        'accesoArreglo': hojas.AccesoArreglo,
+        'asignacionArreglo': hojas.AsignacionArreglo
         }
 
     const nodo = new tipos[tipoHoja](props)
@@ -47,6 +55,7 @@ Sentencias = ifs:If {return ifs}
             / prt:print {return prt} 
             / bloque:Bloque {return bloque}
             / asignacion:AsignacionVariable {return asignacion}
+            / asignarArreglo:AsignarArreglos {return asignarArreglo}
             / switchs:Switch {return switchs}
             / whiles:While {return whiles}
             / fors:For {return fors}
@@ -54,7 +63,6 @@ Sentencias = ifs:If {return ifs}
             / continues:Continue {return continues}
             / returns:Return {return returns}
             / ExpressionStatement
-
 
 expresion = arit:Ternario {return arit}
             / boolean:Booleanos {return boolean}
@@ -77,7 +85,6 @@ If = "if" _ "(" _ cond:expresion _ ")" _ verdad:Sentencias
     _ "else" _ falso:Sentencias 
     { return falso } )? 
     { return crearHoja('if', { cond, verdad, falso}) }
-
 
 While = "while" _ "(" _ cond:expresion _ ")" _ sentencias:Sentencias { return crearHoja('while', { cond, sentencias }) }
 
@@ -102,7 +109,19 @@ ExpressionStatement = exp:expresion _ ";" _ { return crearHoja('expresionStmt', 
 
 declaracionVariable = _ tipoVar:tipoVariable _ id:identificador _ "=" _ exp:expresion _ ";" _  {return crearHoja('declaracionVariable', {tipoVar, id, exp})}
     / _ tipoVar:tipoVariable _ id:identificador _ ";" _ {return crearHoja('declaracionVariable', {tipoVar, id})}
+    / _ arreglo:Arreglo _ {return arreglo}
     // _ "var" _ id:identificador _ "=" _ exp:expresion _ ";" _ {return crearHoja('declaracionVariable', {tipoVar: 'var', id, exp})}
+
+Arreglo = tipo:tipoVariable _ "[]" _ id:identificador _ "=" _ valores:Contenido _ ";" _ {return crearHoja('declaracionArreglo', {tipo, id, valores})}
+        /tipo1:tipoVariable _ "[]" _ id:identificador _ "=" _ "new" _ tipo2:tipoVariable _ "[" _ numero:expresion _ "]" _ ";" _ {return crearHoja('declaracion2Arreglo', {tipo1, id, tipo2, numero})}
+        /tipo:tipoVariable _ "[]" _ id1:identificador _ "=" _ id2:identificador _ ";" _ {return crearHoja('declaracion3Arreglo', {tipo, id1, id2})}
+
+Contenido = "{" _ valores:Contenidos _ "}" {return valores}
+
+Contenidos = expresion1:expresion _ valores:("," _ expresion:expresion {return expresion})* 
+            {return [expresion1, ...valores]}
+
+AsignarArreglos = id:identificador _ "[" _ index:expresion _ "]" _ "=" _ valor:expresion _ ";" _ {return crearHoja('asignacionArreglo', { id, index, valor })}
 
 AsignacionVariable =  _ id:identificador _ "=" _ exp:expresion _ ";" _ { return crearHoja('asignacionVariable', { id, exp }) }
     / _ id:identificador _ op:("++" / "--") _ ";" _ { return crearHoja('asignacionVariable', { id, exp: crearHoja('unaria', { op, datos: crearHoja('referenciaVariable', { id }) }) }) }
@@ -200,6 +219,10 @@ Unaria = ("-") _ datos:Unaria {return crearHoja('unaria', {op: ('-'), datos: dat
     /("!") _ datos:Datos {return crearHoja('unaria', {op: ('!'), datos: datos})}
     / embe:("typeof") _ expresion:Datos {return crearHoja('Embebida', {Nombre: embe, Argumento: expresion})}
     / embe:("toString")"(" _ expresion:Datos _ ")" _ {return crearHoja('Embebida', {Nombre: embe, Argumento: expresion})}
+    / id:identificador _ ".indexOf" _ "(" _ index:Datos _ ")" {return crearHoja('indexArreglo', {id, index})}
+    / id:identificador _ ".join()" {return crearHoja('joinArreglo', {id})}
+    / id:identificador _ ".length" {return crearHoja('lenghtArreglo', {id})}
+    / id:identificador _ "[" _ index:Datos _ "]" {return crearHoja('accesoArreglo', {id, index})}
     / Llamada 
 
 Llamada = call:Datos _ params:("(" argumentos:expresiones? ")" { return argumentos })* {return params.reduce((call, argumentos) => {return crearHoja('llamada', { call, argumentos: argumentos || [] })}, call)}

@@ -73,6 +73,30 @@
  * @typedef {import('../Hojas/Hojas.js').Embebidas} Embebidas
 
 
+ * @typedef {import('../Hojas/Hojas.js').DeclaracionArreglo} DeclaracionArreglo
+
+
+ * @typedef {import('../Hojas/Hojas.js').Declaracion2Arreglo} Declaracion2Arreglo
+
+
+ * @typedef {import('../Hojas/Hojas.js').Declaracion3Arreglo} Declaracion3Arreglo
+
+
+ * @typedef {import('../Hojas/Hojas.js').IndexArreglo} IndexArreglo
+
+
+ * @typedef {import('../Hojas/Hojas.js').JoinArreglo} JoinArreglo
+
+
+ * @typedef {import('../Hojas/Hojas.js').LengthArreglo} LengthArreglo
+
+
+ * @typedef {import('../Hojas/Hojas.js').AccesoArreglo} AccesoArreglo
+
+
+ * @typedef {import('../Hojas/Hojas.js').AsignacionArreglo} AsignacionArreglo
+
+
  * @typedef {import('../Hojas/Hojas.js').Bloque} Bloque
 
 
@@ -304,6 +328,78 @@ export class BaseVisitor {
      */
     visitEmbebidas(node) {
         throw new Error('Metodo visitEmbebidas no implementado');
+    }
+    
+
+    /**
+     * @param {DeclaracionArreglo} node
+     * @returns {any}
+     */
+    visitDeclaracionArreglo(node) {
+        throw new Error('Metodo visitDeclaracionArreglo no implementado');
+    }
+    
+
+    /**
+     * @param {Declaracion2Arreglo} node
+     * @returns {any}
+     */
+    visitDeclaracion2Arreglo(node) {
+        throw new Error('Metodo visitDeclaracion2Arreglo no implementado');
+    }
+    
+
+    /**
+     * @param {Declaracion3Arreglo} node
+     * @returns {any}
+     */
+    visitDeclaracion3Arreglo(node) {
+        throw new Error('Metodo visitDeclaracion3Arreglo no implementado');
+    }
+    
+
+    /**
+     * @param {IndexArreglo} node
+     * @returns {any}
+     */
+    visitIndexArreglo(node) {
+        throw new Error('Metodo visitIndexArreglo no implementado');
+    }
+    
+
+    /**
+     * @param {JoinArreglo} node
+     * @returns {any}
+     */
+    visitJoinArreglo(node) {
+        throw new Error('Metodo visitJoinArreglo no implementado');
+    }
+    
+
+    /**
+     * @param {LengthArreglo} node
+     * @returns {any}
+     */
+    visitLengthArreglo(node) {
+        throw new Error('Metodo visitLengthArreglo no implementado');
+    }
+    
+
+    /**
+     * @param {AccesoArreglo} node
+     * @returns {any}
+     */
+    visitAccesoArreglo(node) {
+        throw new Error('Metodo visitAccesoArreglo no implementado');
+    }
+    
+
+    /**
+     * @param {AsignacionArreglo} node
+     * @returns {any}
+     */
+    visitAsignacionArreglo(node) {
+        throw new Error('Metodo visitAsignacionArreglo no implementado');
     }
     
 
