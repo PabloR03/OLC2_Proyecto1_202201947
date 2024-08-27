@@ -17,11 +17,37 @@ class FuncionNativa extends Invocable {
 }
 
 export const Embebidas = {
-    parseInt: new FuncionNativa(1, (arg) => ({ valor: parseInt(arg.valor), tipo: "int" })),
-    parseFloat: new FuncionNativa(1, (arg) => ({ valor: parseFloat(arg.valor), tipo: "float" })),
-    //toString: new FuncionNativa(1, (arg) => ({ valor: arg.valor.toString(), tipo: "string" })),
-    toLowerCase: new FuncionNativa(1, (arg) => ({ valor: arg.valor.toLowerCase(), tipo: "string" })),
-    toUpperCase: new FuncionNativa(1, (arg) => ({ valor: arg.valor.toUpperCase(), tipo: "string" })),
-    //typeof: new FuncionNativa(1, (arg) => ({ valor: typeof arg.valor, tipo: "string" })),
+    parseInt: new FuncionNativa(1, (arg) => {
+        if (arg.tipo !== "string") {
+            throw new Error(`El Argumento De parseInt Debe Ser De Tipo String, Pero Se Recibió Un "${arg.tipo}".`);
+        }
+        const valor = parseInt(arg.valor);
+        if (isNaN(valor)) {
+            throw new Error(`El Valor "${arg.valor}" No Puede Convertirse A Un Número Entero.`);
+        }
+        return { valor: valor, tipo: "int" };
+    }),
+    parsefloat: new FuncionNativa(1, (arg) => {
+        if (arg.tipo !== "string") {
+            throw new Error(`El Argumento De parseFloat Debe Ser De Tipo String, Pero Se Recibió Un "${arg.tipo}".`);
+        }
+        const valor = parseFloat(arg.valor);
+        if (isNaN(valor)) {
+            throw new Error(`El Valor "${arg.valor}" No Puede Convertirse A Un Número Decimal.`);
+        }
+        return { valor: valor, tipo: "float" };
+    }),
+    toLowerCase: new FuncionNativa(1, (arg) => {
+        if (arg.tipo !== "string") {
+            throw new Error(`El Argumento De toLowerCase Debe Ser De Tipo String, Pero Se Recibió Un "${arg.tipo}".`);
+        }
+        return { valor: arg.valor.toLowerCase(), tipo: "string" };
+    }),
+    toUpperCase: new FuncionNativa(1, (arg) => {
+        if (arg.tipo !== "string") {
+            throw new Error(`El Argumento De toLowerCase Debe Ser De Tipo String, Pero Se Recibió Un "${arg.tipo}".`);
+        }
+        return { valor: arg.valor.toUpperCase(), tipo: "string" };
+    }),
     
 };

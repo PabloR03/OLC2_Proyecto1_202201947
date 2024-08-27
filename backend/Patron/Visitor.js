@@ -70,6 +70,9 @@
  * @typedef {import('../Hojas/Hojas.js').Print} Print
 
 
+ * @typedef {import('../Hojas/Hojas.js').Embebidas} Embebidas
+
+
  * @typedef {import('../Hojas/Hojas.js').Bloque} Bloque
 
 
@@ -292,6 +295,15 @@ export class BaseVisitor {
      */
     visitPrint(node) {
         throw new Error('Metodo visitPrint no implementado');
+    }
+    
+
+    /**
+     * @param {Embebidas} node
+     * @returns {any}
+     */
+    visitEmbebidas(node) {
+        throw new Error('Metodo visitEmbebidas no implementado');
     }
     
 

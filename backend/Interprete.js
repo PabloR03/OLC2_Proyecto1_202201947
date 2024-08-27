@@ -190,6 +190,32 @@ visitOperacionUnaria(node) {
   }
 }
 
+/**
+     * @type {BaseVisitor['visitEmbebidas']}
+     */ 
+visitEmbebidas(node) {
+  const expresion = node.Argumento.accept(this);
+  const NombreFuncion = node.Nombre;
+  switch (NombreFuncion) {
+      case 'typeof':
+          switch (expresion.tipo) {
+              case "int":
+                  return {valor: expresion.tipo, tipo: "string" };
+              case "float":
+                  return {valor: expresion.tipo, tipo: "string" };
+              case "string": 
+                  return {valor: expresion.tipo, tipo: "string" };
+              case "char":
+                  return {valor: expresion.tipo, tipo: "string" };
+              case "boolean": 
+                  return {valor: expresion.tipo, tipo: "string" };    
+              default:
+                  throw new Error(`El Argumento De typeof Es Tipo Desconocido: "${arg.tipo}".`);
+              }
+      case 'toString':
+          return {valor: expresion.valor.toString(), tipo: "string"};
+        }
+    }
 //////////////////////////////////////////// SENTENCIAS ////////////////////////////////////////////
 
 /**
@@ -250,13 +276,15 @@ visitReferenciaVariable(node) {
  * @type {BaseVisitor['visitPrint']}
  */
 visitPrint(node) {
-  const valores = node.exps.map(exp => {
-    const resultado = exp.accept(this);
-    return resultado.valor !== undefined ? resultado.valor : resultado;
-  });
-  
-  const salidaFormateada = valores.join(' ');
-  this.salida += salidaFormateada + '\n';
+const valores = node.exps.map(exps => {
+  const resultado = exps.accept(this);
+  if (Array.isArray(resultado)) {
+      return resultado;
+  } else {
+      return resultado.valor;
+  }
+});
+this.salida += valores.join(' ') + '\n';
 }
 
 /**
@@ -450,7 +478,6 @@ visitTipoOf(node) {
   }
 }
 
-
 /**
  * @type {BaseVisitor['visitTernario']}
  */
@@ -510,7 +537,7 @@ visitLlamada(node) {
       throw new Error(`La función espera ${funcion.aridad()} argumentos, pero se recibieron ${argumentos.length}`);
   }
   return funcion.invocar(this, argumentos);
-    } 
+}
 }
 
 

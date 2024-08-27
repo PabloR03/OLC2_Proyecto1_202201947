@@ -747,6 +747,39 @@ export class Print extends Expresion {
     }
 }
     
+export class Embebidas extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.Nombre Expresion embebida
+ * @param {string} options.Argumento Tipo de la embebida
+    */
+    constructor({ Nombre, Argumento }) {
+        super();
+        
+        /**
+         * Expresion embebida
+         * @type {Expresion}
+        */
+        this.Nombre = Nombre;
+
+
+        /**
+         * Tipo de la embebida
+         * @type {string}
+        */
+        this.Argumento = Argumento;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitEmbebidas(this);
+    }
+}
+    
 export class Bloque extends Expresion {
 
     /**
@@ -830,4 +863,4 @@ export class AsignacionVariable extends Expresion {
     }
 }
     
-export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, Break, Continue, Return, Llamada, Switch, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Bloque, ExpresionStmt, AsignacionVariable }
+export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, Break, Continue, Return, Llamada, Switch, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Embebidas, Bloque, ExpresionStmt, AsignacionVariable }

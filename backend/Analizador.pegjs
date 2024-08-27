@@ -26,6 +26,7 @@ const crearHoja = (tipoHoja, props) =>{
         'continue': hojas.Continue,
         'return': hojas.Return,
         'llamada': hojas.Llamada,
+        'Embebida': hojas.Embebidas,
         }
 
     const nodo = new tipos[tipoHoja](props)
@@ -57,19 +58,19 @@ Sentencias = ifs:If {return ifs}
 
 expresion = arit:Ternario {return arit}
             / boolean:Booleanos {return boolean}
-            / parseint:ParseInt {return parseint}
-            / tipoOf:Typeof {return tipoOf}
+            // parseint:ParseInt {return parseint}
+            // tipoOf:Typeof {return tipoOf}
             / agrupacion:Agrupacion {return agrupacion}
             / referenciaVariable:referenciaVariable {return referenciaVariable}
             / caracter:Caracter {return caracter}
             / cadena:Cadena {return cadena}
             / numero:Numero {return numero}
 
-Typeof = _ "typeof" _ exp:expresion _ {return crearHoja('tipoOf', {exp})}
+//Typeof = _ "typeof" _ exp:expresion _ {return crearHoja('tipoOf', {exp})}
 
-ParseInt = _ "parseInt" _ "(" _ exp:expresion _ ")" _ {
-    return crearHoja('parseInt', {exp})
-}
+//ParseInt = _ "parseInt" _ "(" _ exp:expresion _ ")" _ {
+//    return crearHoja('parseInt', {exp})
+//}
 
 If = "if" _ "(" _ cond:expresion _ ")" _ verdad:Sentencias 
     falso:(
@@ -89,7 +90,7 @@ Continue = "continue" _ ";" _ { return crearHoja('continue') }
 Return = "return" _ exp:expresion? _ ";" { return crearHoja('return', { exp }) }
         / exp:expresion _ ";" _ { return crearHoja('expresionStmt', { exp }) }
 
-ForInit = declaracion:declaracionVariable { return declaracion }
+ForInit = declaracion:declaracionVariable _  { return declaracion }
         / exp:expresion _ ";" _{ return exp }
         / ";" { return null }
 
@@ -195,9 +196,11 @@ Multiplicacion = izq:Unaria expansion:( _ op:("*" / "/" / "%") _ der:Unaria {ret
     )
 }
 Unaria = ("-") _ datos:Unaria {return crearHoja('unaria', {op: ('-'), datos: datos})}
-    / Llamada 
     / id:identificador _ op:("++"/"--")_ { return crearHoja('asignacionVariable', { id, exp: crearHoja('unaria', { op, datos: crearHoja('referenciaVariable', { id }) }) }) }
     /("!") _ datos:Datos {return crearHoja('unaria', {op: ('!'), datos: datos})}
+    / embe:("typeof") _ expresion:Datos {return crearHoja('Embebida', {Nombre: embe, Argumento: expresion})}
+    / embe:("toString")"(" _ expresion:Datos _ ")" _ {return crearHoja('Embebida', {Nombre: embe, Argumento: expresion})}
+    / Llamada 
 
 Llamada = call:Datos _ params:("(" argumentos:expresiones? ")" { return argumentos })* {return params.reduce((call, argumentos) => {return crearHoja('llamada', { call, argumentos: argumentos || [] })}, call)}
 
