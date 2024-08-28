@@ -34,7 +34,11 @@ const crearHoja = (tipoHoja, props) =>{
         'joinArreglo': hojas.JoinArreglo,
         'lenghtArreglo': hojas.LengthArreglo,
         'accesoArreglo': hojas.AccesoArreglo,
-        'asignacionArreglo': hojas.AsignacionArreglo
+        'asignacionArreglo': hojas.AsignacionArreglo,
+        'AsignacionDimensiones': hojas.AsignacionDimensiones,
+        'DeclaracionDimension': hojas.DeclaracionDimension,
+        'Declaracion2Dimension': hojas.Declaracion2Dimension,
+        'AccesoDimensiones': hojas.AccesoDimensiones
         }
 
     const nodo = new tipos[tipoHoja](props)
@@ -56,6 +60,7 @@ Sentencias = ifs:If {return ifs}
             / bloque:Bloque {return bloque}
             / asignacion:AsignacionVariable {return asignacion}
             / asignarArreglo:AsignarArreglos {return asignarArreglo}
+            / asignarDimensiones:AsignacionDimensiones {return asignarDimensiones}
             / switchs:Switch {return switchs}
             / whiles:While {return whiles}
             / fors:For {return fors}
@@ -80,28 +85,24 @@ expresion = arit:Ternario {return arit}
 //    return crearHoja('parseInt', {exp})
 //}
 
-If = "if" _ "(" _ cond:expresion _ ")" _ verdad:Sentencias 
-    falso:(
-    _ "else" _ falso:Sentencias 
-    { return falso } )? 
-    { return crearHoja('if', { cond, verdad, falso}) }
+If =  _ "if" _ "(" _ cond:expresion _ ")" _ verdad:Sentencias falso:(_ "else" _ falso:Sentencias { return falso } )? { return crearHoja('if', { cond, verdad, falso}) }
 
-While = "while" _ "(" _ cond:expresion _ ")" _ sentencias:Sentencias { return crearHoja('while', { cond, sentencias }) }
+While = _ "while" _ "(" _ cond:expresion _ ")" _ sentencias:Sentencias { return crearHoja('while', { cond, sentencias }) }
 
-For = "for" _ "(" _ init:ForInit _ cond:expresion _ ";" _ inc:expresion _ ")" _ sentencias:Sentencias {return crearHoja('for', { init, cond, inc, sentencias })}
+For = _ "for" _ "(" _ init:ForInit _ cond:expresion _ ";" _ inc:expresion _ ")" _ sentencias:Sentencias {return crearHoja('for', { init, cond, inc, sentencias })}
 
-Break = "break" _ ";" _ { return crearHoja('break') }
+Break = _ "break" _ ";" _ { return crearHoja('break') }
 
-Continue = "continue" _ ";" _ { return crearHoja('continue') }
+Continue = _ "continue" _ ";" _ { return crearHoja('continue') }
 
-Return = "return" _ exp:expresion? _ ";" { return crearHoja('return', { exp }) }
+Return = _ "return" _ exp:expresion? _ ";" { return crearHoja('return', { exp }) }
         / exp:expresion _ ";" _ { return crearHoja('expresionStmt', { exp }) }
 
 ForInit = declaracion:declaracionVariable _  { return declaracion }
         / exp:expresion _ ";" _{ return exp }
-        / ";" { return null }
+        / _ ";" _ { return null }
 
-Switch = "switch" _ "(" _ expre:expresion _ ")" _ "{" _ cases:SwitchCase* def:DefaultCase? _ "}" { return crearHoja('switch', { expre, cases, def }) }
+Switch = _ "switch" _ "(" _ expre:expresion _ ")" _ "{" _ cases:SwitchCase* def:DefaultCase? _ "}" { return crearHoja('switch', { expre, cases, def }) }
 SwitchCase = _ "case" _ valor:expresion _ ":" _ sentenciasBloque:Sentencias* { return { valor, sentenciasBloque } }
 DefaultCase = _ "default" _ ":" _ sentencias:Sentencias* { return { sentencias } }
 
@@ -110,24 +111,40 @@ ExpressionStatement = exp:expresion _ ";" _ { return crearHoja('expresionStmt', 
 declaracionVariable = _ tipoVar:tipoVariable _ id:identificador _ "=" _ exp:expresion _ ";" _  {return crearHoja('declaracionVariable', {tipoVar, id, exp})}
     / _ tipoVar:tipoVariable _ id:identificador _ ";" _ {return crearHoja('declaracionVariable', {tipoVar, id})}
     / _ arreglo:Arreglo _ {return arreglo}
+    / _ dimension:Dimensiones _ {return dimension}
     // _ "var" _ id:identificador _ "=" _ exp:expresion _ ";" _ {return crearHoja('declaracionVariable', {tipoVar: 'var', id, exp})}
 
-Arreglo = tipo:tipoVariable _ "[]" _ id:identificador _ "=" _ valores:Contenido _ ";" _ {return crearHoja('declaracionArreglo', {tipo, id, valores})}
-        /tipo1:tipoVariable _ "[]" _ id:identificador _ "=" _ "new" _ tipo2:tipoVariable _ "[" _ numero:expresion _ "]" _ ";" _ {return crearHoja('declaracion2Arreglo', {tipo1, id, tipo2, numero})}
-        /tipo:tipoVariable _ "[]" _ id1:identificador _ "=" _ id2:identificador _ ";" _ {return crearHoja('declaracion3Arreglo', {tipo, id1, id2})}
+Arreglo =  _ tipo:tipoVariable _ "[]" _ id:identificador _ "=" _ valores:Contenido _ ";" _ {return crearHoja('declaracionArreglo', {tipo, id, valores})}
+        / _ tipo1:tipoVariable _ "[]" _ id:identificador _ "=" _ "new" _ tipo2:tipoVariable _ "[" _ numero:expresion _ "]" _ ";" _ {return crearHoja('declaracion2Arreglo', {tipo1, id, tipo2, numero})}
+        / _ tipo:tipoVariable _ "[]" _ id1:identificador _ "=" _ id2:identificador _ ";" _ {return crearHoja('declaracion3Arreglo', {tipo, id1, id2})}
 
 Contenido = "{" _ valores:Contenidos _ "}" {return valores}
 
-Contenidos = expresion1:expresion _ valores:("," _ expresion:expresion {return expresion})* 
+Contenidos = _ expresion1:expresion _ valores:("," _ expresion:expresion {return expresion})* 
             {return [expresion1, ...valores]}
 
-AsignarArreglos = id:identificador _ "[" _ index:expresion _ "]" _ "=" _ valor:expresion _ ";" _ {return crearHoja('asignacionArreglo', { id, index, valor })}
+AsignarArreglos = _ id:identificador _ "[" _ index:expresion _ "]" _ "=" _ valor:expresion _ ";" _ {return crearHoja('asignacionArreglo', { id, index, valor })}
+
+AsignacionDimensiones = _ id:identificador _ valores:valDimensiones _ "=" _ valor:expresion _ ";" _{return crearHoja('AsignacionDimensiones', { id, valores, valor })}
+
+Dimensiones = _ tipo:tipoVariable _ dimensiones:listaDimensiones _ id:identificador _ "=" _ valores:initDimensiones _ ";" _ {return crearHoja('DeclaracionDimension', {tipo, dimensiones, id, valores});}
+            / _ tipo1:tipoVariable _ dimensiones:listaDimensiones _ id:identificador _ "=" _ "new"_ tipo2:identificador _ valores:valDimensiones _ ";" _ {return crearHoja('Declaracion2Dimension', {tipo1, dimensiones, id, tipo2, valores});}
+
+//DECLARACION MATRIZ CON VALORES
+listaDimensiones = _"[" _ "]"_ dimensiones:listaDimensiones?{return [null].concat(dimensiones || []);}
+
+initDimensiones = _ "{" _ valores:listValDimensiones _ "}" _ {return valores;}
+
+listValDimensiones = _ "{" _ valores:listValDimensiones _ "}" valoresRestantes:(_ "," _ listValDimensiones)? _ { if (valoresRestantes) {return [valores].concat(valoresRestantes[3]);} return [valores];}
+                        / valor:expresion valoresRestantes: ( _ "," _ listValDimensiones)? {if (valoresRestantes) {return [valor].concat(valoresRestantes[3]);}return [valor];}
+
+valDimensiones = _ "[" _ expresion:expresion _ "]" _ resto:valDimensiones* { return [expresion].concat(resto.flat());} 
 
 AsignacionVariable =  _ id:identificador _ "=" _ exp:expresion _ ";" _ { return crearHoja('asignacionVariable', { id, exp }) }
     / _ id:identificador _ op:("++" / "--") _ ";" _ { return crearHoja('asignacionVariable', { id, exp: crearHoja('unaria', { op, datos: crearHoja('referenciaVariable', { id }) }) }) }
     / _ id:identificador op:("++" / "--") { return crearHoja('asignacionVariable', { id, exp: crearHoja('unaria', { op, datos: crearHoja('referenciaVariable', { id }) }) }) }
     / _ id:identificador _ op:("+=" / "-=") _ exp:expresion _ ";" _ { return crearHoja('asignacionVariable', { id, exp: crearHoja('aritmetica', { op, izq: crearHoja('referenciaVariable', { id }), der: exp }) }) }
-    /  _ id:identificador _ op:("+=" / "-=") _ exp:expresion _ { return crearHoja('asignacionVariable', { id, exp: crearHoja('aritmetica', { op, izq: crearHoja('referenciaVariable', { id }), der: exp }) }) }
+    / _ id:identificador _ op:("+=" / "-=") _ exp:expresion _ { return crearHoja('asignacionVariable', { id, exp: crearHoja('aritmetica', { op, izq: crearHoja('referenciaVariable', { id }), der: exp }) }) }
     
 
 print = _ "print" _ "(" _ exps:expresiones _ ")" _ ";" _ {return crearHoja('print', {exps})}
@@ -137,7 +154,7 @@ expresiones = exp:expresion resto:(_ "," _ expr:expresion {return expr})*
 
 Agrupacion = _ "(" _ exp:expresion _ ")"_ {return crearHoja('agrupacion', {exp})}
 
-referenciaVariable = id:identificador {return crearHoja('referenciaVariable', {id})}
+referenciaVariable = _ id:identificador _ {return crearHoja('referenciaVariable', {id})}
 
 tipoVariable = "int" {return text()}
                 / "float" {return text()}
@@ -214,14 +231,15 @@ Multiplicacion = izq:Unaria expansion:( _ op:("*" / "/" / "%") _ der:Unaria {ret
         izq
     )
 }
-Unaria = ("-") _ datos:Unaria {return crearHoja('unaria', {op: ('-'), datos: datos})}
+Unaria = ("-") _ datos:Unaria _ {return crearHoja('unaria', {op: ('-'), datos: datos})}
     / id:identificador _ op:("++"/"--")_ { return crearHoja('asignacionVariable', { id, exp: crearHoja('unaria', { op, datos: crearHoja('referenciaVariable', { id }) }) }) }
-    /("!") _ datos:Datos {return crearHoja('unaria', {op: ('!'), datos: datos})}
-    / embe:("typeof") _ expresion:Datos {return crearHoja('Embebida', {Nombre: embe, Argumento: expresion})}
+    /("!") _ datos:Datos _ {return crearHoja('unaria', {op: ('!'), datos: datos})}
+    / embe:("typeof") _ expresion:Datos _ {return crearHoja('Embebida', {Nombre: embe, Argumento: expresion})}
     / embe:("toString")"(" _ expresion:Datos _ ")" _ {return crearHoja('Embebida', {Nombre: embe, Argumento: expresion})}
-    / id:identificador _ ".indexOf" _ "(" _ index:Datos _ ")" {return crearHoja('indexArreglo', {id, index})}
-    / id:identificador _ ".join()" {return crearHoja('joinArreglo', {id})}
-    / id:identificador _ ".length" {return crearHoja('lenghtArreglo', {id})}
+    / id:identificador _ ".indexOf" _ "(" _ index:Datos _ ")" _ {return crearHoja('indexArreglo', {id, index})}
+    / id:identificador _ ".join()" _ {return crearHoja('joinArreglo', {id})}
+    / id:identificador _ ".length" _ {return crearHoja('lenghtArreglo', {id})}
+    / id:identificador _ valores:valDimensiones _ {return crearHoja('AccesoDimensiones', {id, valores})}
     / id:identificador _ "[" _ index:Datos _ "]" {return crearHoja('accesoArreglo', {id, index})}
     / Llamada 
 

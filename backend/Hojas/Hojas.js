@@ -524,6 +524,186 @@ export class Llamada extends Expresion {
     }
 }
     
+export class DeclaracionDimension extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.tipo Tipo de elementos de la matriz
+ * @param {Expresion} options.dimensiones Dimensiones de la matriz
+ * @param {Expresion} options.id Identificador del la matriz
+ * @param {Expresion} options.valores Valores del la matriz
+    */
+    constructor({ tipo, dimensiones, id, valores }) {
+        super();
+        
+        /**
+         * Tipo de elementos de la matriz
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+
+        /**
+         * Dimensiones de la matriz
+         * @type {Expresion}
+        */
+        this.dimensiones = dimensiones;
+
+
+        /**
+         * Identificador del la matriz
+         * @type {Expresion}
+        */
+        this.id = id;
+
+
+        /**
+         * Valores del la matriz
+         * @type {Expresion}
+        */
+        this.valores = valores;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDeclaracionDimension(this);
+    }
+}
+    
+export class Declaracion2Dimension extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.tipo1 Tipo de elementos de la matriz
+ * @param {Expresion} options.dimensiones Dimensiones de la matriz
+ * @param {Expresion} options.id Identificador del la matriz
+ * @param {string} options.tipo2 Tipo de elementos de la matriz
+ * @param {Expresion} options.valores Valores del la matriz
+    */
+    constructor({ tipo1, dimensiones, id, tipo2, valores }) {
+        super();
+        
+        /**
+         * Tipo de elementos de la matriz
+         * @type {string}
+        */
+        this.tipo1 = tipo1;
+
+
+        /**
+         * Dimensiones de la matriz
+         * @type {Expresion}
+        */
+        this.dimensiones = dimensiones;
+
+
+        /**
+         * Identificador del la matriz
+         * @type {Expresion}
+        */
+        this.id = id;
+
+
+        /**
+         * Tipo de elementos de la matriz
+         * @type {string}
+        */
+        this.tipo2 = tipo2;
+
+
+        /**
+         * Valores del la matriz
+         * @type {Expresion}
+        */
+        this.valores = valores;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDeclaracion2Dimension(this);
+    }
+}
+    
+export class AsignacionDimensiones extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador de la matriz
+ * @param {Expresion} options.valores Indices de la matriz
+ * @param {Expresion} options.valor Valor a asignar
+    */
+    constructor({ id, valores, valor }) {
+        super();
+        
+        /**
+         * Identificador de la matriz
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Indices de la matriz
+         * @type {Expresion}
+        */
+        this.valores = valores;
+
+
+        /**
+         * Valor a asignar
+         * @type {Expresion}
+        */
+        this.valor = valor;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitAsignacionDimensiones(this);
+    }
+}
+    
+export class AccesoDimensiones extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador de la matriz
+ * @param {Expresion} options.valores Indices de la matriz
+    */
+    constructor({ id, valores }) {
+        super();
+        
+        /**
+         * Identificador de la matriz
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Indices de la matriz
+         * @type {Expresion}
+        */
+        this.valores = valores;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitAccesoDimensiones(this);
+    }
+}
+    
 export class Switch extends Expresion {
 
     /**
@@ -1151,4 +1331,4 @@ export class AsignacionVariable extends Expresion {
     }
 }
     
-export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, Break, Continue, Return, Llamada, Switch, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Embebidas, DeclaracionArreglo, Declaracion2Arreglo, Declaracion3Arreglo, IndexArreglo, JoinArreglo, LengthArreglo, AccesoArreglo, AsignacionArreglo, Bloque, ExpresionStmt, AsignacionVariable }
+export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, Break, Continue, Return, Llamada, DeclaracionDimension, Declaracion2Dimension, AsignacionDimensiones, AccesoDimensiones, Switch, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Embebidas, DeclaracionArreglo, Declaracion2Arreglo, Declaracion3Arreglo, IndexArreglo, JoinArreglo, LengthArreglo, AccesoArreglo, AsignacionArreglo, Bloque, ExpresionStmt, AsignacionVariable }

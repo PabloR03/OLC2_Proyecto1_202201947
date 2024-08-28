@@ -456,8 +456,175 @@ visitAsignacionArreglo(node) {
       }
       return {valor: arreglo.valor.length, tipo: "int"};
   }
-  
 
+//////////////////////////////////////////// ARREGLOS N DIMENSIONALES ////////////////////////////////////////////
+
+/**
+ * @type {BaseVisitor['visitDeclaracionDimensiones']}
+ */
+visitDeclaracionDimension(node) {
+  const RecorrerMatriz = (valores, tipo) => {
+      const Matriz = [];
+      for (let valor of valores) {
+          if (Array.isArray(valor)) {
+              Matriz.push(RecorrerMatriz(valor, tipo));
+          } else {
+              const ValorActual = valor.accept(this);
+              if (ValorActual.tipo !== tipo) {
+                  throw new Error(`El Tipo Del Valor "${ValorActual.valor}" No Coincide Con El Tipo Del Arreglo "${tipo}".`);
+              }
+              Matriz.push(ValorActual.valor);
+          }
+      }
+      return Matriz;
+  };
+  const NuevaMatriz = RecorrerMatriz(node.valores, node.tipo);
+  this.entornoActual.setVariable(node.tipo, node.id, NuevaMatriz);
+}
+
+/**
+ * @type {BaseVisitor['visitDeclaracion2Dimensiones']}
+ */
+visitDeclaracion2Dimension(node) {
+    if (node.tipo1 !== node.tipo2) {
+        throw new Error(`El Tipo De La Matriz "${node.tipo1}" No Coincide Con El Tipo Del La Matriz "${node.tipo2}".`);
+    }
+    if (node.dimensiones.length !== node.valores.length) {       
+        throw new Error(`Las Dimensiones De La Matriz "${node.dimensiones.length}" No Coinciden Con El Número De Valores "${node.valores.length}".`);
+    }
+    node.valores.forEach((valor, index) => {
+        const numero = valor.accept(this);
+        if (numero.tipo !== 'int') {
+            throw new Error(`La Dimensión ${index + 1} Debe Ser De Tipo Int: "${numero.tipo}".`);
+        }
+        if (numero.valor < 0) {
+            throw new Error(`La Dimensión ${index + 1} No Puede Ser Negativa: "${numero.valor}".`);
+        }
+    });
+    function crearMatriz(Valores, tipo, ValorPorDefecto) {
+        const DimensionActual = Valores[0];
+        const SubDimension = Valores.slice(1);
+        const Matriz = Array(DimensionActual.valor).fill(null);
+        if (SubDimension.length > 0) {
+            for (let i = 0; i < DimensionActual.valor; i++) {
+                Matriz[i] = crearMatriz(SubDimension, tipo, ValorPorDefecto);
+            }
+        } else {
+            Matriz.fill(ValorPorDefecto);
+        }
+        return Matriz;
+    }        
+    let ValorPorDefecto;
+    switch (node.tipo1) {
+        case 'int':
+            ValorPorDefecto = 0;
+            break;
+        case 'float':
+            ValorPorDefecto = 0.0;
+            break;
+        case 'string':
+            ValorPorDefecto = '';
+            break;
+        case 'char':
+            ValorPorDefecto = '\0';
+            break;
+        case 'boolean':
+            ValorPorDefecto = false;
+            break;
+        default:
+            throw new Error(`Tipo De Matriz No Válido: "${node.tipo1}".`);
+    }
+    const NuevaMatriz = crearMatriz(node.valores, node.tipo1, ValorPorDefecto);
+    this.entornoActual.setVariable(node.tipo1, node.id, NuevaMatriz);
+    console.log(this.entornoActual);
+}
+
+/**
+ * @type {BaseVisitor['visitAsignacionDimensiones']}
+ */
+visitAsignacionDimensiones(node) {
+    const matriz = this.entornoActual.getVariable(node.id);
+    if (!Array.isArray(matriz.valor)) {
+        throw new Error(`La Variable: "${node.id}" No Es Una Matriz.`);
+    }
+    node.valores.forEach((valor, index) => {
+        const numero = valor.accept(this);
+        if (numero.tipo !== 'int') {
+            throw new Error(`El Indice De Acceso "${index + 1}" Debe Ser De Tipo Int: "${numero.tipo}".`);
+        }
+        if (numero.valor < 0) {
+            throw new Error(`El Indice De Acceso "${index + 1}" No Puede Ser Negativa: "${numero.valor}".`);
+        }
+    });
+    if (node.valor.tipo !== matriz.tipo) {
+        throw new Error(`El Tipo Del Valor "${valor.valor}" No Coincide Con El Tipo De La Matriz "${arreglo.tipo}".`);
+    }
+    
+    function asignarValor(matriz, indices, nuevoValor) {
+        let ref = matriz;
+        for (let i = 0; i < indices.length - 1; i++) {
+            const idx = indices[i].valor;
+            if (idx >= ref.length) {
+                throw new Error(`Índice Fuera De Rango: "${idx}" En Dimensión: "${i + 1}".`);
+            }
+            ref = ref[idx];
+        }
+        const lastIdx = indices[indices.length - 1].valor;
+        if (lastIdx >= ref.length) {
+            throw new Error(`Índice Fuera De Rango: "${lastIdx}" En Dimensión: "${indices.length}".`);
+        }
+        ref[lastIdx] = nuevoValor;
+    }
+    asignarValor(matriz.valor, node.valores, node.valor.valor);
+    return;
+}
+
+/**
+ * @type {BaseVisitor['visitAccesoDimensiones']}
+ */
+visitAccesoDimensiones(node) {
+    const matriz = this.entornoActual.getVariable(node.id);
+    if (!Array.isArray(matriz.valor)) {
+        throw new Error(`La Variable: "${node.id}" No Es Una Matriz.`);
+    }
+    node.valores.forEach((valor, index) => {
+        const numero = valor.accept(this);
+        if (numero.tipo !== 'int') {
+            throw new Error(`El Indice De Acceso "${index + 1}" Debe Ser De Tipo Int: "${numero.tipo}".`);
+        }
+        if (numero.valor < 0) {
+            throw new Error(`El Indice De Acceso "${index + 1}" No Puede Ser Negativa: "${numero.valor}".`);
+        }
+    });
+    for (let i = 0; i < arreglo.valor.length; i++) {
+        if (i === index.valor) {
+            return {valor: arreglo.valor[i], tipo: arreglo.tipo};
+        }
+    }
+    throw new Error(`Indice Fuera De Rango: "${index.valor}".`);
+}
+visitAccesoDimensiones(node) {
+    const matriz = this.entornoActual.getVariable(node.id);
+    
+    if (!Array.isArray(matriz.valor)) {
+        throw new Error(`La Variable: "${node.id}" No Es Una Matriz.`);
+    }
+    let ref = matriz.valor;
+    node.valores.forEach((valor, index) => {
+        const numero = valor.accept(this);
+        if (numero.tipo !== 'int') {
+            throw new Error(`El Indice De Acceso "${index + 1}" Debe Ser De Tipo Int: "${numero.tipo}".`);
+        }
+        if (numero.valor < 0) {
+            throw new Error(`El Indice De Acceso "${index + 1}" No Puede Ser Negativa: "${numero.valor}".`);
+        }
+        if (numero.valor >= ref.length) {
+            throw new Error(`Índice Fuera De Rango: "${numero.valor}" En Dimensión "${index + 1}".`);
+        }
+        ref = ref[numero.valor];
+    });
+    return { valor: ref, tipo: matriz.tipo };
+}
 
 //////////////////////////////////////////// MENORES AUXILIARES ////////////////////////////////////////////
 
@@ -567,6 +734,8 @@ visitFor(node) {
 visitSwitch(node) {
   const initEntorno = this.entornoActual;
   let casoEncontrado = false;
+  let seEjecutaronCasos = false; // Para rastrear si se ejecutó algún caso
+  let huboBreak = false; // Para rastrear si hubo un break
 
   try {
     for (const caso of node.cases) {
@@ -576,16 +745,18 @@ visitSwitch(node) {
 
       if (casoEncontrado) {
         this.entornoActual = new Entorno(initEntorno);
-        
+        seEjecutaronCasos = true;
+
         for (const sentencia of caso.sentenciasBloque) {
           try {
             sentencia.accept(this);
           } catch (error) {
             if (error instanceof BreakException) {
-              // Salir del switch completamente
+              // Hubo un break, salir del switch
+              huboBreak = true;
               return;
             } else if (error instanceof ContinueException) {
-              // Continuar con el siguiente caso
+              // Ignorar continue en este contexto
               break;
             } else {
               throw error;
@@ -594,8 +765,29 @@ visitSwitch(node) {
         }
       }
     }
-    // Manejo del caso default
-    if (!casoEncontrado && node.def) {
+
+    // Si se ejecutaron casos y no hubo break, ejecutamos el bloque default si existe
+    if (seEjecutaronCasos && node.def && !huboBreak) {
+      this.entornoActual = new Entorno(initEntorno);
+      for (const sentencia of node.def.sentencias) {
+        try {
+          sentencia.accept(this);
+        } catch (error) {
+          if (error instanceof BreakException) {
+            // Salir del switch
+            return;
+          } else if (error instanceof ContinueException) {
+            // Ignorar continue en el caso default
+            break;
+          } else {
+            throw error;
+          }
+        }
+      }
+    }
+
+    // Manejo del caso default si ningún caso fue encontrado y no se ejecutó ningún caso
+    if (!seEjecutaronCasos && node.def) {
       this.entornoActual = new Entorno(initEntorno);
       for (const sentencia of node.def.sentencias) {
         try {
@@ -618,6 +810,7 @@ visitSwitch(node) {
     this.entornoActual = initEntorno;
   }
 }
+
 /**
  * @type {BaseVisitor['visitTipoOf']}
  */
@@ -689,7 +882,6 @@ visitReturn(node) {
 /**
  * @type {BaseVisitor['visitLlamada']}
  */
-
 visitLlamada(node) {
   const funcion = node.call.accept(this);
   const argumentos = node.argumentos.map(arg => arg.accept(this));

@@ -49,6 +49,18 @@
  * @typedef {import('../Hojas/Hojas.js').Llamada} Llamada
 
 
+ * @typedef {import('../Hojas/Hojas.js').DeclaracionDimension} DeclaracionDimension
+
+
+ * @typedef {import('../Hojas/Hojas.js').Declaracion2Dimension} Declaracion2Dimension
+
+
+ * @typedef {import('../Hojas/Hojas.js').AsignacionDimensiones} AsignacionDimensiones
+
+
+ * @typedef {import('../Hojas/Hojas.js').AccesoDimensiones} AccesoDimensiones
+
+
  * @typedef {import('../Hojas/Hojas.js').Switch} Switch
 
 
@@ -256,6 +268,42 @@ export class BaseVisitor {
      */
     visitLlamada(node) {
         throw new Error('Metodo visitLlamada no implementado');
+    }
+    
+
+    /**
+     * @param {DeclaracionDimension} node
+     * @returns {any}
+     */
+    visitDeclaracionDimension(node) {
+        throw new Error('Metodo visitDeclaracionDimension no implementado');
+    }
+    
+
+    /**
+     * @param {Declaracion2Dimension} node
+     * @returns {any}
+     */
+    visitDeclaracion2Dimension(node) {
+        throw new Error('Metodo visitDeclaracion2Dimension no implementado');
+    }
+    
+
+    /**
+     * @param {AsignacionDimensiones} node
+     * @returns {any}
+     */
+    visitAsignacionDimensiones(node) {
+        throw new Error('Metodo visitAsignacionDimensiones no implementado');
+    }
+    
+
+    /**
+     * @param {AccesoDimensiones} node
+     * @returns {any}
+     */
+    visitAccesoDimensiones(node) {
+        throw new Error('Metodo visitAccesoDimensiones no implementado');
     }
     
 

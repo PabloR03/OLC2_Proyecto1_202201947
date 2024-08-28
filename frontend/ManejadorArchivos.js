@@ -1,6 +1,7 @@
 let lastAST = null;
 import { parse } from '../backend/Analizador.js';
 import { InterpreterVisitor } from '../backend/Interprete.js'
+import { mostrarTablaSimbolos } from '../backend/oakLand/Entorno/Entorno.js';
 
 export function inicializarManejadorArchivos() {
     const txtEntrada = document.getElementById('txtEntrada');
@@ -9,6 +10,7 @@ export function inicializarManejadorArchivos() {
     const abrirArchivo = document.getElementById('abrirArchivo');
     const nuevoArchivo = document.getElementById('nuevoArchivo');
     const guardarArchivo = document.getElementById('guardarArchivo');
+    const tablaSimbolos = document.getElementById('tablaSimbolos');
 
     function handleFileUpload(event) {
         const file = event.target.files[0];
@@ -70,6 +72,7 @@ export function inicializarInterprete() {
     const nlSalida = document.getElementById('nlSalida');
     const btnEjecutar = document.getElementById('btnEjecutar');
     const btnReporteAST = document.getElementById('btnReporteAST');
+    const tablaSimbolosBtn = document.getElementById('tablaSimbolos');
 
     if (!txtEntrada || !txtSalida || !nlEntrada || !nlSalida || !btnEjecutar) {
         console.error("Uno o más elementos necesarios no se encontraron en el DOM");
@@ -90,30 +93,43 @@ export function inicializarInterprete() {
         actualizarNumLineas(txtSalida, nlSalida);
     }
 
+    function obtenerEntorno() {
+        return interprete.entorno;
+    }
+
     function ejecutarCodigo() {
         const codigo = txtEntrada.value;
+        txtSalida.value = '';  // Limpiar antes de comenzar
         try {
-            //txtSalida.value = '';
             const sentencias = parse(codigo);
-            // ast.innerHTML = JSON.stringify(sentencias, null, 2); // Asegúrate de que `ast` esté correctamente definido en el DOM.
             const interprete = new InterpreterVisitor();
-            console.log({ sentencias });
-            sentencias.forEach(sentencia => sentencia.accept(interprete));
-            txtSalida.value = interprete.salida;
+            
+            sentencias.forEach(sentencia => {
+                try {
+                    sentencia.accept(interprete);
+                } catch (errorSentencia) {
+                    txtSalida.value += `Error en sentencia: ${errorSentencia.message}\n`;
+                    console.error("Error en sentencia:", errorSentencia);
+                }
+            });
+            
+            txtSalida.value += interprete.salida;  // Añadir salida al final
         } catch (error) {
-            //txtSalida.value = '';
-            console.log(JSON.stringify(error, null, 2));
-            txtSalida.innerHTML = "Error: "+ error.message;
-            console.error("Error:", error);
-
-            lastAST = null;
+            txtSalida.value += "Error general: " + error.message + "\n";
+            console.error("Error general:", error);
         }
+    
         actualizarNumLineas(txtSalida, nlSalida);
     }
+    
     txtEntrada.addEventListener('input', handleInput);
     txtEntrada.addEventListener('scroll', () => syncScroll(txtEntrada, nlEntrada));
     txtSalida.addEventListener('scroll', () => syncScroll(txtSalida, nlSalida));
     btnEjecutar.addEventListener('click', ejecutarCodigo);
+    tablaSimbolosBtn.addEventListener('click', function() {
+        const entorno = obtenerEntorno();  
+        mostrarTablaSimbolos(entorno);
+    });
 
     handleInput();
 }
