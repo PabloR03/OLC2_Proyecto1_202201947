@@ -1,7 +1,7 @@
 let lastAST = null;
 import { parse } from '../backend/Analizador.js';
 import { InterpreterVisitor } from '../backend/Interprete.js'
-import { mostrarTablaSimbolos } from '../backend/oakLand/Entorno/Entorno.js';
+import { mostrarTablaSimbolos } from '../backend/oakLand/Entorno/TablaSimbolos.js';
 
 export function inicializarManejadorArchivos() {
     const txtEntrada = document.getElementById('txtEntrada');
@@ -71,7 +71,6 @@ export function inicializarInterprete() {
     const nlEntrada = document.getElementById('nlEntrada');
     const nlSalida = document.getElementById('nlSalida');
     const btnEjecutar = document.getElementById('btnEjecutar');
-    const btnReporteAST = document.getElementById('btnReporteAST');
     const tablaSimbolosBtn = document.getElementById('tablaSimbolos');
 
     if (!txtEntrada || !txtSalida || !nlEntrada || !nlSalida || !btnEjecutar) {
@@ -112,7 +111,9 @@ export function inicializarInterprete() {
                     console.error("Error en sentencia:", errorSentencia);
                 }
             });
-            
+            console.log({sentencias});
+            console.log(JSON.stringify(sentencias, null, 2));
+            //console.log(interprete.salida);
             txtSalida.value += interprete.salida;  // Añadir salida al final
         } catch (error) {
             txtSalida.value += "Error general: " + error.message + "\n";
@@ -126,10 +127,6 @@ export function inicializarInterprete() {
     txtEntrada.addEventListener('scroll', () => syncScroll(txtEntrada, nlEntrada));
     txtSalida.addEventListener('scroll', () => syncScroll(txtSalida, nlSalida));
     btnEjecutar.addEventListener('click', ejecutarCodigo);
-    tablaSimbolosBtn.addEventListener('click', function() {
-        const entorno = obtenerEntorno();  
-        mostrarTablaSimbolos(entorno);
-    });
 
     handleInput();
 }

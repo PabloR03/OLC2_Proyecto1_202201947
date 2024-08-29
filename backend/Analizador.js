@@ -364,7 +364,7 @@ function peg$parse(input, options) {
   var peg$f46 = function(expresion1, expresion) {return expresion};
   var peg$f47 = function(expresion1, valores) {return [expresion1, ...valores]};
   var peg$f48 = function(id, index, valor) {return crearHoja('asignacionArreglo', { id, index, valor })};
-  var peg$f49 = function(id, valores, valor) {return crearHoja('AsignacionDimensiones', { id, valores, valor })};
+  var peg$f49 = function(id, indices, nuevoValor) {return crearHoja('AsignacionDimensiones', { id, indices, nuevoValor })};
   var peg$f50 = function(tipo, dimensiones, id, valores) {return crearHoja('DeclaracionDimension', {tipo, dimensiones, id, valores});};
   var peg$f51 = function(tipo1, dimensiones, id, tipo2, valores) {return crearHoja('Declaracion2Dimension', {tipo1, dimensiones, id, tipo2, valores});};
   var peg$f52 = function(dimensiones) {return [null].concat(dimensiones || []);};

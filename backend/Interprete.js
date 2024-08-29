@@ -57,7 +57,8 @@ visitNumero(node) {
 visitOperacionAritmetica(node) {
   const izq = node.izq.accept(this);
   const der = node.der.accept(this);
-
+  // console.log("linea: " , node.location.start.line);  // Imprime el número de línea donde comienza la operación
+  // console.log("Columna: " , node.location.end.line);  // Imprime el número de columna donde termina la operación
   // Verifica que los operandos tengan tipos válidos
   const tiposValidos = ['int', 'float', 'string'];
 
@@ -226,6 +227,8 @@ visitDeclaracionVariable(node) {
   const nombreVariable = node.id;      // Nombre de la variable
   let valorVariable;
   let tipoFinal = tipoDeclarado;       // Tipo final que se asignará
+  //console.log("linea: " , node.location.start.line);  // Imprime el número de línea donde comienza la declaración
+  //console.log("Columna: " , node.location.start.column);  // Imprime el número de columna donde termina la declaración
 
   // Si hay una expresión asociada a la variable
   if (node.exp) {
@@ -543,88 +546,65 @@ visitDeclaracion2Dimension(node) {
  * @type {BaseVisitor['visitAsignacionDimensiones']}
  */
 visitAsignacionDimensiones(node) {
-    const matriz = this.entornoActual.getVariable(node.id);
-    if (!Array.isArray(matriz.valor)) {
-        throw new Error(`La Variable: "${node.id}" No Es Una Matriz.`);
-    }
-    node.valores.forEach((valor, index) => {
-        const numero = valor.accept(this);
-        if (numero.tipo !== 'int') {
-            throw new Error(`El Indice De Acceso "${index + 1}" Debe Ser De Tipo Int: "${numero.tipo}".`);
-        }
-        if (numero.valor < 0) {
-            throw new Error(`El Indice De Acceso "${index + 1}" No Puede Ser Negativa: "${numero.valor}".`);
-        }
-    });
-    if (node.valor.tipo !== matriz.tipo) {
-        throw new Error(`El Tipo Del Valor "${valor.valor}" No Coincide Con El Tipo De La Matriz "${arreglo.tipo}".`);
-    }
-    
-    function asignarValor(matriz, indices, nuevoValor) {
-        let ref = matriz;
-        for (let i = 0; i < indices.length - 1; i++) {
-            const idx = indices[i].valor;
-            if (idx >= ref.length) {
-                throw new Error(`Índice Fuera De Rango: "${idx}" En Dimensión: "${i + 1}".`);
-            }
-            ref = ref[idx];
-        }
-        const lastIdx = indices[indices.length - 1].valor;
-        if (lastIdx >= ref.length) {
-            throw new Error(`Índice Fuera De Rango: "${lastIdx}" En Dimensión: "${indices.length}".`);
-        }
-        ref[lastIdx] = nuevoValor;
-    }
-    asignarValor(matriz.valor, node.valores, node.valor.valor);
-    return;
+  const matriz = this.entornoActual.getVariable(node.id);
+  const nuevoValor = node.nuevoValor.accept(this);
+  // Verificar si la variable es una matriz
+  if (!Array.isArray(matriz.valor)) {
+      throw new Error(`La Variable: "${node.id}" No Es Una Matriz.`);
+  }
+  // Verificar tipos y rangos de los índices
+  let subMatriz = matriz.valor;
+  node.indices.forEach((indice, index) => {
+      const numero = indice.accept(this);
+      if (numero.tipo !== 'int') {
+          throw new Error(`El Índice De Acceso "${index + 1}" Debe Ser De Tipo Int: "${numero.tipo}".`);
+      }
+      if (numero.valor < 0 || numero.valor >= subMatriz.length) {
+          throw new Error(`Índice Fuera De Rango: "${numero.valor}" En Dimensión "${index + 1}".`);
+      }
+      // Avanzar en la matriz multidimensional
+      if (index < node.indices.length - 1) {
+          subMatriz = subMatriz[numero.valor];
+          if (!Array.isArray(subMatriz)) {
+              throw new Error(`La Variable En Dimensión "${index + 2}" No Es Una Matriz.`);
+          }
+      } else {
+          // Último nivel, asignar el nuevo valor
+          subMatriz[numero.valor] = nuevoValor.valor;
+      }
+  });
+  // Verificar si el tipo del nuevo valor coincide con el tipo de la matriz
+  if (nuevoValor.tipo !== matriz.tipo) {
+      throw new Error(`El Tipo Del Valor "${nuevoValor.tipo}" No Coincide Con El Tipo De La Matriz "${matriz.tipo}".`);
+  }
 }
+
 
 /**
  * @type {BaseVisitor['visitAccesoDimensiones']}
  */
 visitAccesoDimensiones(node) {
-    const matriz = this.entornoActual.getVariable(node.id);
-    if (!Array.isArray(matriz.valor)) {
-        throw new Error(`La Variable: "${node.id}" No Es Una Matriz.`);
-    }
-    node.valores.forEach((valor, index) => {
-        const numero = valor.accept(this);
-        if (numero.tipo !== 'int') {
-            throw new Error(`El Indice De Acceso "${index + 1}" Debe Ser De Tipo Int: "${numero.tipo}".`);
-        }
-        if (numero.valor < 0) {
-            throw new Error(`El Indice De Acceso "${index + 1}" No Puede Ser Negativa: "${numero.valor}".`);
-        }
-    });
-    for (let i = 0; i < arreglo.valor.length; i++) {
-        if (i === index.valor) {
-            return {valor: arreglo.valor[i], tipo: arreglo.tipo};
-        }
-    }
-    throw new Error(`Indice Fuera De Rango: "${index.valor}".`);
+  const matriz = this.entornoActual.getVariable(node.id);
+  if (!Array.isArray(matriz.valor)) {
+      throw new Error(`La Variable: "${node.id}" No Es Una Matriz.`);
+  }
+  let ref = matriz.valor;
+  node.valores.forEach((valor, index) => {
+      const numero = valor.accept(this);
+      if (numero.tipo !== 'int') {
+          throw new Error(`El Indice De Acceso "${index + 1}" Debe Ser De Tipo Int: "${numero.tipo}".`);
+      }
+      if (numero.valor < 0) {
+          throw new Error(`El Indice De Acceso "${index + 1}" No Puede Ser Negativa: "${numero.valor}".`);
+      }
+      if (numero.valor >= ref.length) {
+          throw new Error(`Índice Fuera De Rango: "${numero.valor}" En Dimensión "${index + 1}".`);
+      }
+      ref = ref[numero.valor];
+  });
+  return { valor: ref, tipo: matriz.tipo };
 }
-visitAccesoDimensiones(node) {
-    const matriz = this.entornoActual.getVariable(node.id);
-    
-    if (!Array.isArray(matriz.valor)) {
-        throw new Error(`La Variable: "${node.id}" No Es Una Matriz.`);
-    }
-    let ref = matriz.valor;
-    node.valores.forEach((valor, index) => {
-        const numero = valor.accept(this);
-        if (numero.tipo !== 'int') {
-            throw new Error(`El Indice De Acceso "${index + 1}" Debe Ser De Tipo Int: "${numero.tipo}".`);
-        }
-        if (numero.valor < 0) {
-            throw new Error(`El Indice De Acceso "${index + 1}" No Puede Ser Negativa: "${numero.valor}".`);
-        }
-        if (numero.valor >= ref.length) {
-            throw new Error(`Índice Fuera De Rango: "${numero.valor}" En Dimensión "${index + 1}".`);
-        }
-        ref = ref[numero.valor];
-    });
-    return { valor: ref, tipo: matriz.tipo };
-}
+
 
 //////////////////////////////////////////// MENORES AUXILIARES ////////////////////////////////////////////
 

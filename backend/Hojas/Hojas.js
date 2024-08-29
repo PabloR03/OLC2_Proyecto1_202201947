@@ -635,10 +635,10 @@ export class AsignacionDimensiones extends Expresion {
     /**
     * @param {Object} options
     * @param {string} options.id Identificador de la matriz
- * @param {Expresion} options.valores Indices de la matriz
- * @param {Expresion} options.valor Valor a asignar
+ * @param {Expresion} options.indices Indices de la matriz
+ * @param {Expresion} options.nuevoValor Valor a asignar
     */
-    constructor({ id, valores, valor }) {
+    constructor({ id, indices, nuevoValor }) {
         super();
         
         /**
@@ -652,14 +652,14 @@ export class AsignacionDimensiones extends Expresion {
          * Indices de la matriz
          * @type {Expresion}
         */
-        this.valores = valores;
+        this.indices = indices;
 
 
         /**
          * Valor a asignar
          * @type {Expresion}
         */
-        this.valor = valor;
+        this.nuevoValor = nuevoValor;
 
     }
 

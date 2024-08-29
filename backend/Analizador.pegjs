@@ -125,7 +125,7 @@ Contenidos = _ expresion1:expresion _ valores:("," _ expresion:expresion {return
 
 AsignarArreglos = _ id:identificador _ "[" _ index:expresion _ "]" _ "=" _ valor:expresion _ ";" _ {return crearHoja('asignacionArreglo', { id, index, valor })}
 
-AsignacionDimensiones = _ id:identificador _ valores:valDimensiones _ "=" _ valor:expresion _ ";" _{return crearHoja('AsignacionDimensiones', { id, valores, valor })}
+AsignacionDimensiones = _ id:identificador _ indices:valDimensiones _ "=" _ nuevoValor:expresion _ ";" _{return crearHoja('AsignacionDimensiones', { id, indices, nuevoValor })}
 
 Dimensiones = _ tipo:tipoVariable _ dimensiones:listaDimensiones _ id:identificador _ "=" _ valores:initDimensiones _ ";" _ {return crearHoja('DeclaracionDimension', {tipo, dimensiones, id, valores});}
             / _ tipo1:tipoVariable _ dimensiones:listaDimensiones _ id:identificador _ "=" _ "new"_ tipo2:identificador _ valores:valDimensiones _ ";" _ {return crearHoja('Declaracion2Dimension', {tipo1, dimensiones, id, tipo2, valores});}
