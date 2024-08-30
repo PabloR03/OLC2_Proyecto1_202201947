@@ -37,6 +37,9 @@
  * @typedef {import('../Hojas/Hojas.js').For} For
 
 
+ * @typedef {import('../Hojas/Hojas.js').ForEach} ForEach
+
+
  * @typedef {import('../Hojas/Hojas.js').Break} Break
 
 
@@ -232,6 +235,15 @@ export class BaseVisitor {
      */
     visitFor(node) {
         throw new Error('Metodo visitFor no implementado');
+    }
+    
+
+    /**
+     * @param {ForEach} node
+     * @returns {any}
+     */
+    visitForEach(node) {
+        throw new Error('Metodo visitForEach no implementado');
     }
     
 

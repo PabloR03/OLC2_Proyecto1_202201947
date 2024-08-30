@@ -112,7 +112,7 @@ export function inicializarInterprete() {
                 }
             });
             console.log({sentencias});
-            console.log(JSON.stringify(sentencias, null, 2));
+            //console.log(JSON.stringify(sentencias, null, 2));
             //console.log(interprete.salida);
             txtSalida.value += interprete.salida;  // Añadir salida al final
         } catch (error) {

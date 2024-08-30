@@ -428,6 +428,55 @@ export class For extends Expresion {
     }
 }
     
+export class ForEach extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.tipo Inicializacion del for, tipo variable
+ * @param {Expresion} options.id Condicion del for
+ * @param {Expresion} options.id2 Incremento del for
+ * @param {Expresion} options.sentencias Cuerpo del for
+    */
+    constructor({ tipo, id, id2, sentencias }) {
+        super();
+        
+        /**
+         * Inicializacion del for, tipo variable
+         * @type {Expresion}
+        */
+        this.tipo = tipo;
+
+
+        /**
+         * Condicion del for
+         * @type {Expresion}
+        */
+        this.id = id;
+
+
+        /**
+         * Incremento del for
+         * @type {Expresion}
+        */
+        this.id2 = id2;
+
+
+        /**
+         * Cuerpo del for
+         * @type {Expresion}
+        */
+        this.sentencias = sentencias;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitForEach(this);
+    }
+}
+    
 export class Break extends Expresion {
 
     /**
@@ -1331,4 +1380,4 @@ export class AsignacionVariable extends Expresion {
     }
 }
     
-export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, Break, Continue, Return, Llamada, DeclaracionDimension, Declaracion2Dimension, AsignacionDimensiones, AccesoDimensiones, Switch, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Embebidas, DeclaracionArreglo, Declaracion2Arreglo, Declaracion3Arreglo, IndexArreglo, JoinArreglo, LengthArreglo, AccesoArreglo, AsignacionArreglo, Bloque, ExpresionStmt, AsignacionVariable }
+export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, ForEach, Break, Continue, Return, Llamada, DeclaracionDimension, Declaracion2Dimension, AsignacionDimensiones, AccesoDimensiones, Switch, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Embebidas, DeclaracionArreglo, Declaracion2Arreglo, Declaracion3Arreglo, IndexArreglo, JoinArreglo, LengthArreglo, AccesoArreglo, AsignacionArreglo, Bloque, ExpresionStmt, AsignacionVariable }

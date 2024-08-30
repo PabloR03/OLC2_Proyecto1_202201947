@@ -709,6 +709,63 @@ visitFor(node) {
 }
 
 /**
+ * @type {BaseVisitor['visitForEach']}
+ */
+visitForEach(node) {
+  // Gramática del foreach
+  // ForEach = _ "for" _ "(" _ tipo:tipoVariable _ id:identificador _ ":" _ id2:identificador _ ")" _ sentencias:Sentencias {return crearHoja('forEach', { tipo, id, id2, sentencias })}
+  
+  // Obtener el array o iterable sobre el que vamos a iterar
+  const iterable = this.entorno.getVariable(node.id2);
+  
+  // Verificar que el iterable existe y es de tipo array
+  if (!iterable || !Array.isArray(iterable.valor)) {
+    throw new Error(`Error: '${node.id2}' no es un array válido.`);
+  }
+  
+  let resultado = { valor: null };
+  
+  // Crear un nuevo entorno para el bucle forEach
+  const entornoForEach = new Entorno(this.entorno);
+  
+  try {
+    // Declarar la variable de iteración en el nuevo entorno
+    entornoForEach.setVariable(node.tipo, node.id, { valor: null, tipo: node.tipo });
+    
+    // Guardar el entorno actual
+    const entornoAnterior = this.entorno;
+    // Establecer el nuevo entorno para el bucle
+    this.entorno = entornoForEach;
+    
+    // Iterar sobre cada elemento del array
+    for (const elemento of iterable.valor) {
+      // Asignar el valor del elemento a la variable de iteración
+      this.entorno.assignVariable(node.id, { valor: elemento, tipo: node.tipo });
+      
+      // Ejecutar las sentencias del cuerpo del foreach
+      resultado = node.sentencias.accept(this);
+      
+      // Si hay un 'return', 'break' o 'continue', manejarlo apropiadamente
+      if (resultado && (resultado.tipo === 'return' || resultado.tipo === 'break')) {
+        break;
+      }
+      if (resultado && resultado.tipo === 'continue') {
+        continue;
+      }
+    }
+    
+    // Restaurar el entorno anterior
+    this.entorno = entornoAnterior;
+  } catch (error) {
+    // Restaurar el entorno anterior en caso de error
+    this.entorno = entornoAnterior;
+    throw error;
+  }
+  
+  return resultado;
+}
+
+/**
  * @type {BaseVisitor['visitSwitch']}
  */
 visitSwitch(node) {

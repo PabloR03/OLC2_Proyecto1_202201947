@@ -38,7 +38,8 @@ const crearHoja = (tipoHoja, props) =>{
         'AsignacionDimensiones': hojas.AsignacionDimensiones,
         'DeclaracionDimension': hojas.DeclaracionDimension,
         'Declaracion2Dimension': hojas.Declaracion2Dimension,
-        'AccesoDimensiones': hojas.AccesoDimensiones
+        'AccesoDimensiones': hojas.AccesoDimensiones,
+        'forEach': hojas.ForEach
         }
 
     const nodo = new tipos[tipoHoja](props)
@@ -64,6 +65,7 @@ Sentencias = ifs:If {return ifs}
             / switchs:Switch {return switchs}
             / whiles:While {return whiles}
             / fors:For {return fors}
+            / forEachs:ForEach {return forEachs}
             / breaks:Break {return breaks}
             / continues:Continue {return continues}
             / returns:Return {return returns}
@@ -90,6 +92,8 @@ If =  _ "if" _ "(" _ cond:expresion _ ")" _ verdad:Sentencias falso:(_ "else" _ 
 While = _ "while" _ "(" _ cond:expresion _ ")" _ sentencias:Sentencias { return crearHoja('while', { cond, sentencias }) }
 
 For = _ "for" _ "(" _ init:ForInit _ cond:expresion _ ";" _ inc:expresion _ ")" _ sentencias:Sentencias {return crearHoja('for', { init, cond, inc, sentencias })}
+
+ForEach = _ "for" _ "(" _ tipo:tipoVariable _ id:identificador _ ":" _ id2:identificador _ ")" _ sentencias:Sentencias {return crearHoja('forEach', { tipo, id, id2, sentencias })}
 
 Break = _ "break" _ ";" _ { return crearHoja('break') }
 
