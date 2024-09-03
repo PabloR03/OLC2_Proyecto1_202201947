@@ -73,7 +73,7 @@ export function inicializarInterprete() {
     const btnEjecutar = document.getElementById('btnEjecutar');
     const tablaSimbolosBtn = document.getElementById('tablaSimbolos');
 
-    if (!txtEntrada || !txtSalida || !nlEntrada || !nlSalida || !btnEjecutar) {
+    if (!txtEntrada || !txtSalida || !nlEntrada || !nlSalida || !btnEjecutar || !tablaSimbolosBtn) {
         console.error("Uno o más elementos necesarios no se encontraron en el DOM");
         return;
     }
@@ -94,6 +94,104 @@ export function inicializarInterprete() {
 
     function obtenerEntorno() {
         return interprete.entorno;
+    }
+
+    function mostrarTablaSimbolos() {
+        const codigo = txtEntrada.value;
+        let tablaHTML = '<table border="1"><tr><th>Entorno</th><th>Variable</th><th>Tipo</th><th>Valor</th><th>Línea</th><th>Columna</th><th>Detalle</th></tr>';
+        
+        try {
+            const sentencias = parse(codigo);
+            let entornoGlobal = {};
+            let entornoActual = entornoGlobal;
+            let nivelEntorno = 0;
+    
+            function agregarFila(entorno, variable, tipo, valor, linea, columna, detalle) {
+                tablaHTML += `<tr>
+                    <td>${entorno}</td>
+                    <td>${variable}</td>
+                    <td>${tipo}</td>
+                    <td>${valor !== undefined ? JSON.stringify(valor) : 'no asignado'}</td>
+                    <td>${linea}</td>
+                    <td>${columna}</td>
+                    <td>${detalle}</td>
+                </tr>`;
+            }
+    
+            function obtenerValorVariable(id) {
+                return entornoActual[id]?.valor;
+            }
+    
+            function procesarSentencias(sentencias, nivel) {
+                sentencias.forEach(sentencia => {
+                    const entorno = nivel === 0 ? 'Global' : `Bloque ${nivel}`;
+                    const linea = sentencia.location?.start?.line || '-';
+                    const columna = sentencia.location?.start?.column || '-';
+                    
+                    if (sentencia.tipoVar && sentencia.id) {
+                        // DeclaracionVariable
+                        const valor = sentencia.exp ? sentencia.exp.valor : undefined;
+                        entornoActual[sentencia.id] = { tipo: sentencia.tipoVar, valor: valor };
+                        agregarFila(entorno, sentencia.id, sentencia.tipoVar, valor, linea, columna, `Variable '${sentencia.id}' ${nivel === 0 ? 'global' : 'local'} declarada`);
+                    } else if (sentencia.id && sentencia.exp) {
+                        // AsignacionVariable
+                        entornoActual[sentencia.id].valor = sentencia.exp.valor;
+                        agregarFila(entorno, sentencia.id, entornoActual[sentencia.id].tipo, sentencia.exp.valor, linea, columna, `Asignación de '${sentencia.id} = ${sentencia.exp.valor}'`);
+                    } else if (sentencia.exps) {
+                        // Print
+                        const exp = sentencia.exps[0];
+                        let valor, detalle;
+                        if (exp.id) {
+                            valor = obtenerValorVariable(exp.id);
+                            detalle = `print(${exp.id}); imprime el valor ${JSON.stringify(valor)}`;
+                        } else if (exp.valor !== undefined) {
+                            valor = exp.valor;
+                            detalle = `print(${JSON.stringify(valor)}); imprime el valor literal`;
+                        } else {
+                            valor = "desconocido";
+                            detalle = `print(...); expresión no reconocida`;
+                        }
+                        agregarFila(entorno, '-', '-', valor, linea, columna, detalle);
+                    } else if (sentencia.instrucciones) {
+                        // Bloque
+                        nivelEntorno++;
+                        const entornoAnterior = entornoActual;
+                        entornoActual = Object.create(entornoAnterior);
+                        procesarSentencias(sentencia.instrucciones, nivelEntorno);
+                        entornoActual = entornoAnterior;
+                        nivelEntorno--;
+                        agregarFila(entorno, '-', '-', '-', linea, columna, `Salimos del bloque ${nivelEntorno + 1}`);
+                    }
+                });
+            }
+    
+            procesarSentencias(sentencias, nivelEntorno);
+        } catch (error) {
+            console.error("Error al parsear el código:", error);
+            tablaHTML += `<tr><td colspan="7">Error al generar la tabla de símbolos: ${error.message}</td></tr>`;
+        }
+        
+        tablaHTML += '</table>';
+        
+        // Crear una ventana emergente para mostrar la tabla
+        const ventanaEmergente = window.open('', 'Tabla de Símbolos', 'width=1200,height=600');
+        ventanaEmergente.document.write(`
+            <html>
+            <head>
+                <title>Tabla de Símbolos</title>
+                <style>
+                    table { border-collapse: collapse; width: 100%; }
+                    th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                    th { background-color: #f2f2f2; }
+                </style>
+            </head>
+            <body>
+                <h2>Tabla de Símbolos</h2>
+                ${tablaHTML}
+            </body>
+            </html>
+        `);
+        ventanaEmergente.document.close();
     }
 
     function ejecutarCodigo() {
@@ -127,6 +225,7 @@ export function inicializarInterprete() {
     txtEntrada.addEventListener('scroll', () => syncScroll(txtEntrada, nlEntrada));
     txtSalida.addEventListener('scroll', () => syncScroll(txtSalida, nlSalida));
     btnEjecutar.addEventListener('click', ejecutarCodigo);
+    tablaSimbolosBtn.addEventListener('click', mostrarTablaSimbolos);
 
     handleInput();
 }

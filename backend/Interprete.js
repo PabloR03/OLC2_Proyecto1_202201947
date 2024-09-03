@@ -1,8 +1,9 @@
 import { BaseVisitor } from './Patron/Visitor.js';
 import { Entorno } from './oakLand/Entorno/Entorno.js';
-import { BreakException, ContinueException } from './oakLand/Instrucciones/Transferencia.js';
+import { BreakException, ContinueException, ReturnException} from './oakLand/Instrucciones/Transferencia.js';
 import { Invocable } from './oakLand/Instrucciones/Invocaciones.js';
 import { Embebidas } from './oakLand/Instrucciones/funEmbebidas.js';
+import { FuncionForanea } from './oakLand/Instrucciones/Funcion.js';
 
 export class InterpreterVisitor extends BaseVisitor {
     constructor() {
@@ -910,7 +911,10 @@ visitContinue(node) {
  * @type {BaseVisitor['visitReturn']}
  */
 visitReturn(node) {
-  const valor = node.expresion ? node.expresion.accept(this) : null;
+  let valor = null
+  if (node.exp) {
+      valor = node.exp.accept(this);
+  }
   throw new ReturnException(valor);
 }
 
@@ -929,6 +933,19 @@ visitLlamada(node) {
       throw new Error(`La función espera ${funcion.aridad()} argumentos, pero se recibieron ${argumentos.length}`);
   }
   return funcion.invocar(this, argumentos);
+}
+
+/**
+ * @type {BaseVisitor['visitDeclaracionFuncion']}
+ */
+visitDeclaracionFuncion(node) {
+  console.log(node.bloque)
+  console.log(node.id)
+  console.log(node.tipoRetorno)
+  console.log(node.params)
+  const funcion = new FuncionForanea(node, this.entornoActual);
+  
+  this.entornoActual.setVariable(node.tipoRetorno, node.id, funcion);
 }
 }
 

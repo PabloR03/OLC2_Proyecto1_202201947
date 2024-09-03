@@ -88,6 +88,9 @@
  * @typedef {import('../Hojas/Hojas.js').Embebidas} Embebidas
 
 
+ * @typedef {import('../Hojas/Hojas.js').DeclaracionFuncion} DeclaracionFuncion
+
+
  * @typedef {import('../Hojas/Hojas.js').DeclaracionArreglo} DeclaracionArreglo
 
 
@@ -388,6 +391,15 @@ export class BaseVisitor {
      */
     visitEmbebidas(node) {
         throw new Error('Metodo visitEmbebidas no implementado');
+    }
+    
+
+    /**
+     * @param {DeclaracionFuncion} node
+     * @returns {any}
+     */
+    visitDeclaracionFuncion(node) {
+        throw new Error('Metodo visitDeclaracionFuncion no implementado');
     }
     
 

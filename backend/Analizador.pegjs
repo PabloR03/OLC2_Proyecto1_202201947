@@ -39,7 +39,8 @@ const crearHoja = (tipoHoja, props) =>{
         'DeclaracionDimension': hojas.DeclaracionDimension,
         'Declaracion2Dimension': hojas.Declaracion2Dimension,
         'AccesoDimensiones': hojas.AccesoDimensiones,
-        'forEach': hojas.ForEach
+        'forEach': hojas.ForEach, 
+        'DeclaracionFuncion': hojas.DeclaracionFuncion
         }
 
     const nodo = new tipos[tipoHoja](props)
@@ -54,11 +55,22 @@ Bloque = _ "{" _ instrucciones:instrucciones* _ "}" _ {return crearHoja('bloque'
 
 instrucciones =  declaracionVariable:declaracionVariable {return declaracionVariable}
                 / sentencia:Sentencias {return sentencia}
+                / dlc:FuncionDeclaracion {return dlc}
                 
+
+
+FuncionDeclaracion = tipoRetorno:("void" / tipoVariable) _ id:identificador _ "(" _ params:Parametros? _ ")" _ bloque:Bloque { return crearHoja('DeclaracionFuncion', {tipoRetorno, id, params: params || [], bloque }) }
+
+Parametros = primerParam:ParametroDeclaracion restoParams:(_ "," _ param:ParametroDeclaracion { return param })*{ return [primerParam, ...restoParams] }
+
+ParametroDeclaracion = tipo:tipoVariable _ id:identificador primerDim:ArregloDecFun?{ return { tipo, id, primerDim } }
+
+ArregloDecFun = "[" _ "]"+  { return text();}
 
 Sentencias = ifs:If {return ifs}
             / prt:print {return prt} 
             / bloque:Bloque {return bloque}
+            / llamada:Llamada _ ";" _ {return llamada}
             / asignacion:AsignacionVariable {return asignacion}
             / asignarArreglo:AsignarArreglos {return asignarArreglo}
             / asignarDimensiones:AsignacionDimensiones {return asignarDimensiones}

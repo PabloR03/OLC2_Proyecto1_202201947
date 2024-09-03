@@ -1009,6 +1009,55 @@ export class Embebidas extends Expresion {
     }
 }
     
+export class DeclaracionFuncion extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.tipoRetorno Tipo de retorno de la funcion
+ * @param {string} options.id Identificador de la funcion
+ * @param {string[]} options.params Parametros de la funcion
+ * @param {Bloque} options.bloque Cuerpo de la funcion
+    */
+    constructor({ tipoRetorno, id, params, bloque }) {
+        super();
+        
+        /**
+         * Tipo de retorno de la funcion
+         * @type {string}
+        */
+        this.tipoRetorno = tipoRetorno;
+
+
+        /**
+         * Identificador de la funcion
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Parametros de la funcion
+         * @type {string[]}
+        */
+        this.params = params;
+
+
+        /**
+         * Cuerpo de la funcion
+         * @type {Bloque}
+        */
+        this.bloque = bloque;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDeclaracionFuncion(this);
+    }
+}
+    
 export class DeclaracionArreglo extends Expresion {
 
     /**
@@ -1380,4 +1429,4 @@ export class AsignacionVariable extends Expresion {
     }
 }
     
-export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, ForEach, Break, Continue, Return, Llamada, DeclaracionDimension, Declaracion2Dimension, AsignacionDimensiones, AccesoDimensiones, Switch, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Embebidas, DeclaracionArreglo, Declaracion2Arreglo, Declaracion3Arreglo, IndexArreglo, JoinArreglo, LengthArreglo, AccesoArreglo, AsignacionArreglo, Bloque, ExpresionStmt, AsignacionVariable }
+export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, ForEach, Break, Continue, Return, Llamada, DeclaracionDimension, Declaracion2Dimension, AsignacionDimensiones, AccesoDimensiones, Switch, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Embebidas, DeclaracionFuncion, DeclaracionArreglo, Declaracion2Arreglo, Declaracion3Arreglo, IndexArreglo, JoinArreglo, LengthArreglo, AccesoArreglo, AsignacionArreglo, Bloque, ExpresionStmt, AsignacionVariable }
