@@ -32,6 +32,13 @@ export class Entorno {
         throw new Error(`La Variable "${nombre}" No Está Definida.`);
     }
 
+    setTemporal(tipo, nombre, valor) {
+        if(this.valores[nombre]) {
+            throw new Error(`La Variable: "${nombre}" Ya Está Definida.`);
+        }
+        this.valores[nombre] = {valor, tipo}
+}
+
     /**
      * @param {string} nombre
      * @param {any} valor
