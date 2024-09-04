@@ -8,7 +8,6 @@ const crearHoja = (tipoHoja, props) =>{
         'declaracionVariable': hojas.DeclaracionVariable,
         'referenciaVariable': hojas.ReferenciaVariable,
         'print': hojas.Print,
-        'expresionStmt': hojas.ExpresionStmt,
         'cadena': hojas.Cadena,
         'caracter': hojas.Caracter,
         'numero': hojas.Numero,
@@ -59,17 +58,26 @@ instrucciones =  declaracionVariable:declaracionVariable {return declaracionVari
                 
 
 
-FuncionDeclaracion = tipoRetorno:("void" / tipoVariable) _ id:identificador _ "(" _ params:Parametros? _ ")" _ bloque:Bloque { return crearHoja('DeclaracionFuncion', {tipoRetorno, id, params: params || [], bloque }) }
 
-Parametros = primerParam:ParametroDeclaracion restoParams:(_ "," _ param:ParametroDeclaracion { return param })*{ return [primerParam, ...restoParams] }
 
-ParametroDeclaracion = tipo:tipoVariable _ id:identificador primerDim:ArregloDecFun?{ return { tipo, id, primerDim } }
+FuncionDeclaracion = tipo:(tipoVariable / "void") _ id:identificador _ "(" _ params:Parametros? _ ")" _ bloque:Bloque { return crearHoja('DeclaracionFuncion', { tipo, id, params: params || [], bloque }) }
 
-ArregloDecFun = "[" _ "]"+  { return text();}
+Parametros = primerParametro:ParametroDeclaracion restoParams:("," _ param:ParametroDeclaracion { return param; })* { return [primerParametro, ...restoParams]; }
+
+ParametroDeclaracion = tipo:tipoVariable dimensiones:ArregloDecFun? _ id:identificador{ return { tipo, id, dim: dimensiones || "" }; }
+
+ArregloDecFun = "[" _ "]"+  { return text(); }
+
+
+
+
 
 Sentencias = ifs:If {return ifs}
             / prt:print {return prt} 
             / bloque:Bloque {return bloque}
+            / breaks:Break {return breaks}
+            / continues:Continue {return continues}
+            / returns:Return {return returns}
             / llamada:Llamada _ ";" _ {return llamada}
             / asignacion:AsignacionVariable {return asignacion}
             / asignarArreglo:AsignarArreglos {return asignarArreglo}
@@ -78,10 +86,6 @@ Sentencias = ifs:If {return ifs}
             / whiles:While {return whiles}
             / fors:For {return fors}
             / forEachs:ForEach {return forEachs}
-            / breaks:Break {return breaks}
-            / continues:Continue {return continues}
-            / returns:Return {return returns}
-            / ExpressionStatement
 
 expresion = arit:Ternario {return arit}
             / boolean:Booleanos {return boolean}
@@ -101,9 +105,9 @@ expresion = arit:Ternario {return arit}
 
 If =  _ "if" _ "(" _ cond:expresion _ ")" _ verdad:Sentencias falso:(_ "else" _ falso:Sentencias { return falso } )? { return crearHoja('if', { cond, verdad, falso}) }
 
-While = _ "while" _ "(" _ cond:expresion _ ")" _ sentencias:Sentencias { return crearHoja('while', { cond, sentencias }) }
+While = _ "while" _ "(" _ cond:expresion _ ")" _ instrucciones:Sentencias { return crearHoja('while', { cond, instrucciones }) }
 
-For = _ "for" _ "(" _ init:ForInit _ cond:expresion _ ";" _ inc:expresion _ ")" _ sentencias:Sentencias {return crearHoja('for', { init, cond, inc, sentencias })}
+For = _ "for" _ "(" _ init:ForInit _ cond:expresion _ ";" _ inc:AsignacionVariable _ ")" _ sentencias:Sentencias {return crearHoja('for', { init, cond, inc, sentencias })}
 
 ForEach = _ "for" _ "(" _ tipo:tipoVariable _ id:identificador _ ":" _ id2:identificador _ ")" _ sentencias:Sentencias {return crearHoja('forEach', { tipo, id, id2, sentencias })}
 
@@ -112,8 +116,6 @@ Break = _ "break" _ ";" _ { return crearHoja('break') }
 Continue = _ "continue" _ ";" _ { return crearHoja('continue') }
 
 Return = _ "return" _ exp:expresion? _ ";" { return crearHoja('return', { exp }) }
-        / exp:expresion _ ";" _ { return crearHoja('expresionStmt', { exp }) }
-
 ForInit = declaracion:declaracionVariable _  { return declaracion }
         / exp:expresion _ ";" _{ return exp }
         / _ ";" _ { return null }
@@ -121,8 +123,6 @@ ForInit = declaracion:declaracionVariable _  { return declaracion }
 Switch = _ "switch" _ "(" _ expre:expresion _ ")" _ "{" _ cases:SwitchCase* def:DefaultCase? _ "}" { return crearHoja('switch', { expre, cases, def }) }
 SwitchCase = _ "case" _ valor:expresion _ ":" _ sentenciasBloque:Sentencias* { return { valor, sentenciasBloque } }
 DefaultCase = _ "default" _ ":" _ sentencias:Sentencias* { return { sentencias } }
-
-ExpressionStatement = exp:expresion _ ";" _ { return crearHoja('expresionStmt', { exp }) }
 
 declaracionVariable = _ tipoVar:tipoVariable _ id:identificador _ "=" _ exp:expresion _ ";" _  {return crearHoja('declaracionVariable', {tipoVar, id, exp})}
     / _ tipoVar:tipoVariable _ id:identificador _ ";" _ {return crearHoja('declaracionVariable', {tipoVar, id})}
@@ -163,7 +163,7 @@ AsignacionVariable =  _ id:identificador _ "=" _ exp:expresion _ ";" _ { return 
     / _ id:identificador _ op:("+=" / "-=") _ exp:expresion _ { return crearHoja('asignacionVariable', { id, exp: crearHoja('aritmetica', { op, izq: crearHoja('referenciaVariable', { id }), der: exp }) }) }
     
 
-print = _ "print" _ "(" _ exps:expresiones _ ")" _ ";" _ {return crearHoja('print', {exps})}
+print = _ "System.out.println" _ "(" _ exps:expresiones _ ")" _ ";" _ {return crearHoja('print', {exps})}
 
 expresiones = exp:expresion resto:(_ "," _ expr:expresion {return expr})* 
             { return [exp, ...resto] }

@@ -118,9 +118,6 @@
  * @typedef {import('../Hojas/Hojas.js').Bloque} Bloque
 
 
- * @typedef {import('../Hojas/Hojas.js').ExpresionStmt} ExpresionStmt
-
-
  * @typedef {import('../Hojas/Hojas.js').AsignacionVariable} AsignacionVariable
 
  */
@@ -481,15 +478,6 @@ export class BaseVisitor {
      */
     visitBloque(node) {
         throw new Error('Metodo visitBloque no implementado');
-    }
-    
-
-    /**
-     * @param {ExpresionStmt} node
-     * @returns {any}
-     */
-    visitExpresionStmt(node) {
-        throw new Error('Metodo visitExpresionStmt no implementado');
     }
     
 

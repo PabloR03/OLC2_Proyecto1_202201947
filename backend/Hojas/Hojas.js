@@ -351,9 +351,9 @@ export class While extends Expresion {
     /**
     * @param {Object} options
     * @param {Expresion} options.cond Condicion del while
- * @param {Expresion} options.sentencias Cuerpo del while
+ * @param {Expresion} options.instrucciones Cuerpo del while
     */
-    constructor({ cond, sentencias }) {
+    constructor({ cond, instrucciones }) {
         super();
         
         /**
@@ -367,7 +367,7 @@ export class While extends Expresion {
          * Cuerpo del while
          * @type {Expresion}
         */
-        this.sentencias = sentencias;
+        this.instrucciones = instrucciones;
 
     }
 
@@ -1013,19 +1013,19 @@ export class DeclaracionFuncion extends Expresion {
 
     /**
     * @param {Object} options
-    * @param {string} options.tipoRetorno Tipo de retorno de la funcion
+    * @param {string} options.tipo Tipo de retorno de la funcion
  * @param {string} options.id Identificador de la funcion
  * @param {string[]} options.params Parametros de la funcion
  * @param {Bloque} options.bloque Cuerpo de la funcion
     */
-    constructor({ tipoRetorno, id, params, bloque }) {
+    constructor({ tipo, id, params, bloque }) {
         super();
         
         /**
          * Tipo de retorno de la funcion
          * @type {string}
         */
-        this.tipoRetorno = tipoRetorno;
+        this.tipo = tipo;
 
 
         /**
@@ -1371,31 +1371,6 @@ export class Bloque extends Expresion {
     }
 }
     
-export class ExpresionStmt extends Expresion {
-
-    /**
-    * @param {Object} options
-    * @param {Expresion} options.exp Expresion a evaluar
-    */
-    constructor({ exp }) {
-        super();
-        
-        /**
-         * Expresion a evaluar
-         * @type {Expresion}
-        */
-        this.exp = exp;
-
-    }
-
-    /**
-     * @param {BaseVisitor} visitor
-     */
-    accept(visitor) {
-        return visitor.visitExpresionStmt(this);
-    }
-}
-    
 export class AsignacionVariable extends Expresion {
 
     /**
@@ -1429,4 +1404,4 @@ export class AsignacionVariable extends Expresion {
     }
 }
     
-export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, ForEach, Break, Continue, Return, Llamada, DeclaracionDimension, Declaracion2Dimension, AsignacionDimensiones, AccesoDimensiones, Switch, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Embebidas, DeclaracionFuncion, DeclaracionArreglo, Declaracion2Arreglo, Declaracion3Arreglo, IndexArreglo, JoinArreglo, LengthArreglo, AccesoArreglo, AsignacionArreglo, Bloque, ExpresionStmt, AsignacionVariable }
+export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, ForEach, Break, Continue, Return, Llamada, DeclaracionDimension, Declaracion2Dimension, AsignacionDimensiones, AccesoDimensiones, Switch, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Embebidas, DeclaracionFuncion, DeclaracionArreglo, Declaracion2Arreglo, Declaracion3Arreglo, IndexArreglo, JoinArreglo, LengthArreglo, AccesoArreglo, AsignacionArreglo, Bloque, AsignacionVariable }

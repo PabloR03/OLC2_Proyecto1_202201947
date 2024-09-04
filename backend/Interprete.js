@@ -4,6 +4,7 @@ import { BreakException, ContinueException, ReturnException} from './oakLand/Ins
 import { Invocable } from './oakLand/Instrucciones/Invocaciones.js';
 import { Embebidas } from './oakLand/Instrucciones/funEmbebidas.js';
 import { FuncionForanea } from './oakLand/Instrucciones/Funcion.js';
+import Hojas from './Hojas/Hojas.js';
 
 export class InterpreterVisitor extends BaseVisitor {
     constructor() {
@@ -14,6 +15,7 @@ export class InterpreterVisitor extends BaseVisitor {
         });
         this.salida = '';
 
+        this.PrevContinue = null;
     }
 
     interpretar(nodo) {
@@ -622,15 +624,8 @@ visitAgrupacion(node) {
 visitBloque(node) {
   const entornoAnterior = this.entornoActual;
   this.entornoActual = new Entorno(entornoAnterior);
-  node.instrucciones.forEach(instruccion => instruccion.accept(this));
+  node.instrucciones.forEach(instrucciones => instrucciones.accept(this));
   this.entornoActual = entornoAnterior;
-}
-
-/**
-* @type {BaseVisitor['visitExpresionStmt']}
-*/
-visitExpresionStmt(node) {
-  node.exp.accept(this).valor;
 }
 
 //////////////////////////////////////////// INSTRUCCIONES ////////////////////////////////////////////
@@ -664,50 +659,96 @@ visitIf(node) {
  * @type {BaseVisitor['visitWhile']}
  */
 visitWhile(node) {
-  const initEntorno = this.entornoActual;
+console.log("entra a while");
+console.log(node.cond);
+console.log(node.instrucciones);
 
-  while (true) {
-    try {
-      if (!node.cond.accept(this).valor) {
-        break;
-      }
-      node.sentencias.accept(this);
-    } catch (error) {
-      if (error instanceof BreakException) {
-        break;
-      } else if (error instanceof ContinueException) {
-        continue;
-      } else {
-        throw error;
-      }
-    }
+  const EntornoInicial = this.entornoActual;
+  const condicion = node.cond.accept(this);
+  if (condicion.tipo !== 'boolean') {
+      throw new Error('Error: La Condición En Una Estructura While Debe Ser De Tipo Boolean.');
   }
+  try {
+      while (node.cond.accept(this).valor) {
+          node.instrucciones.accept(this);
+      }
+  } catch (error) {
+      this.entornoActual = EntornoInicial;
+      if (error instanceof BreakException) {
+          return
+      }
+      if (error instanceof ContinueException) {
+          return this.visitWhile(node);
+      }
+      throw error;
+}
 
-  this.entornoActual = initEntorno;
+
+  // const initEntorno = this.entornoActual;
+  // while (true) {
+  //   try {
+  //     if (!node.cond.accept(this).valor) {
+  //       break;
+  //     }
+  //     node.sentencias.accept(this);
+  //   } catch (error) {
+  //     if (error instanceof BreakException) {
+  //       break;
+  //     } else if (error instanceof ContinueException) {
+  //       continue;
+  //     } else {
+  //       throw error;
+  //     }
+  //   }
+  // }
+
+  // this.entornoActual = initEntorno;
 }
 
 /**
  * @type {BaseVisitor['visitFor']}
  */
+
 visitFor(node) {
-  const initEntorno = this.entornoActual;
-
-  for (node.init.accept(this); node.cond.accept(this).valor; node.inc.accept(this)) {
-    try {
-      node.sentencias.accept(this);
-    } catch (error) {
-      if (error instanceof BreakException) {
-        break;
-      } else if (error instanceof ContinueException) {
-        continue;
-      } else {
-        throw error;
-      }
-    }
-  }
-
-  this.entornoActual = initEntorno;
+  const PrevIncremento = this.PrevContinue;
+  this.PrevContinue = node.inc;
+  const ImplementacionFor = new Hojas.Bloque({
+    instrucciones: [
+          node.init,
+          new Hojas.While({
+            cond: node.cond,
+            instrucciones: new Hojas.Bloque({
+                instrucciones: [
+                      node.sentencias,
+                      node.inc
+                  ]
+              })
+          })
+      ]
+  })
+  ImplementacionFor.accept(this);
+  this.PrevContinue = PrevIncremento;
 }
+
+// visitFor(node) {
+//   const initEntorno = this.entornoActual;
+
+//   for (node.init.accept(this); node.cond.accept(this).valor; node.inc.accept(this)) {
+//     try {
+//       node.sentencias.accept(this);
+//     } catch (error) {
+//       if (error instanceof BreakException) {
+//         break;
+//       } else if (error instanceof ContinueException) {
+//         continue;
+//       } else {
+//         throw error;
+//       }
+//     }
+//   }
+
+//   this.entornoActual = initEntorno;
+// }
 
 /**
  * @type {BaseVisitor['visitForEach']}
@@ -904,7 +945,10 @@ visitBreak(node) {
  * @type {BaseVisitor['visitContinue']}
  */
 visitContinue(node) {
-  throw new ContinueException();
+  if (this.PrevContinue) {
+    this.PrevContinue.accept(this);
+}
+throw new ContinueException();
 }
 
 /**
@@ -941,11 +985,18 @@ visitLlamada(node) {
 visitDeclaracionFuncion(node) {
   console.log(node.bloque)
   console.log(node.id)
-  console.log(node.tipoRetorno)
+  console.log(node.tipo)
   console.log(node.params)
-  const funcion = new FuncionForanea(node, this.entornoActual);
   
-  this.entornoActual.setVariable(node.tipoRetorno, node.id, funcion);
+        // Validar nombres de parámetros únicos
+        const nombres = node.params.map(param => param.id);
+        const nombresUnicos = new Set(nombres);
+        if (nombres.length !== nombresUnicos.size) {
+            throw new Error(`Los parámetros de la función "${node.id}" no deben tener el mismo nombre.`);
+        }
+
+        const funcion = new FuncionForanea(node, this.entornoActual);
+        this.entornoActual.setVariable(node.tipo, node.id, funcion);
 }
 }
 

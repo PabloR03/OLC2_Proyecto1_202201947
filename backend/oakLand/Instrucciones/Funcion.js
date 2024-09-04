@@ -1,7 +1,7 @@
 import { Entorno } from "../Entorno/Entorno.js";
 import { Invocable } from "./Invocaciones.js";
 import { DeclaracionFuncion } from "../../Hojas/Hojas.js";
-import { ReturnException } from "./Transferencia.js";
+import { ReturnException, BreakException, ContinueException} from "./Transferencia.js";
 
 
 export class FuncionForanea extends Invocable {
@@ -32,7 +32,7 @@ export class FuncionForanea extends Invocable {
         const entornoNuevo = new Entorno(this.clousure);
 
         this.nodo.params.forEach((param, i) => {
-            entornoNuevo.setVariable(param.tipoRetorno, param.id, args[i]);
+            entornoNuevo.setVariable(param.tipo, param.id, args[i]);
         });
 
         const entornoAntesDeLaLlamada = interprete.entornoActual;
@@ -44,13 +44,13 @@ export class FuncionForanea extends Invocable {
             interprete.entornoActual = entornoAntesDeLaLlamada;
             if (error instanceof ReturnException) {
                 // Verificar si la función es de tipo 'void' y si 'ReturnException' tiene un valor
-                if (this.nodo.tipoRetorno === 'void' && error.valor !== null) {
+                if (this.nodo.tipo === 'void' && error.value !== null) {
                     throw new Error(`Una función de tipo 'void' no puede retornar un valor.`);
                 }
-                if (this.nodo.tipoRetorno !== error.valor.tipo) {
-                    throw new Error(`El tipo de retorno no coincide con el esperado ${this.node.tipo} != ${error.valor.tipo}`);
+                if (this.nodo.tipo != error.value.tipo) {
+                    throw new Error(`El tipo de retorno no coincide con el esperado ${this.nodo.tipo} != ${error.value.tipo}`);
                 }
-                return error.valor;
+                return error.value;
             }
             throw error;
         }
@@ -58,11 +58,11 @@ export class FuncionForanea extends Invocable {
         return null;
     }
 
-    atar(instancia) {
-        const entornoOculto = new Entorno(this.clousure);
-        entornoOculto.set('this', instancia);
-        return new FuncionForanea(this.nodo, entornoOculto);
-    }
+    // atar(instancia) {
+    //     const entornoOculto = new Entorno(this.clousure);
+    //     entornoOculto.setVariable('this', instancia);
+    //     return new FuncionForanea(this.nodo, entornoOculto);
+    // }
 
 
 
