@@ -4,6 +4,7 @@ export class Entorno {
      */
     constructor(padre = undefined) {
         this.valores = {};
+        this.structs = {}
         this.padre = padre;
     }
 
@@ -13,6 +14,7 @@ export class Entorno {
      */
     setVariable(tipo, nombre, valor) {
         if (this.valores[nombre]) {
+            console.log(nombre)
             throw new Error(`La Variable: "${nombre}" Ya Está Definida.`);
         }
         this.valores[nombre] = { valor, tipo};
@@ -29,7 +31,7 @@ export class Entorno {
         if (!variable && this.padre) {
             return this.padre.getVariable(nombre);
         }
-        throw new Error(`La Variable "${nombre}" No Está Definida.`);
+        //throw new Error(`La Variable "${nombre}" No Está Definida.`);
     }
 
     setTemporal(tipo, nombre, valor) {
@@ -72,4 +74,80 @@ export class Entorno {
         if (tipoVariable === 'char' && typeof valor === 'string' && valor.length === 1) return true;
         return false;
     }
+
+    setStruct(nombre, atributos) {
+        if(this.valores[nombre]) throw new Error(`ID ${nombre} ya esta declarado.`)
+        if(this.structs[nombre]) throw new Error(`Estructura ${nombre} ya esta declarada.`)
+
+        this.structs[nombre] = {nombre, atributos}
+
+        console.log("HOLAAA")
+    }
+
+
+    /**
+     * @param {string} nombre 
+     */
+    getStruct(nombre) {
+        const actual = this.structs[nombre]
+
+        if(actual != undefined) {
+            console.log(actual)
+            return actual
+        }
+
+        if(!actual && this.padre) {
+            return this.padre.getStruct(nombre)
+        }
+    }
+
+
+    actualizarInstancia(nombre, atributos, valor) {
+        const actual = this.valores[nombre]
+        if (actual !== undefined) {
+            let struct = this.getStruct(actual.tipo)
+            let ref = actual
+            
+            for (let i = 0; i < atributos.length - 1; i++) {
+                const atributo = atributos[i]
+                
+                if (!ref.valor[atributo]) {
+                    throw new Error(`El atributo ${atributo} no existe en la variable ${nombre}`)
+                }
+
+                if (typeof ref.valor[atributo].valor !== 'object') {
+                    throw new Error(`El atributo ${atributo} no es una estructura en la variable ${nombre}`)
+                }
+                
+                // Actualizar struct si el tipo no es básico
+                struct = this.getStruct(ref.valor[atributo].tipo);
+                ref = ref.valor[atributo]
+            }
+            
+            const ultimoAtributo = atributos[atributos.length - 1]
+            
+            // Obtener el tipo del atributo desde el struct actualizado
+            const tipoAtributo = struct.atributos.find(item => item.id === ultimoAtributo).tipo
+            
+            // Validar el tipo
+            if (valor.tipo === "int" && tipoAtributo === "float") {
+                ref.valor[ultimoAtributo] = valor
+                console.log("ahoraaa", this.valores)
+                return
+            } else if (tipoAtributo !== valor.tipo) {
+                throw new Error(`El tipo del atributo ${ultimoAtributo} no coincide con el tipo del valor proporcionado`)
+            } else {
+                ref.valor[ultimoAtributo] = valor
+                console.log("ahoraaa", this.valores)
+                return;
+            }
+        }
+        
+        if (!actual && this.padre) {
+            this.padre.actualizarInstancia(nombre, atributos, valor)
+            return
+        }
+        
+        throw new Error(`Variable ${nombre} no declarada`)
+}
 }

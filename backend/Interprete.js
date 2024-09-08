@@ -4,7 +4,9 @@ import { BreakException, ContinueException, ReturnException} from './oakLand/Ins
 import { Invocable } from './oakLand/Instrucciones/Invocaciones.js';
 import { Embebidas } from './oakLand/Instrucciones/funEmbebidas.js';
 import { FuncionForanea } from './oakLand/Instrucciones/Funcion.js';
-import Hojas from './Hojas/Hojas.js';
+import Hojas, {Expresion} from './Hojas/Hojas.js';
+//import { Clase } from './oakLand/Instrucciones/Clase.js';
+//import { Instancia } from './oakLand/Instrucciones/instancia.js';
 
 export class InterpreterVisitor extends BaseVisitor {
     constructor() {
@@ -223,6 +225,13 @@ visitEmbebidas(node) {
 //////////////////////////////////////////// SENTENCIAS ////////////////////////////////////////////
 
 /**
+  * @type {BaseVisitor['visitExpresionStmt']}
+  */
+visitExpresionStmt(node) {
+  node.exp.accept(this);
+}
+
+/**
  * @type {BaseVisitor['visitDeclaracionVariable']}
  */
 visitDeclaracionVariable(node) {
@@ -275,6 +284,9 @@ visitDeclaracionVariable(node) {
  */
 visitReferenciaVariable(node) {
     const variable = this.entornoActual.getVariable(node.id);
+    if(variable === undefined) {
+        throw new Error(`La Variable "${node.id}" No Existe.`);
+    }
     return variable.valor;
 }
 
@@ -983,6 +995,219 @@ visitDeclaracionFuncion(node) {
         const funcion = new FuncionForanea(node, this.entornoActual);
         this.entornoActual.setVariable(node.tipo, node.id, funcion);
 }
+
+
+
+//////////////////////////////////////////// CLASES ////////////////////////////////////////////
+
+
+/**
+     * @type { BaseVisitor['visitStruct'] }
+    */
+visitStruct(node) {
+  const id = node.id
+  
+  let arrayAtributos = []
+
+  const primerAtri = node.atrib1
+
+  if(this.entornoActual.getVariable(primerAtri.id)) throw new Error(`Variable ${primerAtri.id} no puede ser un atributo para un struct `)
+
+  if(primerAtri.tipo != "int" && primerAtri.tipo != "string" && primerAtri.tipo != "float" && primerAtri.tipo != "boolean" && primerAtri.tipo != "char" ) {
+      if(!this.entornoActual.getStruct(primerAtri.tipo)) throw new Error(`El struct ${primerAtri.id} no esta definido`) 
+  }
+
+  arrayAtributos.push({tipo:primerAtri.tipo, id: primerAtri.id})
+
+  node.atrib2.forEach(atributo => {
+      const tipo = atributo.tipo
+      const id = atributo.id
+
+      if(this.entornoActual.getVariable(id)) throw new Error(`Variable ${id} no puede ser un atributo para un struct `)
+
+      if(tipo != "int" && tipo != "string" && tipo != "float" && tipo != "boolean" && tipo != "char" ) {
+          if(!this.entornoActual.getStruct(tipo)) throw new Error(`El struct ${id} no esta definido`) 
+      }
+
+      if(arrayAtributos.some(item => item.id == id)) throw new Error(`Atributo ${id} ya esta declarado en el struct`)
+      arrayAtributos.push({tipo, id})
+  })
+
+  this.entornoActual.setStruct(id, arrayAtributos)
+}
+
+      /**
+* @type { BaseVisitor['visitInstanciaE'] }
+*/
+visitInstanciaE(node) {
+  // const id = node.id
+  const tipo = node.tipo
+  const atributos = node.atributos//.map(atributo => atributo.accept(this))
+  let structTemp = {}
+  const estructura = this.entornoActual.getStruct(tipo)
+  atributos.forEach(atributo => {
+      const id = atributo.id
+      if(!estructura.atributos.some(item => item.id == id)) throw new Error(`El atributo ${id} no esta definido en el struct`)
+      const valor = atributo.exp.accept(this)
+      if (estructura.atributos.find(item => item.id == id).tipo !== valor.tipo) {
+          if (!(estructura.atributos.find(item => item.id == id).tipo === "float" && valor.tipo === "int")) {
+              throw new Error(`El tipo del valor no coincide con el tipo del atributo ${id}`);
+          }
+      }
+      structTemp[id] = valor
+  })
+  console.log("ESTO retornaraia", {valor: structTemp})
+  return {valor: structTemp, tipo: tipo}
+}
+
+/**
+* @type { BaseVisitor['visitInstanciaS'] }
+*/
+visitInstanciaS(node) {
+
+  const tipo = node.tipo
+  // const tipo2 = node.tipo2
+  const id = node.id
+  const exp = node.exp.accept(this)
+
+  if(tipo != exp.tipo) throw new Error(`El tipo de la instancia no coincide con el tipo del struct`)
+
+  if(this.entornoActual.getVariable(id)) throw new Error(`El id ${id} no es un struct`)
+
+  if(!this.entornoActual.getStruct(tipo)) throw new Error(`El struct ${tipo} no esta definido`)
+
+  //this.entornoActual.setVariable(tipo, id, exp.valor)
+  this.entornoActual.setVariable(node.tipo, node.id, exp)
+  console.log("Entorno")
+  console.log(this.entornoActual)
+}
+
+/**
+* @type { BaseVisitor['visitAtributo'] }
+*/
+visitAtributo(node) {
+  console.log("ACCEDIENDO ATRIBUTO")
+  console.log(node.atributo)
+  console.log(node.restoA)
+  console.log(node.instancia)
+  console.log("SALIENDO DEL ACCESO ATRIBUTO")
+  const id = node.instancia
+  const atributos = [node.atributo, ...node.restoA]
+
+  const struct = this.entornoActual.getVariable(id)
+  console.log("Struct completo:", JSON.stringify(struct, null, 2))
+  if(struct == undefined) throw new Error(`El id ${id} no es un struct o no existe`)
+
+  // ASIGNACION
+  if(node.asignacion){
+      console.log("Asignación de atributo")
+      const valor = node.asignacion.accept(this)
+
+      this.entornoActual.actualizarInstancia(id, atributos, valor)
+      return valor
+  }
+
+  let valorActual = struct.valor // Empezamos desde el valor del struct
+  console.log("Atributos a acceder:", atributos)
+  for( const atributo of atributos) {
+      console.log(`Intentando acceder a: ${atributo}`)
+      console.log(`Valor actual:`, JSON.stringify(valorActual, null, 2))
+      if (!(atributo in valorActual)) {
+          throw new Error(`El atributo ${atributo} no está definido en el struct`)
+      }
+
+      valorActual = valorActual[atributo]
+  }
+  console.log("Valor final:", valorActual)
+  return valorActual // Retornamos directamente el valor encontrado
+}
+
+
+
+  //   /**
+  //   * @type {BaseVisitor['visitDeclaracionClase']}
+  //   */
+  //   visitDeclaracionClase(node) {
+
+  //     const metodos = {}
+  //     const propiedades = {}
+
+  //     node.dcls.forEach(dcl => {
+  //         if (dcl instanceof Hojas.DeclaracionFuncion) {
+  //             metodos[dcl.id] = new FuncionForanea(dcl, this.entornoActual);
+  //         } else if (dcl instanceof Hojas.DeclaracionVariable) {
+  //             propiedades[dcl.id] = dcl.exp
+  //         }
+  //     });
+
+  //     const clase = new Clase(node.id, propiedades, metodos);
+
+  //     this.entornoActual.setVariable(node.id, clase);
+
+  // }
+  // /**
+  //   * @type {BaseVisitor['visitInstancia']}
+  //   */
+  // visitInstancia(node) {
+  //   const clase = this.entornoActual.getVariable(node.id);
+
+  //   const argumentos = node.args.map(arg => arg.accept(this));
+
+
+  //   if (!(clase instanceof Clase)) {
+  //       throw new Error('No es posible instanciar algo que no es una clase');
+  //   }
+
+
+
+  //   return clase.invocar(this, argumentos);
+  // }
+
+
+  //     /**
+  //    * @type {BaseVisitor['visitAsignacion']}
+  //    */
+  //     visitAsignacion(node) {
+  //       // const valor = this.interpretar(node.asgn);
+  //       const valor = node.asgn.accept(this);
+  //       this.entornoActual.assignVariable(node.id, valor);
+
+  //       return valor;
+  //   }
+
+  //     /**
+  //   * @type {BaseVisitor['visitGet']}
+  //   */
+  //     visitGet(node) {
+
+  //       // var a = new Clase();
+  //       // a.propiedad
+  //       const instancia = node.objetivo.accept(this);
+
+  //       if (!(instancia instanceof Instancia)) {
+  //           console.log(instancia);
+  //           throw new Error('No es posible obtener una propiedad de algo que no es una instancia');
+  //       }
+
+  //       return instancia.get(node.propiedad);
+  //   }
+
+  //   /**
+  //   * @type {BaseVisitor['visitSet']}
+  //   */
+  //   visitSet(node) {
+  //       const instancia = node.objetivo.accept(this);
+
+  //       if (!(instancia instanceof Instancia)) {
+  //           throw new Error('No es posible asignar una propiedad de algo que no es una instancia');
+  //       }
+
+  //       const valor = node.valor.accept(this);
+
+  //       instancia.set(node.propiedad, valor);
+
+  //       return valor;
+  //   }
 }
 
 

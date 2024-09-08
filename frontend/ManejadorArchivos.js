@@ -216,6 +216,8 @@ export function inicializarInterprete() {
         } catch (error) {
             txtSalida.value += "Error general: " + error.message + "\n";
             console.error("Error general:", error);
+            // ver los errores lexicos en linea y columna 
+            console.log(error.location.start.line);
         }
     
         actualizarNumLineas(txtSalida, nlSalida);

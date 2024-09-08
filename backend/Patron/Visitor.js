@@ -64,6 +64,24 @@
  * @typedef {import('../Hojas/Hojas.js').AccesoDimensiones} AccesoDimensiones
 
 
+ * @typedef {import('../Hojas/Hojas.js').Asignacion} Asignacion
+
+
+ * @typedef {import('../Hojas/Hojas.js').ExpresionStmt} ExpresionStmt
+
+
+ * @typedef {import('../Hojas/Hojas.js').Struct} Struct
+
+
+ * @typedef {import('../Hojas/Hojas.js').InstanciaS} InstanciaS
+
+
+ * @typedef {import('../Hojas/Hojas.js').InstanciaE} InstanciaE
+
+
+ * @typedef {import('../Hojas/Hojas.js').Atributo} Atributo
+
+
  * @typedef {import('../Hojas/Hojas.js').Switch} Switch
 
 
@@ -316,6 +334,60 @@ export class BaseVisitor {
      */
     visitAccesoDimensiones(node) {
         throw new Error('Metodo visitAccesoDimensiones no implementado');
+    }
+    
+
+    /**
+     * @param {Asignacion} node
+     * @returns {any}
+     */
+    visitAsignacion(node) {
+        throw new Error('Metodo visitAsignacion no implementado');
+    }
+    
+
+    /**
+     * @param {ExpresionStmt} node
+     * @returns {any}
+     */
+    visitExpresionStmt(node) {
+        throw new Error('Metodo visitExpresionStmt no implementado');
+    }
+    
+
+    /**
+     * @param {Struct} node
+     * @returns {any}
+     */
+    visitStruct(node) {
+        throw new Error('Metodo visitStruct no implementado');
+    }
+    
+
+    /**
+     * @param {InstanciaS} node
+     * @returns {any}
+     */
+    visitInstanciaS(node) {
+        throw new Error('Metodo visitInstanciaS no implementado');
+    }
+    
+
+    /**
+     * @param {InstanciaE} node
+     * @returns {any}
+     */
+    visitInstanciaE(node) {
+        throw new Error('Metodo visitInstanciaE no implementado');
+    }
+    
+
+    /**
+     * @param {Atributo} node
+     * @returns {any}
+     */
+    visitAtributo(node) {
+        throw new Error('Metodo visitAtributo no implementado');
     }
     
 
