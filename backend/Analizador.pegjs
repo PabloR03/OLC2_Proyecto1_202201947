@@ -15,7 +15,6 @@ const crearHoja = (tipoHoja, props) =>{
         'escape': hojas.Escape,
         'asignacionVariable': hojas.AsignacionVariable, 
         'bloque': hojas.Bloque,
-        'tipoOf': hojas.TipoOf,
         'ternario': hojas.Ternario,
         'if': hojas.If,
         'while': hojas.While,
@@ -42,9 +41,9 @@ const crearHoja = (tipoHoja, props) =>{
         'DeclaracionFuncion': hojas.DeclaracionFuncion,
         'expresionStmt': hojas.ExpresionStmt,
         'Struct': hojas.Struct,
-        'InstanciaS': hojas.InstanciaS,
-        'InstanciaE': hojas.InstanciaE,
-        'Atributo': hojas.Atributo
+        'AsignacionStruct': hojas.AsignacionStruct,
+        'AccesoAtributo': hojas.AccesoAtributo,
+        'AsignacionAtributo': hojas.AsignacionAtributo,
         }
 
     const nodo = new tipos[tipoHoja](props)
@@ -60,34 +59,52 @@ programa = _ inst:instrucciones* _ {return inst}
 // ==========================================================================================================================================================================================================================
 // ===========================================================================================INSTRUCCIONES==================================================================================================================
 
+instrucciones = struct:Struct {return struct}
 
-instrucciones = dlc:FuncionDeclaracion {return dlc}
+    / dlc:declaracionVariable {return dlc}
 
-    / struct:Struct {return struct}
+    / dlc:FuncionDeclaracion {return dlc}
 
     / sentencia:Sentencias {return sentencia}
-
-    / instancia:Instancia {return instancia}
 
 // ==========================================================================================================================================================================================================================
 // =============================================================================================STRUCT=======================================================================================================================
 
-Struct = "struct" _ id: identificador _ "{" _ atrib1: Atributo _ atrib2: Atributo* _ "}" _ ";"? _ { return crearHoja('Struct', { id, atrib1, atrib2 }) }
+//Struct = "struct" _ id: identificador _ "{" _ atrib1: Atributo _ atrib2: Atributo* _ "}" _ ";"? _ { return crearHoja('Struct', { id, atrib1, atrib2 }) }
+//Atributo = tipo: ("int"/"float"/"string"/"boolean"/"char"/identificador) _ id: identificador _ ";" _ { return { tipo, id } }
+//Instancia =tipo: identificador _ id: identificador _ "=" _ exp: expresion ";"? _ { return crearHoja('InstanciaS', { tipo, id, exp }) }
+//Instancia2 = tipo: identificador _ "{"_ atributos:( atri: AtributoInstancia _ atris:("," _ atr: AtributoInstancia { return atr })* _ { return [atri, ...atris] }) _ "}" { return crearHoja('InstanciaE', { tipo, atributos }) }
+//AtributoInstancia = id: identificador _ ":" _ exp: expresion _ { return { id, exp } }
+//AccederAtributo = instancia:identificador _ "." _ atributo:identificador _ restoA:("." _ atri:identificador {return atri })* _ asignacion:( "=" _ exp:expresion {return exp})? { return crearHoja('Atributo', { instancia, atributo, restoA, asignacion})}
 
-Atributo = tipo: ("int"/"float"/"string"/"boolean"/"char"/identificador) _ id: identificador _ ";" _ { return { tipo, id } }
+Struct = "struct" _ id: identificador _ "{" _ atributos:Atributos* _ "}" _ ";"? _ { return crearHoja('Struct', { id, atributos}) }
 
-Instancia =tipo: identificador _ id: identificador _ "=" _ exp: expresion ";"? _ { return crearHoja('InstanciaS', { tipo, id, exp }) }
+Atributos = tipo: (tipoVariable/identificador) _ id: identificador _ ";" _ 
+            { return { tipo, id } }
 
-Instancia2 = tipo: identificador _ "{"_ atributos:( atri: AtributoInstancia _ atris:("," _ atr: AtributoInstancia { return atr })* _ { return [atri, ...atris] }) _ "}" { return crearHoja('InstanciaE', { tipo, atributos }) }
+AsignacionStruct = tipo: identificador _ "{"_ atributos:( atri: ListaAtributos _ atris:("," _ atr: ListaAtributos { return atr })* _ { return [atri, ...atris] }) _ "}" 
+            { return crearHoja('AsignacionStruct', { tipo, atributos }) }
 
-AtributoInstancia = id: identificador _ ":" _ exp: expresion _ { return { id, exp } }
+ListaAtributos = id: identificador _ ":" _ expresion: expresion _ 
+            { return { id, expresion } }
 
-AccederAtributo = instancia:identificador _ "." _ atributo:identificador _ restoA:("." _ atri:identificador {return atri })* _ asignacion:( "=" _ exp:expresion {return exp})? { return crearHoja('Atributo', { instancia, atributo, restoA, asignacion})}
+AccederAtributo = instancia: identificador _ "." _ primerAtributo: identificador _ resto: ("." _ atri: identificador { return atri })*
+            { 
+                const atributo = [primerAtributo, ...resto];
+                return crearHoja('AccesoAtributo', { instancia, atributo });
+            }
+
+AsignacionAtributo = instancia: identificador _ "." _ primerAtributo: identificador _ resto: ("." _ atri: identificador { return atri })* _ "=" _ expresion: expresion _ ";"
+            { 
+                const atributo = [primerAtributo, ...resto];
+                return crearHoja('AsignacionAtributo', { instancia, atributo, expresion }) 
+}
+
 
 // ==========================================================================================================================================================================================================================
 // =============================================================================================DECLARACIONES================================================================================================================
 
-declaracionVariable = _ tipoVar:tipoVariable _ id:identificador _ "=" _ exp:expresion _ ";" _  {return crearHoja('declaracionVariable', {tipoVar, id, exp})}
+declaracionVariable = _ tipoVar:(tipoVariable / identificador) _ id:identificador _ "=" _ exp:expresion _ ";" _  {return crearHoja('declaracionVariable', {tipoVar, id, exp})}
 
     / _ tipoVar:tipoVariable _ id:identificador _ ";" _ {return crearHoja('declaracionVariable', {tipoVar, id})}
 
@@ -151,11 +168,11 @@ valDimensiones = _ "[" _ expresion:expresion _ "]" _ resto:valDimensiones* { ret
 // =============================================================================================SENTENCIAS==================================================================================================================
 Sentencias = bloque:Bloque {return bloque}
 
+    / prt:print {return prt} 
+
     / FuncionDeclaracion
 
     / Struct
-
-    / prt:print {return prt} 
 
     / ifs:If {return ifs}
 
@@ -175,6 +192,8 @@ Sentencias = bloque:Bloque {return bloque}
 
     / llamada:Llamada _ ";" _ {return llamada}
 
+    / asignacionAtri:AsignacionAtributo _ {return asignacionAtri}
+
     / declaracionVariable:declaracionVariable {return declaracionVariable}
 
     / asignacion:AsignacionVariable {return asignacion}
@@ -189,7 +208,7 @@ Sentencias = bloque:Bloque {return bloque}
 
 Bloque = _ "{" _ instrucciones:Sentencias* _ "}" _ {return crearHoja('bloque', {instrucciones})}
 
-print = _ "System.out.println" _ "(" _ exps:expresiones _ ")" _ ";" _ {return crearHoja('print', {exps})}
+print = _ ("System.out.println" / "print") _ "(" _ exps:expresiones _ ")" _ ";" _ {return crearHoja('print', {exps})}
 
 expresiones = exp:expresion resto:(_ "," _ expr:expresion {return expr})* { return [exp, ...resto] }
 
@@ -314,6 +333,8 @@ Unaria = ("-") _ datos:Unaria _ {return crearHoja('unaria', {op: ('-'), datos: d
 
     / embe:("toString")"(" _ expresion:Datos _ ")" _ {return crearHoja('Embebida', {Nombre: embe, Argumento: expresion})}
 
+    / embe:("Object.keys")"(" _ expresion:Datos _ ")" _ {return crearHoja('Embebida', {Nombre: embe, Argumento: expresion})}
+
     / id:identificador _ ".indexOf" _ "(" _ index:Datos _ ")" _ {return crearHoja('indexArreglo', {id, index})}
 
     / id:identificador _ ".join()" _ {return crearHoja('joinArreglo', {id})}
@@ -324,13 +345,11 @@ Unaria = ("-") _ datos:Unaria _ {return crearHoja('unaria', {op: ('-'), datos: d
 
     / id:identificador _ "[" _ index:Datos _ "]" {return crearHoja('accesoArreglo', {id, index})}
 
+    / accesoatributo:AccederAtributo {return accesoatributo}
+
     / Llamada 
 
     / Datos
-
-    / accesoatributo:AccederAtributo {return accesoatributo}
-
-
 
 // ==========================================================================================================================================================================================================================
 // =============================================================================================TIPOS=========================================================================================================================
@@ -343,7 +362,7 @@ tipoVariable =    "int"     {return text()}
 
 // ==========================================================================================================================================================================================================================
 // =======================================================================================DATOS PRIMITIVOS===================================================================================================================
-Datos =  Numero / Booleanos / Agrupacion / instancia:Instancia2{return instancia} / AccederAtributo / referenciaVariable / Caracter / Cadena 
+Datos =  Numero / Booleanos / Agrupacion / AsignacionStruct / referenciaVariable / Caracter / Cadena 
 identificador = [a-zA-Z_][a-zA-Z0-9_]* {return text()}
 referenciaVariable = _ id:identificador _ {return crearHoja('referenciaVariable', {id})}
 Numero = numero:[0-9]+ ("." [0-9]+)? {return text().includes('.') ? crearHoja('numero', {valor: parseFloat(text(), 10), tipo:"float"}): crearHoja('numero', {valor: parseInt(text(), 10), tipo:"int"})}

@@ -200,6 +200,26 @@ visitOperacionUnaria(node) {
      * @type {BaseVisitor['visitEmbebidas']}
      */ 
 visitEmbebidas(node) {
+  if (node.Nombre === "Object.keys") {
+    const ValorStruct = this.entornoActual.getVariable(node.Argumento);
+    if (!ValorStruct) {
+        throw new Error(`La variable ${node.Argumento} no existe en el entorno actual.`);
+    }
+    const TipoStruct = this.entornoActual.getStruct(ValorStruct.tipo);
+    if (!TipoStruct) {
+        throw new Error(`El tipo de estructura ${ValorStruct.tipo} no está definido.`);
+    }
+    let salida = "";
+    for (let i = 0; i < TipoStruct.atributos.length; i++) {
+        const atributo = TipoStruct.atributos[i].id;
+        if (i < TipoStruct.atributos.length - 1) {
+            salida += atributo + ",";
+        } else {
+            salida += atributo;
+        }
+    }
+    return { valor: salida, tipo: "string" };
+  }
   const expresion = node.Argumento.accept(this);
   const NombreFuncion = node.Nombre;
   switch (NombreFuncion) {
@@ -216,10 +236,16 @@ visitEmbebidas(node) {
               case "boolean": 
                   return {valor: expresion.tipo, tipo: "string" };    
               default:
-                  throw new Error(`El Argumento De typeof Es Tipo Desconocido: "${arg.tipo}".`);
-              }
+                const TipoStruct = this.entornoActual.getStruct(expresion.tipo);
+                if (!TipoStruct) {
+                    throw new Error(`El Argumento De typeof Es Tipo Desconocido: "${expresion.tipo}".`);
+                }else{
+                    return {valor: expresion.tipo, tipo: "string"};
+                }                }
       case 'toString':
           return {valor: expresion.valor.toString(), tipo: "string"};
+      default:
+          throw new Error(`Función Embebida No Válida: "${NombreFuncion}".`);
 }
 }
 //////////////////////////////////////////// SENTENCIAS ////////////////////////////////////////////
@@ -230,7 +256,6 @@ visitEmbebidas(node) {
 visitExpresionStmt(node) {
   node.exp.accept(this);
 }
-
 /**
  * @type {BaseVisitor['visitDeclaracionVariable']}
  */
@@ -239,30 +264,44 @@ visitDeclaracionVariable(node) {
   const nombreVariable = node.id;      // Nombre de la variable
   let valorVariable;
   let tipoFinal = tipoDeclarado;       // Tipo final que se asignará
-  //console.log("linea: " , node.location.start.line);  // Imprime el número de línea donde comienza la declaración
-  //console.log("Columna: " , node.location.start.column);  // Imprime el número de columna donde termina la declaración
 
-  // Si hay una expresión asociada a la variable
-  if (node.exp) {
+  if (node.exp instanceof Hojas.AsignacionStruct) {
+    let tipo = node.tipoVar
+    const expresion = node.exp.accept(this)
+    if (tipo === "var"){
+        tipo = expresion.tipo
+    }
+    if (tipo != expresion.tipo) {
+        throw new Error(`El tipo de la instancia no coincide con el tipo del struct`)
+    }
+    if (this.entornoActual.getVariable(node.id)) {
+        throw new Error(`El id ${node.id} no es un struct`)
+    }
+    this.entornoActual.setVariable(tipo, node.id, expresion)
+    return
+  }
+
+    // Si hay una expresión asociada a la variable
+    if (node.exp) {
       valorVariable = node.exp.accept(this);  // Obtener valor y tipo desde la expresión
       tipoFinal = tipoDeclarado === 'var' ? valorVariable.tipo : tipoDeclarado;  // Inferir tipo si es 'var'
   } else {
       // Asignar valor por defecto según el tipo declarado
       switch (tipoDeclarado) {
           case 'int':
-              valorVariable = { valor: 0, tipo: 'int' };
+              valorVariable = { valor: null, tipo: 'int' };
               break;
           case 'float':
-              valorVariable = { valor: 0.0, tipo: 'float' };
+              valorVariable = { valor: null, tipo: 'float' };
               break;
           case 'string':
-              valorVariable = { valor: '', tipo: 'string' };
+              valorVariable = { valor: null, tipo: 'string' };
               break;
           case 'boolean':
-              valorVariable = { valor: true, tipo: 'boolean' };
+              valorVariable = { valor: null, tipo: 'boolean' };
               break;
           case 'char':
-              valorVariable = { valor: '\0', tipo: 'char' };
+              valorVariable = { valor: null, tipo: 'char' };
               break;
           case 'var':
               valorVariable = { valor: null, tipo: 'var' };  // Valor y tipo indefinidos
@@ -271,10 +310,46 @@ visitDeclaracionVariable(node) {
               throw new Error(`Tipo de variable "${tipoDeclarado}" no válido.`);
       }
   }
-  // Verificación de tipo
+  // // Si hay una expresión asociada a la variable
+  // if (node.exp) {
+  //     valorVariable = node.exp.accept(this);  // Obtener valor y tipo desde la expresión
+  //     tipoFinal = tipoDeclarado === 'var' ? valorVariable.tipo : tipoDeclarado;  // Inferir tipo si es 'var'
+  // } else {
+  //     // Asignar valor por defecto según el tipo declarado
+  //     switch (tipoDeclarado) {
+  //         case 'int':
+  //             valorVariable = { valor: 0, tipo: 'int' };
+  //             break;
+  //         case 'float':
+  //             valorVariable = { valor: 0.0, tipo: 'float' };
+  //             break;
+  //         case 'string':
+  //             valorVariable = { valor: '', tipo: 'string' };
+  //             break;
+  //         case 'boolean':
+  //             valorVariable = { valor: true, tipo: 'boolean' };
+  //             break;
+  //         case 'char':
+  //             valorVariable = { valor: '\0', tipo: 'char' };
+  //             break;
+  //         case 'var':
+  //             valorVariable = { valor: null, tipo: 'var' };  // Valor y tipo indefinidos
+  //             break;
+  //         default:
+  //             throw new Error(`Tipo de variable "${tipoDeclarado}" no válido.`);
+  //     }
+  // }
+  
+  // Verificación de tipo con manejo especial para float
   if (tipoFinal !== valorVariable.tipo) {
-      throw new Error(`Tipo de la variable "${nombreVariable}" no coincide con el tipo de la expresión.`);
+      if (tipoFinal === 'float' && valorVariable.tipo === 'int') {
+          // Convertir el valor entero a float
+          valorVariable = { valor: parseFloat(valorVariable.valor), tipo: 'float' };
+      } else {
+          throw new Error(`Tipo de la variable "${nombreVariable}" no coincide con el tipo de la expresión.`);
+      }
   }
+  
   // Definir la variable en el entorno actual
   this.entornoActual.setVariable(tipoFinal, nombreVariable, valorVariable);
 }
@@ -295,13 +370,14 @@ visitReferenciaVariable(node) {
  */
 visitPrint(node) {
 const valores = node.exps.map(exps => {
-  const resultado = exps.accept(this);
-  if (Array.isArray(resultado)) {
-      return resultado;
-  } else {
-      return resultado.valor;
-  }
-});
+  const valorFloat = exps.accept(this);
+    if(valorFloat.tipo === 'float') {
+      if (Number.isInteger(valorFloat.valor)) {
+        valorFloat.valor = valorFloat.valor.toFixed(1);
+      }
+    }
+    return valorFloat.valor;
+  });
 this.salida += valores.join(' ') + '\n';
 }
 
@@ -328,7 +404,7 @@ visitDeclaracionArreglo(node) {
       }
       arreglo.push(valor.valor);
   }
-  this.entornoActual.setVariable(node.tipo, node.id, arreglo);
+  this.entornoActual.setVariable(node.tipo, node.id, { valor: arreglo, tipo: node.tipo });
 }
 
 /**
@@ -366,28 +442,28 @@ visitDeclaracion2Arreglo(node) {
       default:
           throw new Error(`Tipo De Arreglo No Válido: "${node.tipo1}".`);
   }
-  this.entornoActual.setVariable(node.tipo1, node.id, arreglo);
+  this.entornoActual.setVariable(node.tipo1, node.id, { valor: arreglo, tipo: node.tipo1 });
 }
 
 /**
 * @type {BaseVisitor['visitDeclaracion3Arreglo']}
 */ 
 visitDeclaracion3Arreglo(node) {
-  const valores = this.entornoActual.getVariable(node.id2);
+  const valores = this.entornoActual.getVariable(node.id2).valor;
   if (!Array.isArray(valores.valor)) {
       throw new Error(`La Variable "${node.id2}" No Es Un Arreglo.`);
   }
   if (valores.tipo !== node.tipo) {
       throw new Error(`El Tipo Del Arreglo "${valores.tipo}" No Coincide Con El Tipo Del Arreglo "${node.tipo}".`);
   }
-  this.entornoActual.setVariable(node.tipo, node.id1, valores.valor.slice());
+  this.entornoActual.setVariable(node.tipo, node.id1, {valor: valores.valor.slice(), tipo: node.tipo});
 }
 
 /**
      * @type {BaseVisitor['visitAccesoArreglo']}
      */
 visitAccesoArreglo(node) {
-  const arreglo = this.entornoActual.getVariable(node.id);
+  const arreglo = this.entornoActual.getVariable(node.id).valor;
   const index = node.index.accept(this)
   if (!Array.isArray(arreglo.valor)) {
       throw new Error(`La Variable: "${node.id}" No Es Un Arreglo.`);
@@ -407,7 +483,7 @@ visitAccesoArreglo(node) {
 * @type {BaseVisitor['visitAsignacionArreglo']}
 */
 visitAsignacionArreglo(node) {
-  const arreglo = this.entornoActual.getVariable(node.id);
+  const arreglo = this.entornoActual.getVariable(node.id).valor;
   const index = node.index.accept(this);
   const valor = node.valor.accept(this);
   if (!Array.isArray(arreglo.valor)) {
@@ -426,32 +502,32 @@ visitAsignacionArreglo(node) {
   return;
 }    
 
-    /**
-     * @type {BaseVisitor['visitIndexArreglo']}
-     */
-    visitIndexArreglo(node) {
-      const arreglo = this.entornoActual.getVariable(node.id);
-      const index = node.index.accept(this)
-      if (!Array.isArray(arreglo.valor)) {
-          throw new Error(`La Variable: "${node.id}" No Es Un Arreglo.`);
-      }
-      if (index.tipo!== arreglo.tipo){
-          throw new Error(`El Tipo Del Indice "${index.tipo}" No Coincide Con El Tipo Del Arreglo "${arreglo.tipo}".`);
-      }
-      for (let i = 0; i < arreglo.valor.length; i++) {
-          if (arreglo.valor[i] === index.valor) {
-              return {valor: i, tipo: "int"};
-          }
-      }
-      return {valor: -1, tipo:"int"};
+/**
+ * @type {BaseVisitor['visitIndexArreglo']}
+ */
+visitIndexArreglo(node) {
+  const arreglo = this.entornoActual.getVariable(node.id).valor;
+  const index = node.index.accept(this)
+  if (!Array.isArray(arreglo.valor)) {
+      throw new Error(`La Variable: "${node.id}" No Es Un Arreglo.`);
   }
+  if (index.tipo!== arreglo.tipo){
+      throw new Error(`El Tipo Del Indice "${index.tipo}" No Coincide Con El Tipo Del Arreglo "${arreglo.tipo}".`);
+  }
+  for (let i = 0; i < arreglo.valor.length; i++) {
+      if (arreglo.valor[i] === index.valor) {
+          return {valor: i, tipo: "int"};
+      }
+  }
+  return {valor: -1, tipo:"int"};
+}
 
   /**
    * @type {BaseVisitor['visitIndexArreglo']}
    */
   visitJoinArreglo(node) {
       let cadena ="";
-      const arreglo = this.entornoActual.getVariable(node.id);
+      const arreglo = this.entornoActual.getVariable(node.id).valor;
       if (!Array.isArray(arreglo.valor)) {
           throw new Error(`La Variable: "${node.id}" No Es Un Arreglo.`);
       }
@@ -468,7 +544,7 @@ visitAsignacionArreglo(node) {
    * @type {BaseVisitor['visitLengthArreglo']}
    */
   visitLengthArreglo(node) {
-      const arreglo = this.entornoActual.getVariable(node.id);
+      const arreglo = this.entornoActual.getVariable(node.id).valor;
       if (!Array.isArray(arreglo.valor)) {
           throw new Error(`La Variable: "${node.id}" No Es Un Arreglo.`);
       }
@@ -497,7 +573,7 @@ visitDeclaracionDimension(node) {
       return Matriz;
   };
   const NuevaMatriz = RecorrerMatriz(node.valores, node.tipo);
-  this.entornoActual.setVariable(node.tipo, node.id, NuevaMatriz);
+  this.entornoActual.setVariable(node.tipo, node.id, {valor: NuevaMatriz, tipo: node.tipo});
 }
 
 /**
@@ -553,7 +629,7 @@ visitDeclaracion2Dimension(node) {
             throw new Error(`Tipo De Matriz No Válido: "${node.tipo1}".`);
     }
     const NuevaMatriz = crearMatriz(node.valores, node.tipo1, ValorPorDefecto);
-    this.entornoActual.setVariable(node.tipo1, node.id, NuevaMatriz);
+    this.entornoActual.setVariable(node.tipo1, node.id, {valor: NuevaMatriz, tipo: node.tipo1});
     console.log(this.entornoActual);
 }
 
@@ -561,7 +637,7 @@ visitDeclaracion2Dimension(node) {
  * @type {BaseVisitor['visitAsignacionDimensiones']}
  */
 visitAsignacionDimensiones(node) {
-  const matriz = this.entornoActual.getVariable(node.id);
+  const matriz = this.entornoActual.getVariable(node.id).valor;
   const nuevoValor = node.nuevoValor.accept(this);
   // Verificar si la variable es una matriz
   if (!Array.isArray(matriz.valor)) {
@@ -599,7 +675,7 @@ visitAsignacionDimensiones(node) {
  * @type {BaseVisitor['visitAccesoDimensiones']}
  */
 visitAccesoDimensiones(node) {
-  const matriz = this.entornoActual.getVariable(node.id);
+  const matriz = this.entornoActual.getVariable(node.id).valor;
   if (!Array.isArray(matriz.valor)) {
       throw new Error(`La Variable: "${node.id}" No Es Una Matriz.`);
   }
@@ -720,7 +796,6 @@ console.log(node.instrucciones);
 /**
  * @type {BaseVisitor['visitFor']}
  */
-
 visitFor(node) {
   const PrevIncremento = this.PrevContinue;
   this.PrevContinue = node.inc;
@@ -742,32 +817,12 @@ visitFor(node) {
   this.PrevContinue = PrevIncremento;
 }
 
-// visitFor(node) {
-//   const initEntorno = this.entornoActual;
-
-//   for (node.init.accept(this); node.cond.accept(this).valor; node.inc.accept(this)) {
-//     try {
-//       node.sentencias.accept(this);
-//     } catch (error) {
-//       if (error instanceof BreakException) {
-//         break;
-//       } else if (error instanceof ContinueException) {
-//         continue;
-//       } else {
-//         throw error;
-//       }
-//     }
-//   }
-
-//   this.entornoActual = initEntorno;
-// }
-
 /**
  * @type {BaseVisitor['visitForEach']}
  */
 visitForEach(node) {
         // Obtener el arreglo del entorno
-        const id2 = this.entornoActual.getVariable(node.id2);
+        const id2 = this.entornoActual.getVariable(node.id2).valor;
         // Validar que sea un arreglo
         if (!Array.isArray(id2.valor)) {
             throw new Error(`La Variable: "${node.id2}" No Es Un Arreglo.`);
@@ -804,6 +859,7 @@ visitForEach(node) {
             this.entornoActual = entornoAnterior;
         }
     }
+  
 /**
  * @type {BaseVisitor['visitSwitch']}
  */
@@ -888,29 +944,6 @@ visitSwitch(node) {
 }
 
 /**
- * @type {BaseVisitor['visitTipoOf']}
- */
-visitTipoOf(node) {
-  const valor = node.exp.accept(this);
-
-  switch (valor.tipo) {
-    case 'int':
-      return 'int';
-    case 'float':
-      return 'float';
-    case 'boolean':
-      return 'boolean';
-    case 'char':
-      return 'char';
-    case 'string':
-      return 'string';
-    default:
-      // En caso de que el valor no coincida con ninguno de los tipos esperados
-      return 'undefined';
-  }
-}
-
-/**
  * @type {BaseVisitor['visitTernario']}
  */
 visitTernario(node) {
@@ -973,6 +1006,14 @@ visitLlamada(node) {
   if (funcion.aridad() !== argumentos.length) {
       throw new Error(`La función espera ${funcion.aridad()} argumentos, pero se recibieron ${argumentos.length}`);
   }
+  // if (funcion.aridad() > 0) {
+  //   funcion.node.argumentos.forEach((param, i) => {
+  //       const argumento = argumentos[i];
+  //       if (param.tipo !== argumento.tipo) {
+  //           throw new Error(`El argumento en la posición ${i + 1} debe ser de tipo "${param.tipo}", pero se recibió "${argumento.tipo}".`);
+  //       }
+  //   });
+  //}
   return funcion.invocar(this, argumentos);
 }
 
@@ -996,131 +1037,208 @@ visitDeclaracionFuncion(node) {
         this.entornoActual.setVariable(node.tipo, node.id, funcion);
 }
 
+//////////////////////////////////////////// STRUCTS ////////////////////////////////////////////
 
+/**
+     * @type {BaseVisitor['visitStruct']}
+     */
+visitStruct(node) {
+  let AtrubutosStruct = [];
+  node.atributos.forEach(atributo => {
+      const tipo = atributo.tipo;
+      const id = atributo.id;
+      if(this.entornoActual.getVariable(id)) {
+          throw new Error(`Variable ${id} no puede ser un atributo para un struct `)
+      }
+      if(tipo != "int" && tipo != "string" && tipo != "float" && tipo != "boolean" && tipo != "char" ) {
+          if(!this.entornoActual.getStruct(tipo)) throw new Error(`El struct ${id} no esta definido`) 
+      }
+      if(AtrubutosStruct.some(item => item.id == id)) throw new Error(`Atributo ${id} ya esta declarado en el struct`)
+      AtrubutosStruct.push({tipo, id})
+  });
+  this.entornoActual.setStruct(node.id, AtrubutosStruct);
+}
+
+/**
+* @type {BaseVisitor['visitAsignacionStruct']}
+*/
+visitAsignacionStruct(node) {
+  const tipo = node.tipo
+  const atributos = node.atributos
+  const TipoStruct = this.entornoActual.getStruct(tipo)
+  let StructTemporal = {}
+  atributos.forEach(atributo => {
+      const id = atributo.id
+      if (!TipoStruct.atributos.some(item => item.id == id)){
+          throw new Error(`El atributo ${id} no esta definido en el struct`)
+      }
+      const valor = atributo.expresion.accept(this)
+      if (TipoStruct.atributos.find(item => item.id == id).tipo !== valor.tipo) {
+          if (!(TipoStruct.atributos.find(item => item.id == id).tipo === "float" && valor.tipo === "int")) {
+              throw new Error(`El tipo del valor no coincide con el tipo del atributo ${id}`)
+          }
+      }
+      StructTemporal[id] = valor
+  });
+  return {valor: StructTemporal, tipo: tipo}
+}
+
+/**
+* @type {BaseVisitor['visitAccesoAtributo']}
+*/
+visitAccesoAtributo(node) {
+  const instancia = node.instancia;
+  const atributos = node.atributo;
+  let Struct = this.entornoActual.getVariable(instancia);
+  if (Struct === undefined) {
+      throw new Error(`La variable ${instancia} no es un struct o no existe`);
+  }
+  let ref = Struct.valor;
+  for (let i = 0; i < atributos.length; i++) {
+      const atributo = atributos[i];
+      if (!ref.valor[atributo]) {
+          throw new Error(`El atributo ${atributo} no está definido en el struct ${instancia}`);
+      }
+      ref = ref.valor[atributo];
+  }
+  return { valor: ref.valor, tipo: ref.tipo };
+}
+
+/**
+* @type {BaseVisitor['visitAsignacionAtributo']}
+*/
+visitAsignacionAtributo(node) {
+  const instancia = node.instancia;
+  const atributos = node.atributo;
+  const valor = node.expresion.accept(this);
+  this.entornoActual.assignStruct(instancia, atributos, valor);
+  console.log(this.entornoActual)
+  return;
+}
 
 //////////////////////////////////////////// CLASES ////////////////////////////////////////////
 
 
-/**
-     * @type { BaseVisitor['visitStruct'] }
-    */
-visitStruct(node) {
-  const id = node.id
+// /**
+//      * @type { BaseVisitor['visitStruct'] }
+//     */
+// visitStruct(node) {
+//   const id = node.id
   
-  let arrayAtributos = []
+//   let arrayAtributos = []
 
-  const primerAtri = node.atrib1
+//   const primerAtri = node.atrib1
 
-  if(this.entornoActual.getVariable(primerAtri.id)) throw new Error(`Variable ${primerAtri.id} no puede ser un atributo para un struct `)
+//   if(this.entornoActual.getVariable(primerAtri.id)) throw new Error(`Variable ${primerAtri.id} no puede ser un atributo para un struct `)
 
-  if(primerAtri.tipo != "int" && primerAtri.tipo != "string" && primerAtri.tipo != "float" && primerAtri.tipo != "boolean" && primerAtri.tipo != "char" ) {
-      if(!this.entornoActual.getStruct(primerAtri.tipo)) throw new Error(`El struct ${primerAtri.id} no esta definido`) 
-  }
+//   if(primerAtri.tipo != "int" && primerAtri.tipo != "string" && primerAtri.tipo != "float" && primerAtri.tipo != "boolean" && primerAtri.tipo != "char" ) {
+//       if(!this.entornoActual.getStruct(primerAtri.tipo)) throw new Error(`El struct ${primerAtri.id} no esta definido`) 
+//   }
 
-  arrayAtributos.push({tipo:primerAtri.tipo, id: primerAtri.id})
+//   arrayAtributos.push({tipo:primerAtri.tipo, id: primerAtri.id})
 
-  node.atrib2.forEach(atributo => {
-      const tipo = atributo.tipo
-      const id = atributo.id
+//   node.atrib2.forEach(atributo => {
+//       const tipo = atributo.tipo
+//       const id = atributo.id
 
-      if(this.entornoActual.getVariable(id)) throw new Error(`Variable ${id} no puede ser un atributo para un struct `)
+//       if(this.entornoActual.getVariable(id)) throw new Error(`Variable ${id} no puede ser un atributo para un struct `)
 
-      if(tipo != "int" && tipo != "string" && tipo != "float" && tipo != "boolean" && tipo != "char" ) {
-          if(!this.entornoActual.getStruct(tipo)) throw new Error(`El struct ${id} no esta definido`) 
-      }
+//       if(tipo != "int" && tipo != "string" && tipo != "float" && tipo != "boolean" && tipo != "char" ) {
+//           if(!this.entornoActual.getStruct(tipo)) throw new Error(`El struct ${id} no esta definido`) 
+//       }
 
-      if(arrayAtributos.some(item => item.id == id)) throw new Error(`Atributo ${id} ya esta declarado en el struct`)
-      arrayAtributos.push({tipo, id})
-  })
+//       if(arrayAtributos.some(item => item.id == id)) throw new Error(`Atributo ${id} ya esta declarado en el struct`)
+//       arrayAtributos.push({tipo, id})
+//   })
 
-  this.entornoActual.setStruct(id, arrayAtributos)
-}
+//   this.entornoActual.setStruct(id, arrayAtributos)
+// }
 
-      /**
-* @type { BaseVisitor['visitInstanciaE'] }
-*/
-visitInstanciaE(node) {
-  // const id = node.id
-  const tipo = node.tipo
-  const atributos = node.atributos//.map(atributo => atributo.accept(this))
-  let structTemp = {}
-  const estructura = this.entornoActual.getStruct(tipo)
-  atributos.forEach(atributo => {
-      const id = atributo.id
-      if(!estructura.atributos.some(item => item.id == id)) throw new Error(`El atributo ${id} no esta definido en el struct`)
-      const valor = atributo.exp.accept(this)
-      if (estructura.atributos.find(item => item.id == id).tipo !== valor.tipo) {
-          if (!(estructura.atributos.find(item => item.id == id).tipo === "float" && valor.tipo === "int")) {
-              throw new Error(`El tipo del valor no coincide con el tipo del atributo ${id}`);
-          }
-      }
-      structTemp[id] = valor
-  })
-  console.log("ESTO retornaraia", {valor: structTemp})
-  return {valor: structTemp, tipo: tipo}
-}
+//       /**
+// * @type { BaseVisitor['visitInstanciaE'] }
+// */
+// visitInstanciaE(node) {
+//   // const id = node.id
+//   const tipo = node.tipo
+//   const atributos = node.atributos//.map(atributo => atributo.accept(this))
+//   let structTemp = {}
+//   const estructura = this.entornoActual.getStruct(tipo)
+//   atributos.forEach(atributo => {
+//       const id = atributo.id
+//       if(!estructura.atributos.some(item => item.id == id)) throw new Error(`El atributo ${id} no esta definido en el struct`)
+//       const valor = atributo.exp.accept(this)
+//       if (estructura.atributos.find(item => item.id == id).tipo !== valor.tipo) {
+//           if (!(estructura.atributos.find(item => item.id == id).tipo === "float" && valor.tipo === "int")) {
+//               throw new Error(`El tipo del valor no coincide con el tipo del atributo ${id}`);
+//           }
+//       }
+//       structTemp[id] = valor
+//   })
+//   console.log("ESTO retornaraia", {valor: structTemp})
+//   return {valor: structTemp, tipo: tipo}
+// }
 
-/**
-* @type { BaseVisitor['visitInstanciaS'] }
-*/
-visitInstanciaS(node) {
+// /**
+// * @type { BaseVisitor['visitInstanciaS'] }
+// */
+// visitInstanciaS(node) {
 
-  const tipo = node.tipo
-  // const tipo2 = node.tipo2
-  const id = node.id
-  const exp = node.exp.accept(this)
+//   const tipo = node.tipo
+//   // const tipo2 = node.tipo2
+//   const id = node.id
+//   const exp = node.exp.accept(this)
 
-  if(tipo != exp.tipo) throw new Error(`El tipo de la instancia no coincide con el tipo del struct`)
+//   if(tipo != exp.tipo) throw new Error(`El tipo de la instancia no coincide con el tipo del struct`)
 
-  if(this.entornoActual.getVariable(id)) throw new Error(`El id ${id} no es un struct`)
+//   if(this.entornoActual.getVariable(id)) throw new Error(`El id ${id} no es un struct`)
 
-  if(!this.entornoActual.getStruct(tipo)) throw new Error(`El struct ${tipo} no esta definido`)
+//   if(!this.entornoActual.getStruct(tipo)) throw new Error(`El struct ${tipo} no esta definido`)
 
-  //this.entornoActual.setVariable(tipo, id, exp.valor)
-  this.entornoActual.setVariable(node.tipo, node.id, exp)
-  console.log("Entorno")
-  console.log(this.entornoActual)
-}
+//   //this.entornoActual.setVariable(tipo, id, exp.valor)
+//   this.entornoActual.setVariable(node.tipo, node.id, exp)
+//   console.log("Entorno")
+//   console.log(this.entornoActual)
+// }
 
-/**
-* @type { BaseVisitor['visitAtributo'] }
-*/
-visitAtributo(node) {
-  console.log("ACCEDIENDO ATRIBUTO")
-  console.log(node.atributo)
-  console.log(node.restoA)
-  console.log(node.instancia)
-  console.log("SALIENDO DEL ACCESO ATRIBUTO")
-  const id = node.instancia
-  const atributos = [node.atributo, ...node.restoA]
+// /**
+// * @type { BaseVisitor['visitAtributo'] }
+// */
+// visitAtributo(node) {
+//   console.log("ACCEDIENDO ATRIBUTO")
+//   console.log(node.atributo)
+//   console.log(node.restoA)
+//   console.log(node.instancia)
+//   console.log("SALIENDO DEL ACCESO ATRIBUTO")
+//   const id = node.instancia
+//   const atributos = [node.atributo, ...node.restoA]
 
-  const struct = this.entornoActual.getVariable(id)
-  console.log("Struct completo:", JSON.stringify(struct, null, 2))
-  if(struct == undefined) throw new Error(`El id ${id} no es un struct o no existe`)
+//   const struct = this.entornoActual.getVariable(id)
+//   console.log("Struct completo:", JSON.stringify(struct, null, 2))
+//   if(struct == undefined) throw new Error(`El id ${id} no es un struct o no existe`)
 
-  // ASIGNACION
-  if(node.asignacion){
-      console.log("Asignación de atributo")
-      const valor = node.asignacion.accept(this)
+//   // ASIGNACION
+//   if(node.asignacion){
+//       console.log("Asignación de atributo")
+//       const valor = node.asignacion.accept(this)
 
-      this.entornoActual.actualizarInstancia(id, atributos, valor)
-      return valor
-  }
+//       this.entornoActual.actualizarInstancia(id, atributos, valor)
+//       return valor
+//   }
 
-  let valorActual = struct.valor // Empezamos desde el valor del struct
-  console.log("Atributos a acceder:", atributos)
-  for( const atributo of atributos) {
-      console.log(`Intentando acceder a: ${atributo}`)
-      console.log(`Valor actual:`, JSON.stringify(valorActual, null, 2))
-      if (!(atributo in valorActual)) {
-          throw new Error(`El atributo ${atributo} no está definido en el struct`)
-      }
+//   let valorActual = struct.valor // Empezamos desde el valor del struct
+//   console.log("Atributos a acceder:", atributos)
+//   for( const atributo of atributos) {
+//       console.log(`Intentando acceder a: ${atributo}`)
+//       console.log(`Valor actual:`, JSON.stringify(valorActual, null, 2))
+//       if (!(atributo in valorActual)) {
+//           throw new Error(`El atributo ${atributo} no está definido en el struct`)
+//       }
 
-      valorActual = valorActual[atributo]
-  }
-  console.log("Valor final:", valorActual)
-  return valorActual // Retornamos directamente el valor encontrado
-}
+//       valorActual = valorActual[atributo]
+//   }
+//   console.log("Valor final:", valorActual)
+//   return valorActual // Retornamos directamente el valor encontrado
+// }
 
 
 

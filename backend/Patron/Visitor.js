@@ -73,13 +73,13 @@
  * @typedef {import('../Hojas/Hojas.js').Struct} Struct
 
 
- * @typedef {import('../Hojas/Hojas.js').InstanciaS} InstanciaS
+ * @typedef {import('../Hojas/Hojas.js').AsignacionStruct} AsignacionStruct
 
 
- * @typedef {import('../Hojas/Hojas.js').InstanciaE} InstanciaE
+ * @typedef {import('../Hojas/Hojas.js').AccesoAtributo} AccesoAtributo
 
 
- * @typedef {import('../Hojas/Hojas.js').Atributo} Atributo
+ * @typedef {import('../Hojas/Hojas.js').AsignacionAtributo} AsignacionAtributo
 
 
  * @typedef {import('../Hojas/Hojas.js').Switch} Switch
@@ -365,29 +365,29 @@ export class BaseVisitor {
     
 
     /**
-     * @param {InstanciaS} node
+     * @param {AsignacionStruct} node
      * @returns {any}
      */
-    visitInstanciaS(node) {
-        throw new Error('Metodo visitInstanciaS no implementado');
+    visitAsignacionStruct(node) {
+        throw new Error('Metodo visitAsignacionStruct no implementado');
     }
     
 
     /**
-     * @param {InstanciaE} node
+     * @param {AccesoAtributo} node
      * @returns {any}
      */
-    visitInstanciaE(node) {
-        throw new Error('Metodo visitInstanciaE no implementado');
+    visitAccesoAtributo(node) {
+        throw new Error('Metodo visitAccesoAtributo no implementado');
     }
     
 
     /**
-     * @param {Atributo} node
+     * @param {AsignacionAtributo} node
      * @returns {any}
      */
-    visitAtributo(node) {
-        throw new Error('Metodo visitAtributo no implementado');
+    visitAsignacionAtributo(node) {
+        throw new Error('Metodo visitAsignacionAtributo no implementado');
     }
     
 

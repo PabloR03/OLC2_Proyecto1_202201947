@@ -816,10 +816,9 @@ export class Struct extends Expresion {
     /**
     * @param {Object} options
     * @param {string} options.id Identificador de la clase
- * @param {Expresion[]} options.atrib1 Atributos de la clase
- * @param {Expresion[]} options.atrib2 Metodos de la clase
+ * @param {Expresion[]} options.atributos Atributos de la clase
     */
-    constructor({ id, atrib1, atrib2 }) {
+    constructor({ id, atributos }) {
         super();
         
         /**
@@ -833,14 +832,7 @@ export class Struct extends Expresion {
          * Atributos de la clase
          * @type {Expresion[]}
         */
-        this.atrib1 = atrib1;
-
-
-        /**
-         * Metodos de la clase
-         * @type {Expresion[]}
-        */
-        this.atrib2 = atrib2;
+        this.atributos = atributos;
 
     }
 
@@ -852,53 +844,12 @@ export class Struct extends Expresion {
     }
 }
     
-export class InstanciaS extends Expresion {
+export class AsignacionStruct extends Expresion {
 
     /**
     * @param {Object} options
     * @param {string} options.tipo Tipo de la instancia
- * @param {string} options.id Identificador de la instancia
- * @param {Expresion} options.exp Expresion de la instancia
-    */
-    constructor({ tipo, id, exp }) {
-        super();
-        
-        /**
-         * Tipo de la instancia
-         * @type {string}
-        */
-        this.tipo = tipo;
-
-
-        /**
-         * Identificador de la instancia
-         * @type {string}
-        */
-        this.id = id;
-
-
-        /**
-         * Expresion de la instancia
-         * @type {Expresion}
-        */
-        this.exp = exp;
-
-    }
-
-    /**
-     * @param {BaseVisitor} visitor
-     */
-    accept(visitor) {
-        return visitor.visitInstanciaS(this);
-    }
-}
-    
-export class InstanciaE extends Expresion {
-
-    /**
-    * @param {Object} options
-    * @param {string} options.tipo Tipo de la instancia
- * @param {Expresion[]} options.atributos Atributos de la instancia
+ * @param {Expresion[]} options.atributos Identificador de la instancia
     */
     constructor({ tipo, atributos }) {
         super();
@@ -911,7 +862,7 @@ export class InstanciaE extends Expresion {
 
 
         /**
-         * Atributos de la instancia
+         * Identificador de la instancia
          * @type {Expresion[]}
         */
         this.atributos = atributos;
@@ -922,20 +873,52 @@ export class InstanciaE extends Expresion {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitInstanciaE(this);
+        return visitor.visitAsignacionStruct(this);
     }
 }
     
-export class Atributo extends Expresion {
+export class AccesoAtributo extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.instancia Tipo de la instancia
+ * @param {string[]} options.atributo Atributos de la instancia
+    */
+    constructor({ instancia, atributo }) {
+        super();
+        
+        /**
+         * Tipo de la instancia
+         * @type {string}
+        */
+        this.instancia = instancia;
+
+
+        /**
+         * Atributos de la instancia
+         * @type {string[]}
+        */
+        this.atributo = atributo;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitAccesoAtributo(this);
+    }
+}
+    
+export class AsignacionAtributo extends Expresion {
 
     /**
     * @param {Object} options
     * @param {string} options.instancia Instancia del atributo
- * @param {string} options.atributo Atributo a acceder
- * @param {string} options.restoA Resto de atributos a acceder
- * @param {Expresion|undefined} options.asignacion Valor a asignar
+ * @param {string[]} options.atributo Atributo a acceder
+ * @param {Expresion} options.expresion Resto de atributos a acceder
     */
-    constructor({ instancia, atributo, restoA, asignacion }) {
+    constructor({ instancia, atributo, expresion }) {
         super();
         
         /**
@@ -947,23 +930,16 @@ export class Atributo extends Expresion {
 
         /**
          * Atributo a acceder
-         * @type {string}
+         * @type {string[]}
         */
         this.atributo = atributo;
 
 
         /**
          * Resto de atributos a acceder
-         * @type {string}
+         * @type {Expresion}
         */
-        this.restoA = restoA;
-
-
-        /**
-         * Valor a asignar
-         * @type {Expresion|undefined}
-        */
-        this.asignacion = asignacion;
+        this.expresion = expresion;
 
     }
 
@@ -971,7 +947,7 @@ export class Atributo extends Expresion {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitAtributo(this);
+        return visitor.visitAsignacionAtributo(this);
     }
 }
     
@@ -1626,4 +1602,4 @@ export class AsignacionVariable extends Expresion {
     }
 }
     
-export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, ForEach, Break, Continue, Return, Llamada, DeclaracionDimension, Declaracion2Dimension, AsignacionDimensiones, AccesoDimensiones, Asignacion, ExpresionStmt, Struct, InstanciaS, InstanciaE, Atributo, Switch, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Embebidas, DeclaracionFuncion, DeclaracionArreglo, Declaracion2Arreglo, Declaracion3Arreglo, IndexArreglo, JoinArreglo, LengthArreglo, AccesoArreglo, AsignacionArreglo, Bloque, AsignacionVariable }
+export default { Expresion, OperacionAritmetica, TipoOf, OperacionUnaria, Agrupacion, Numero, Cadena, Caracter, Ternario, If, While, For, ForEach, Break, Continue, Return, Llamada, DeclaracionDimension, Declaracion2Dimension, AsignacionDimensiones, AccesoDimensiones, Asignacion, ExpresionStmt, Struct, AsignacionStruct, AccesoAtributo, AsignacionAtributo, Switch, Decimal, Booleanos, SecuenciaEscape, DeclaracionVariable, ReferenciaVariable, Print, Embebidas, DeclaracionFuncion, DeclaracionArreglo, Declaracion2Arreglo, Declaracion3Arreglo, IndexArreglo, JoinArreglo, LengthArreglo, AccesoArreglo, AsignacionArreglo, Bloque, AsignacionVariable }
