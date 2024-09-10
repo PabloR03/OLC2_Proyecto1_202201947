@@ -72,8 +72,9 @@ export function inicializarInterprete() {
     const nlSalida = document.getElementById('nlSalida');
     const btnEjecutar = document.getElementById('btnEjecutar');
     const tablaSimbolosBtn = document.getElementById('tablaSimbolos');
+    const tablaErroresBtn = document.getElementById('tablaErrores');
 
-    if (!txtEntrada || !txtSalida || !nlEntrada || !nlSalida || !btnEjecutar || !tablaSimbolosBtn) {
+    if (!txtEntrada || !txtSalida || !nlEntrada || !nlSalida || !btnEjecutar || !tablaSimbolosBtn || !tablaErroresBtn) {
         console.error("Uno o más elementos necesarios no se encontraron en el DOM");
         return;
     }
@@ -194,6 +195,93 @@ export function inicializarInterprete() {
         ventanaEmergente.document.close();
     }
 
+    function mostrarTablaErrores() {
+        const codigo = txtEntrada.value;
+        let tablaHTML = '<table border="1"><tr><th>Tipo de Error</th><th>Descripción</th><th>Línea</th><th>Columna</th><th>Contexto</th></tr>';
+        
+        try {
+            const sentencias = parse(codigo);
+            let errores = [];
+    
+            function agregarError(tipo, descripcion, linea, columna, contexto) {
+                errores.push({ tipo, descripcion, linea, columna, contexto });
+            }
+    
+            function procesarSentencias(sentencias, contexto = 'Global') {
+                sentencias.forEach(sentencia => {
+                    const linea = sentencia.location?.start?.line || '-';
+                    const columna = sentencia.location?.start?.column || '-';
+                    
+                    // Aquí puedes agregar lógica para detectar errores específicos
+                    // Por ejemplo:
+                    if (sentencia.tipoVar && sentencia.id) {
+                        // Verificar si la variable ya está declarada
+                        if (variableYaDeclarada(sentencia.id)) {
+                            agregarError('Semántico', `Variable '${sentencia.id}' ya declarada`, linea, columna, contexto);
+                        }
+                    } else if (sentencia.id && !variableDeclarada(sentencia.id)) {
+                        agregarError('Semántico', `Variable '${sentencia.id}' no declarada`, linea, columna, contexto);
+                    }
+                    
+                    // Procesar bloques anidados
+                    if (sentencia.instrucciones) {
+                        procesarSentencias(sentencia.instrucciones, `Bloque en ${linea}:${columna}`);
+                    }
+                    
+                    // Aquí puedes agregar más verificaciones según tus necesidades
+                });
+            }
+    
+            procesarSentencias(sentencias);
+    
+            // Generar tabla HTML de errores
+            errores.forEach(error => {
+                tablaHTML += `<tr>
+                    <td>${error.tipo}</td>
+                    <td>${error.descripcion}</td>
+                    <td>${error.linea}</td>
+                    <td>${error.columna}</td>
+                    <td>${error.contexto}</td>
+                </tr>`;
+            });
+    
+        } catch (error) {
+            console.error("Error al parsear el código:", error);
+            tablaHTML += `<tr><td colspan="5">Error al generar la tabla de errores: ${error.message}</td></tr>`;
+        }
+        
+        tablaHTML += '</table>';
+        
+        // Crear una ventana emergente para mostrar la tabla
+        const ventanaEmergente = window.open('', 'Tabla de Errores', 'width=1000,height=600');
+        ventanaEmergente.document.write(`
+            <html>
+            <head>
+                <title>Tabla de Errores</title>
+                <style>
+                    table { border-collapse: collapse; width: 100%; }
+                    th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                    th { background-color: #f2f2f2; }
+                </style>
+            </head>
+            <body>
+                <h2>Tabla de Errores</h2>
+                ${tablaHTML}
+            </body>
+            </html>
+        `);
+        ventanaEmergente.document.close();
+    }
+    
+    // Funciones auxiliares (debes implementarlas según tu lógica específica)
+    function variableYaDeclarada(id) {
+        // Implementa la lógica para verificar si una variable ya está declarada
+    }
+    
+    function variableDeclarada(id) {
+        // Implementa la lógica para verificar si una variable está declarada
+    }
+
     function ejecutarCodigo() {
         const codigo = txtEntrada.value;
         txtSalida.value = '';  // Limpiar antes de comenzar
@@ -234,6 +322,8 @@ export function inicializarInterprete() {
     txtSalida.addEventListener('scroll', () => syncScroll(txtSalida, nlSalida));
     btnEjecutar.addEventListener('click', ejecutarCodigo);
     tablaSimbolosBtn.addEventListener('click', mostrarTablaSimbolos);
+    tablaErroresBtn.addEventListener('click', mostrarTablaErrores);
+
 
     handleInput();
 }
