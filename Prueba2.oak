@@ -1,3 +1,563 @@
-var hola = 7*7;
-print ((7+8));
-print (hola);
+void FactorialIterativo(int n2){
+   
+    int numeroFactorial = n2;
+    
+    while (numeroFactorial > -1) {
+        mostrarFactorial(numeroFactorial);
+        numeroFactorial -= 1;
+    }
+}
+
+void mostrarFactorial(int n2){
+    int fact = 1;
+    string cadena1 = "El factorial de: " + toString(n2) + " = ";
+    if (n2 != 0) {
+        for (int i = n2; i > 0; i -= 1) {
+            fact = fact * i;
+            cadena1 = cadena1 + toString(i);
+            if (i > 1) {
+                cadena1 = cadena1 + " * ";
+
+            } else {
+                cadena1 = cadena1 + " = ";
+            }
+        }
+    }
+    cadena1 = cadena1 + toString(fact);
+    System.out.println(cadena1);
+}
+
+FactorialIterativo(6);
+
+void figura0(int numero){
+    System.out.println("-----------------WHILE ANIDADO------------------" );
+    int i = 0;
+    while (i < numero) {
+        int j = 0;
+        int numeroMostrar = 1;
+        string unaFila = "";
+        while (j <= i) {
+            unaFila = unaFila + " " + toString(numeroMostrar);
+            numeroMostrar = numeroMostrar + 1;
+            j = j + 1;
+        }
+        System.out.println(unaFila);
+        i = i + 1;
+    }
+    System.out.println("La figura es un triangulo de numeros" );
+    System.out.println("------------------------------------------------" );
+}
+
+void figura1(int n){
+
+    string cadenaFigura = "";
+    int i;
+    for (i = (-3 * n / 2); i <= n; i += 1) {
+        cadenaFigura = "";
+        int j;
+        for (j = (-3 * n / 2); j <= 3 * n / 2; j += 1) {
+
+            int absolutoi;
+            absolutoi = i;
+            int absolutoj;
+            absolutoj = j;
+            if (i < 0) {
+                absolutoi = i * -1;
+            }
+            if (j < 0) {
+                absolutoj = j * -1;
+            }
+            if ((absolutoi + absolutoj < n)
+                || ((-n / 2 - i) * (-n / 2 - i) + (n / 2 - j) * (n / 2 - j) <= n * n / 2)
+                || ((-n / 2 - i) * (-n / 2 - i) + (-n / 2 - j) * (-n / 2 - j) <= n * n / 2)) {
+                cadenaFigura = cadenaFigura + "* ";
+            }
+            else {
+                cadenaFigura = cadenaFigura + ". ";
+            }
+        }
+        System.out.println(cadenaFigura);
+    }
+    System.out.println("La figura es un corazon" );
+}
+
+void figura2(){
+    string cadenaFigura = "";
+    string c = "* ";
+    string b = "  ";
+    int altura = 10;
+    int ancho = 1;
+	
+    for (int i = 0; i < altura / 4; i += 1) {
+        for (int k = 0; k < altura - i; k += 1 ) {
+            cadenaFigura = cadenaFigura + b;
+        }
+        for (int j = 0; j < i * 2 + ancho; j += 1) {
+            cadenaFigura = cadenaFigura + c;
+        }
+
+        System.out.println(cadenaFigura);
+        cadenaFigura = "";
+    }
+    cadenaFigura = "";
+    for (int i = 0; i < altura / 4; i += 1) {
+        for (int k = 0; k < (altura - i) - 2; k += 1) {
+            cadenaFigura = cadenaFigura + b;
+        }
+        for (int j = 0; j < i * 2 + 5; j += 1) {
+            cadenaFigura = cadenaFigura + c;
+        }
+
+        System.out.println(cadenaFigura);
+        cadenaFigura = "";
+    }
+    cadenaFigura = "";
+    for (int i = 0; i < altura / 4; i += 1) {
+        for (int k = 0; k < (altura - i) - 4; k +=1) {
+            cadenaFigura = cadenaFigura + b;
+        }
+        for (int j = 0; j < i * 2 + 9; j +=1 ) {
+            cadenaFigura = cadenaFigura + c;
+        }
+
+        System.out.println(cadenaFigura);
+        cadenaFigura = "";
+    }
+
+    cadenaFigura = "";
+    for (int i = 0; i < altura / 4; i += 1) {
+        for (int k = 0; k < (altura - i) - 6; k += 1 ) {
+            cadenaFigura = cadenaFigura + b;
+        }
+        for (int j = 0; j < i * 2 + 13; j += 1) {
+            cadenaFigura = cadenaFigura + c;
+        }
+
+        System.out.println(cadenaFigura );
+        cadenaFigura = "";
+    }
+    cadenaFigura = "";
+    for (int i = 0; i < altura / 4; i += 1) {
+        for (int k = 0; k < altura - 2; k += 1) {
+            cadenaFigura = cadenaFigura + b;
+        }
+        for (int j = 0; j < 5; j += 1) {
+            cadenaFigura = cadenaFigura + c;
+        }
+
+        System.out.println(cadenaFigura);
+        cadenaFigura = "";
+    }
+
+    System.out.println("La figura es un Arbol <3");
+}
+
+void ciclosContinueBreak(){
+    System.out.println( "============Validar Continue y Break===========" );
+    int i = 0;
+
+    while (i < 10) { //repetir 10 veces
+        int j = i;
+        if (i != 7 && i != 5) {
+            while (!(j <= 0)) {
+                j = j - 2;
+            }
+            if (j == 0) {
+                System.out.println("El numero: " + toString(i) + " es par");
+            } else if (j != 0) {
+                System.out.println("El numero: " + toString(i) + " es impar");
+
+            }
+        } else {
+            if (i == 7) {
+
+                System.out.println( "Hay un break para el numero 7 :3");
+                break;
+                System.out.println( "Esto no deberia imprimirse por el continue :/");
+            } else if (i == 5) {
+                System.out.println( "me voy a saltar el 5 porque hay un continue :3" );
+                i = i + 1;
+                continue;
+            }
+        }
+        i = i + 1;
+
+    }
+    if (i == 7) {
+        System.out.println( "Si el ultimo numero impreso es un 7 :D" );
+
+    } else {
+        System.out.println( "No funciona tu Break o Continue :(" );
+    }
+    System.out.println( "======================================" );
+
+}
+
+ciclosContinueBreak();
+
+float r_toRadians;
+float r_cos;
+
+void toRadians(float angulo){
+    r_toRadians = angulo * 3.141592653589793 / 180;
+}
+
+float potenciaRecursiva(float base, float exponente){
+    if(exponente == 0){
+        return 1.0;
+    }
+    return base * potenciaRecursiva(base, exponente - 1);
+}
+
+void coseno(float x){
+    float coseno = 0.0;
+    int factorial;
+
+    for(int i = 0; i <= 10; i += 1){
+
+        factorial = 1;
+        
+        for(int j = 1; j <= 2 * i; j += 1){
+            factorial = factorial * j;
+        }
+
+        if(i % 2 == 0){
+            coseno = coseno + potenciaRecursiva(x, 2.0 * i) / factorial;
+        }else{
+            coseno = coseno - potenciaRecursiva(x, 2.0 * i) / factorial;
+        }
+    }
+    r_cos = coseno;
+}
+
+
+void DibujarArbol(float x1, float y1, float angulo, int depth) {
+    if (depth != 0) {
+        toRadians(angulo);
+        coseno(3.141592653589793 / 2 + r_toRadians);
+        float x2 = x1 + (r_cos * depth * 50.0);
+        toRadians(angulo);
+        //coseno(r_toRadians);
+        float y2 = y1 + (r_cos * depth * 50.0);
+        System.out.println(toString(x1) + " " + toString(y1) + " " + toString(x2) + " " + toString(y2) + "");
+        DibujarArbol(x2, y2, angulo - 20, depth - 1);
+        DibujarArbol(x2, y2, angulo + 20, depth - 1);
+    }
+}
+
+void RecursividadBasica() {
+    System.out.println("===============RECURSIVIDAD BASICA=================");
+    DibujarArbol(250.0, 500.0, -90.0, 4);
+    System.out.println("======================= FIN =======================");
+}
+
+RecursividadBasica();
+
+void multiPlicacionPorSumas(int m, int n){
+    System.out.println("===============MULTIPLICACION POR SUMAS==============");
+    int mul = 0;
+    //Establecemos condición de que (m y n) no sean cero.
+    if ((m != 0) && (n != 0)) {
+        //Utilizamos un for para ejecutar el ciclo de sumas.
+        for (int i = 0; i < n; i += 1) {
+            // += representa (mul = mul + m), solo acorta lo anterior.
+            mul = mul + m;
+        }
+    }
+    //Retornamos el resultado.
+    //Si m o n es cero, retornará cero.
+    System.out.println(toString(m) + "x" + toString(n) + " = " + toString(mul));
+    System.out.println("========================= FIN =======================");
+}
+
+multiPlicacionPorSumas(100,20);
+
+System.out.println("");
+System.out.println("");
+
+void SentenciasAnidadas(){
+    System.out.println("-----------------CICLO DO WHILE-----------------");
+    int numero1 = 0;
+    System.out.println("-------------------SWITCH CASE------------------");
+    while (numero1 < 6) {
+			
+        switch (numero1) {
+            case 0:
+                figura0(8);
+                break;
+            case 1:
+                figura1(10);
+                break;
+            case 2:
+                figura2();
+                System.out.println("");
+                break;
+            case 3:
+                ciclosContinueBreak();
+                System.out.println("");
+                break;
+            default:
+                System.out.println("Esto se va a imprimir 2 veces :3");
+        }
+		
+		numero1 = numero1 + 1;
+    }
+    System.out.println( "------------------------------------------------");
+}
+
+SentenciasAnidadas();
+
+char[][] frase = {
+    {'.','.','.','.','.','.','.','.','.','O'},
+    {'.','.','.','.','.','.','.','.','D','.'},
+    {'.','.','.','.','.','.','.','N','.','.'},
+    {'.','.','.','.','.','.','U','.','.','.'},
+    {'.','.','.','.','.','M','.','.','.','.'},
+    {'.','.','.','.','.','.','.','.','.','.'},
+    {'.','.','.','A','.','.','.','.','.','.'},
+    {'.','.','L','.','.','.','.','.','.','.'},
+    {'.','O','.','.','.','.','.','.','.','.'},
+    {'H','.','.','.','.','.','.','.','.','.'}   
+};
+
+void imprimirMatriz(char[][] matriz) {
+    int i;
+    int j;
+    char valor;
+    string linea = "hola";
+    
+    for (i = 0; i < matriz.length; i += 1) {
+       
+        for (j = 0; j < matriz[i].length; j += 1) {
+            valor = matriz[i][j];
+            linea = linea + " " + toString(valor) + " ";
+        }
+        System.out.println(linea);
+        linea = "";
+  }
+}
+
+imprimirMatriz(frase);
+
+int[] vectorNumeros  = new int[15];
+vectorNumeros[0] = 1==1? 100:19; //tiene que ser 100
+vectorNumeros[1] = 26;
+vectorNumeros[2] = 1;
+vectorNumeros[3] = 15;
+vectorNumeros[4] = 167;
+vectorNumeros[5] = 0;
+vectorNumeros[6] = 76;
+vectorNumeros[7] = 94;
+vectorNumeros[8] = 25;
+vectorNumeros[9] = 44;
+vectorNumeros[100-90] = 5;
+vectorNumeros[11] = 59;
+vectorNumeros[12] = 95;
+vectorNumeros[13] = 10;
+vectorNumeros[14] = 23;
+
+void voltearFilas(char[][] arreglo){
+    
+    int longitudDelArreglo = arreglo.length;
+    // Recorrer arreglo hasta la mitad. Si es impar, se va al entero anterior más 
+    // próximo. P. ej. 5 / 2 => 2
+    for (int x = 0; x < longitudDelArreglo / 2; x += 1) {
+      // Respaldar el valor actual
+      var temporal = arreglo[x];
+      // Calcular el índice contrario, es decir, el del otro lado de la mitad; el cual irá descendiendo
+      int indiceContrario = longitudDelArreglo - x - 1;
+      // En el actual ahora está el del otro lado
+      arreglo[x] = arreglo[indiceContrario];
+      // Y en el otro lado, el que estaba originalmente en el actual
+      arreglo[indiceContrario] = temporal;
+    }
+    // No regresamos nada porque ya modificamos al arreglo internamente :p
+}
+
+void voltearFilas2(int[] arreglo){
+    
+    int longitudDelArreglo = arreglo.length;
+    // Recorrer arreglo hasta la mitad. Si es impar, se va al entero anterior más 
+    // próximo. P. ej. 5 / 2 => 2
+    for (int x = 0; x < longitudDelArreglo / 2; x += 1) {
+      // Respaldar el valor actual
+      var temporal = arreglo[x];
+      // Calcular el índice contrario, es decir, el del otro lado de la mitad; el cual irá descendiendo
+      int indiceContrario = longitudDelArreglo - x - 1;
+      // En el actual ahora está el del otro lado
+      arreglo[x] = arreglo[indiceContrario];
+      // Y en el otro lado, el que estaba originalmente en el actual
+      arreglo[indiceContrario] = temporal;
+    }
+    // No regresamos nada porque ya modificamos al arreglo internamente :p
+}
+
+
+System.out.println(vectorNumeros);
+
+voltearFilas2(vectorNumeros);
+
+System.out.println(vectorNumeros);
+
+voltearFilas(frase);
+
+imprimirMatriz(frase);
+
+
+void BubbleSort(int miVector){
+    for (int i = 0; i < miVector.length; i +=1)
+    {
+        for (int j = 0; j < miVector.length - i - 1; j +=1)
+        {
+            if (miVector[j] > miVector[j + 1]) {
+                int temp;
+                temp = miVector[j];
+                miVector[j] = miVector[j + 1];
+                miVector[j + 1] = temp;
+            }
+        }
+    }
+}
+
+BubbleSort(vectorNumeros);
+
+System.out.println(vectorNumeros);
+
+/*
+    El factorial de: 6 = 6 * 5 * 4 * 3 * 2 * 1 = 720 
+El factorial de: 5 = 5 * 4 * 3 * 2 * 1 = 120 
+El factorial de: 4 = 4 * 3 * 2 * 1 = 24 
+El factorial de: 3 = 3 * 2 * 1 = 6 
+El factorial de: 2 = 2 * 1 = 2 
+El factorial de: 1 = 1 = 1 
+El factorial de: 0 = 1 
+============Validar Continue y Break=========== 
+El numero: 0 es par 
+El numero: 1 es impar 
+El numero: 2 es par 
+El numero: 3 es impar 
+El numero: 4 es par 
+me voy a saltar el 5 porque hay un continue :3 
+El numero: 6 es par 
+Hay un break para el numero 7 :3 
+Si el ultimo numero impreso es un 7 :D 
+====================================== 
+===============RECURSIVIDAD BASICA================= 
+250 500 450 700 
+450 700 590.9538931178863 840.9538931178863 
+590.9538931178863 840.9538931178863 667.5583374297842 917.5583374297842 
+667.5583374297842 917.5583374297842 692.5583374297842 942.5583374297842 
+667.5583374297842 917.5583374297842 714.5429684690796 964.5429684690796 
+590.9538931178863 840.9538931178863 690.9538931178863 940.9538931178863 
+690.9538931178863 940.9538931178863 737.9385241571817 987.9385241571817 
+690.9538931178863 940.9538931178863 737.9385241571817 987.9385241571817 
+450 700 590.9538931178863 840.9538931178863 
+590.9538931178863 840.9538931178863 690.9538931178863 940.9538931178863 
+690.9538931178863 940.9538931178863 737.9385241571817 987.9385241571817 
+690.9538931178863 940.9538931178863 737.9385241571817 987.9385241571817 
+590.9538931178863 840.9538931178863 667.5583374297842 917.5583374297842 
+667.5583374297842 917.5583374297842 714.5429684690796 964.5429684690796 
+667.5583374297842 917.5583374297842 692.5583374297842 942.5583374297842 
+======================= FIN ======================= 
+===============MULTIPLICACION POR SUMAS============== 
+100x20 = 2000 
+========================= FIN ======================= 
+ 
+ 
+-----------------CICLO DO WHILE----------------- 
+-------------------SWITCH CASE------------------ 
+-----------------WHILE ANIDADO------------------ 
+ 1 
+ 1 2 
+ 1 2 3 
+ 1 2 3 4 
+ 1 2 3 4 5 
+ 1 2 3 4 5 6 
+ 1 2 3 4 5 6 7 
+ 1 2 3 4 5 6 7 8 
+La figura es un triangulo de numeros 
+------------------------------------------------ 
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  
+. . . . . . . . . * * * . . . . . . . * * * . . . . . . . . .  
+. . . . . . . * * * * * * * . . . * * * * * * * . . . . . . .  
+. . . . . * * * * * * * * * * * * * * * * * * * * * . . . . .  
+. . . . . * * * * * * * * * * * * * * * * * * * * * . . . . .  
+. . . . * * * * * * * * * * * * * * * * * * * * * * * . . . .  
+. . . . * * * * * * * * * * * * * * * * * * * * * * * . . . .  
+. . . * * * * * * * * * * * * * * * * * * * * * * * * * . . .  
+. . . * * * * * * * * * * * * * * * * * * * * * * * * * . . .  
+. . . * * * * * * * * * * * * * * * * * * * * * * * * * . . .  
+. . . . * * * * * * * * * * * * * * * * * * * * * * * . . . .  
+. . . . * * * * * * * * * * * * * * * * * * * * * * * . . . .  
+. . . . . * * * * * * * * * * * * * * * * * * * * * . . . . .  
+. . . . . * * * * * * * * * * * * * * * * * * * * * . . . . .  
+. . . . . . . * * * * * * * * * * * * * * * * * . . . . . . .  
+. . . . . . . . * * * * * * * * * * * * * * * . . . . . . . .  
+. . . . . . . . . * * * * * * * * * * * * * . . . . . . . . .  
+. . . . . . . . . . * * * * * * * * * * * . . . . . . . . . .  
+. . . . . . . . . . . * * * * * * * * * . . . . . . . . . . .  
+. . . . . . . . . . . . * * * * * * * . . . . . . . . . . . .  
+. . . . . . . . . . . . . * * * * * . . . . . . . . . . . . .  
+. . . . . . . . . . . . . . * * * . . . . . . . . . . . . . .  
+. . . . . . . . . . . . . . . * . . . . . . . . . . . . . . .  
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  
+La figura es un corazon 
+                    *  
+                  * * *  
+                * * * * *  
+                * * * * *  
+              * * * * * * *  
+            * * * * * * * * *  
+            * * * * * * * * *  
+          * * * * * * * * * * *  
+        * * * * * * * * * * * * *  
+        * * * * * * * * * * * * *  
+      * * * * * * * * * * * * * * *  
+    * * * * * * * * * * * * * * * * *  
+                * * * * *  
+                * * * * *  
+                * * * * *  
+La figura es un Arbol <3 
+ 
+============Validar Continue y Break=========== 
+El numero: 0 es par 
+El numero: 1 es impar 
+El numero: 2 es par 
+El numero: 3 es impar 
+El numero: 4 es par 
+me voy a saltar el 5 porque hay un continue :3 
+El numero: 6 es par 
+Hay un break para el numero 7 :3 
+Si el ultimo numero impreso es un 7 :D 
+====================================== 
+ 
+Esto se va a imprimir 2 veces :3 
+Esto se va a imprimir 2 veces :3 
+------------------------------------------------ 
+ .  .  .  .  .  .  .  .  .  O  
+ .  .  .  .  .  .  .  .  D  .  
+ .  .  .  .  .  .  .  N  .  .  
+ .  .  .  .  .  .  U  .  .  .  
+ .  .  .  .  .  M  .  .  .  .  
+ .  .  .  .  .  .  .  .  .  .  
+ .  .  .  A  .  .  .  .  .  .  
+ .  .  L  .  .  .  .  .  .  .  
+ .  O  .  .  .  .  .  .  .  .  
+ H  .  .  .  .  .  .  .  .  .  
+{100,26,1,15,167,0,76,94,25,44,5,59,95,10,23}
+{23,10,95,59,5,44,25,94,76,0,167,15,1,26,100}
+ H  .  .  .  .  .  .  .  .  .  
+ .  O  .  .  .  .  .  .  .  .  
+ .  .  L  .  .  .  .  .  .  .  
+ .  .  .  A  .  .  .  .  .  .  
+ .  .  .  .  .  .  .  .  .  .  
+ .  .  .  .  .  M  .  .  .  .  
+ .  .  .  .  .  .  U  .  .  .  
+ .  .  .  .  .  .  .  N  .  .  
+ .  .  .  .  .  .  .  .  D  .  
+ .  .  .  .  .  .  .  .  .  O  
+{0,1,5,10,15,23,25,26,44,59,76,94,95,100,167}
+
+*/

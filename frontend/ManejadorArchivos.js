@@ -197,6 +197,7 @@ export function inicializarInterprete() {
     function ejecutarCodigo() {
         const codigo = txtEntrada.value;
         txtSalida.value = '';  // Limpiar antes de comenzar
+        
         try {
             const sentencias = parse(codigo);
             const interprete = new InterpreterVisitor();
@@ -204,20 +205,25 @@ export function inicializarInterprete() {
             sentencias.forEach(sentencia => {
                 try {
                     sentencia.accept(interprete);
+                    // Añadir la salida acumulada del intérprete después de cada sentencia
+                    if (interprete.salida !== '') {
+                        txtSalida.value += interprete.salida;
+                        interprete.salida = ''; // Limpiar la salida del intérprete después de usarla
+                    }
                 } catch (errorSentencia) {
-                    txtSalida.value += `Error en sentencia: ${errorSentencia.message}\n`;
+                    txtSalida.value += `Error en línea ${sentencia.location.start.line}: ${errorSentencia.message}\n`;
                     console.error("Error en sentencia:", errorSentencia);
                 }
             });
+    
             console.log({sentencias});
-            //console.log(JSON.stringify(sentencias, null, 2));
-            //console.log(interprete.salida);
-            txtSalida.value += interprete.salida;  // Añadir salida al final
         } catch (error) {
-            txtSalida.value += "Error general: " + error.message + "\n";
+            if (error.location) {
+                txtSalida.value += `Error en línea ${error.location.start.line}: ${error.message}\n`;
+            } else {
+                txtSalida.value += "Error general: " + error.message + "\n";
+            }
             console.error("Error general:", error);
-            // ver los errores lexicos en linea y columna 
-            console.log(error.location.start.line);
         }
     
         actualizarNumLineas(txtSalida, nlSalida);

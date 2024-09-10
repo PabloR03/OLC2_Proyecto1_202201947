@@ -80,7 +80,9 @@ visitOperacionAritmetica(node) {
       } else if (esCadena(izq) && esCadena(der)) {
         return { valor: izq.valor + der.valor, tipo: 'string' };
       } else {
-        throw new Error(`Error: Operación '+' no permitida entre tipos ${izq.tipo} y ${der.tipo}`);
+        console.log(node.izq)
+        return {valor: null}        
+        //throw new Error(`Error: Operación '+' no permitida entre tipos ${izq.tipo} y ${der.tipo}`);
       }
 
     case '-=':
@@ -88,6 +90,7 @@ visitOperacionAritmetica(node) {
       if (esNumero(izq) && esNumero(der)) {
         return { valor: izq.valor - der.valor, tipo: esEntero(izq) && esEntero(der) ? 'int' : 'float' };
       } else {
+        return {valor: null}        
         throw new Error(`Error: Operación '-' no permitida entre tipos ${izq.tipo} y ${der.tipo}`);
       }
 
@@ -95,6 +98,7 @@ visitOperacionAritmetica(node) {
       if (esNumero(izq) && esNumero(der)) {
         return { valor: izq.valor * der.valor, tipo: esEntero(izq) && esEntero(der) ? 'int' : 'float' };
       } else {
+        return {valor: null}        
         throw new Error(`Error: Operación '*' no permitida entre tipos ${izq.tipo} y ${der.tipo}`);
       }
 
@@ -105,6 +109,7 @@ visitOperacionAritmetica(node) {
         }
         return { valor: izq.valor / der.valor, tipo: esEntero(izq) && esEntero(der) ? 'int' : 'float' };
       } else {
+        return {valor: null}        
         throw new Error(`Error: Operación '/' no permitida entre tipos ${izq.tipo} y ${der.tipo}`);
       }
 
@@ -115,6 +120,8 @@ visitOperacionAritmetica(node) {
         }
         return { valor: izq.valor % der.valor, tipo: 'int' };
       } else {
+        return {valor: null}        
+
         throw new Error(`Error: Operación '%' solo permitida entre valores enteros.`);
       }
 
@@ -129,6 +136,7 @@ visitOperacionAritmetica(node) {
     case '<':
     case '<=':
       if (!esNumero(izq) || !esNumero(der)) {
+        return {valor: null}        
         throw new Error(`Error: Operación '${node.op}' no permitida entre tipos ${izq.tipo} y ${der.tipo}`);
       }
       return { valor: eval(`izq.valor ${node.op} der.valor`), tipo: 'boolean' };
@@ -136,12 +144,14 @@ visitOperacionAritmetica(node) {
     case '&&':
     case '||':
       if (izq.tipo !== 'boolean' || der.tipo !== 'boolean') {
+        return {valor: null}        
         throw new Error(`Error: Operación lógica '${node.op}' solo permitida entre valores booleanos.`);
       }
       return { valor: eval(`izq.valor ${node.op} der.valor`), tipo: 'boolean' };
 
     case '!':
       if (izq.tipo !== 'boolean') {
+        return {valor: null}        
         throw new Error('Error: Operación NOT solo permitida sobre un valor booleano.');
       }
       return { valor: !izq.valor, tipo: 'boolean' };
@@ -163,6 +173,7 @@ visitOperacionUnaria(node) {
       if (exp.tipo === 'int' || exp.tipo === 'float') {
         return { valor: -exp.valor, tipo: exp.tipo };  // Negación para números
       } else {
+        return {valor: null}        
         throw new Error(`Error: El operador '-' solo se permite con valores numéricos, pero recibió un valor de tipo ${exp.tipo}.`);
       }
 
@@ -172,6 +183,7 @@ visitOperacionUnaria(node) {
       } else if (exp.tipo === 'float') {
         return { valor: exp.valor + 1, tipo: 'float' };  // Incremento para flotantes
       } else {
+        return {valor: null}        
         throw new Error(`Error: El operador '++' solo se permite con valores numéricos, pero recibió un valor de tipo ${exp.tipo}.`);
       }
 
@@ -181,6 +193,7 @@ visitOperacionUnaria(node) {
       } else if (exp.tipo === 'float') {
         return { valor: exp.valor - 1, tipo: 'float' };  // Decremento para flotantes
       } else {
+        return {valor: null}        
         throw new Error(`Error: El operador '--' solo se permite con valores numéricos, pero recibió un valor de tipo ${exp.tipo}.`);
       }
 
@@ -188,6 +201,7 @@ visitOperacionUnaria(node) {
       if (exp.tipo === 'boolean') {
         return { valor: !exp.valor, tipo: 'boolean' };  // Negación lógica para booleanos
       } else {
+        return {valor: null}        
         throw new Error(`Error: El operador '!' solo se permite con valores booleanos, pero recibió un valor de tipo ${exp.tipo}.`);
       }
 
@@ -200,9 +214,14 @@ visitOperacionUnaria(node) {
      * @type {BaseVisitor['visitEmbebidas']}
      */ 
 visitEmbebidas(node) {
+  console.log(node.Argumento);
   if (node.Nombre === "Object.keys") {
+    console.log("entra a object.keys");
     const ValorStruct = this.entornoActual.getVariable(node.Argumento);
+    console.log(ValorStruct);
     if (!ValorStruct) {
+      console.log("entra a SEXOOOOOOOOOOOOOO.keys");
+      console.log(node.Argumento);
         throw new Error(`La variable ${node.Argumento} no existe en el entorno actual.`);
     }
     const TipoStruct = this.entornoActual.getStruct(ValorStruct.tipo);
@@ -264,6 +283,21 @@ visitDeclaracionVariable(node) {
   const nombreVariable = node.id;      // Nombre de la variable
   let valorVariable;
   let tipoFinal = tipoDeclarado;       // Tipo final que se asignará
+  let validar = 0;
+  
+  // Lista de palabras reservadas
+  const palabrasReservadas = [
+    'int', 'float', 'string', 'boolean', 'char', 'var', 'null', 'true', 
+    'false', 'Array', 'Struct', 'if', 'else', 'switch', 'case', 'break', 
+    'default', 'while', 'for', 'continue', 'return', 'typeof', 'toString', 
+    'Object', 'indexOf'
+  ];
+
+  // Verificar si el nombre de la variable es una palabra reservada
+  if (palabrasReservadas.includes(nombreVariable)) {
+    throw new Error(`Error: "${nombreVariable}" es una palabra reservada y no puede ser utilizada como nombre de variable.`);
+  }
+
 
   if (node.exp instanceof Hojas.AsignacionStruct) {
     let tipo = node.tipoVar
@@ -281,104 +315,104 @@ visitDeclaracionVariable(node) {
     return
   }
 
-    // Si hay una expresión asociada a la variable
-    if (node.exp) {
-      valorVariable = node.exp.accept(this);  // Obtener valor y tipo desde la expresión
-      tipoFinal = tipoDeclarado === 'var' ? valorVariable.tipo : tipoDeclarado;  // Inferir tipo si es 'var'
+  // Si hay una expresión asociada a la variable
+  if (node.exp) {
+    valorVariable = node.exp.accept(this);  // Obtener valor y tipo desde la expresión
+    tipoFinal = tipoDeclarado === 'var' ? valorVariable.tipo : tipoDeclarado;  // Inferir tipo si es 'var'
   } else {
-      // Asignar valor por defecto según el tipo declarado
-      switch (tipoDeclarado) {
-          case 'int':
-              valorVariable = { valor: null, tipo: 'int' };
-              break;
-          case 'float':
-              valorVariable = { valor: null, tipo: 'float' };
-              break;
-          case 'string':
-              valorVariable = { valor: null, tipo: 'string' };
-              break;
-          case 'boolean':
-              valorVariable = { valor: null, tipo: 'boolean' };
-              break;
-          case 'char':
-              valorVariable = { valor: null, tipo: 'char' };
-              break;
-          case 'var':
-              valorVariable = { valor: null, tipo: 'var' };  // Valor y tipo indefinidos
-              break;
-          default:
-              throw new Error(`Tipo de variable "${tipoDeclarado}" no válido.`);
-      }
+    // Asignar null como valor por defecto para todos los tipos primitivos
+    valorVariable = { valor: null, tipo: tipoDeclarado };
   }
-  // // Si hay una expresión asociada a la variable
-  // if (node.exp) {
-  //     valorVariable = node.exp.accept(this);  // Obtener valor y tipo desde la expresión
-  //     tipoFinal = tipoDeclarado === 'var' ? valorVariable.tipo : tipoDeclarado;  // Inferir tipo si es 'var'
-  // } else {
-  //     // Asignar valor por defecto según el tipo declarado
-  //     switch (tipoDeclarado) {
-  //         case 'int':
-  //             valorVariable = { valor: 0, tipo: 'int' };
-  //             break;
-  //         case 'float':
-  //             valorVariable = { valor: 0.0, tipo: 'float' };
-  //             break;
-  //         case 'string':
-  //             valorVariable = { valor: '', tipo: 'string' };
-  //             break;
-  //         case 'boolean':
-  //             valorVariable = { valor: true, tipo: 'boolean' };
-  //             break;
-  //         case 'char':
-  //             valorVariable = { valor: '\0', tipo: 'char' };
-  //             break;
-  //         case 'var':
-  //             valorVariable = { valor: null, tipo: 'var' };  // Valor y tipo indefinidos
-  //             break;
-  //         default:
-  //             throw new Error(`Tipo de variable "${tipoDeclarado}" no válido.`);
-  //     }
-  // }
   
   // Verificación de tipo con manejo especial para float
   if (tipoFinal !== valorVariable.tipo) {
-      if (tipoFinal === 'float' && valorVariable.tipo === 'int') {
-          // Convertir el valor entero a float
-          valorVariable = { valor: parseFloat(valorVariable.valor), tipo: 'float' };
-      } else {
-          throw new Error(`Tipo de la variable "${nombreVariable}" no coincide con el tipo de la expresión.`);
-      }
+    if (tipoFinal === 'float' && valorVariable.tipo === 'int') {
+      // Convertir el valor entero a float
+      valorVariable = { valor: parseFloat(valorVariable.valor), tipo: 'float' };
+      this.entornoActual.setVariable(tipoFinal, nombreVariable, valorVariable);
+      validar = 1;
+    } else {
+      //lanzar advertencia que el tipo y la expresion no coinciden
+      valorVariable = { valor: null, tipo: tipoFinal };
+      this.entornoActual.setVariable(tipoFinal, nombreVariable, valorVariable);
+      validar = 1;
+      console.warn(`Advertencia: Tipo de la variable "${nombreVariable}" no coincide con el tipo de la expresión. Tipo declarado: ${tipoFinal}, Tipo de la expresión: ${valorVariable.tipo}`);
+      //throw new Error(`Tipo de la variable "${nombreVariable}" no coincide con el tipo de la expresión.`);
+    }
   }
-  
+  console.log("valor de la variable", valorVariable);
   // Definir la variable en el entorno actual
-  this.entornoActual.setVariable(tipoFinal, nombreVariable, valorVariable);
+  if (validar === 0)  {
+    this.entornoActual.setVariable(tipoFinal, nombreVariable, valorVariable);
+  }
+    
 }
 
 /**
  * @type {BaseVisitor['visitReferenciaVariable']}
  */
 visitReferenciaVariable(node) {
-    const variable = this.entornoActual.getVariable(node.id);
-    if(variable === undefined) {
-        throw new Error(`La Variable "${node.id}" No Existe.`);
-    }
-    return variable.valor;
+  const variable = this.entornoActual.getVariable(node.id);
+  if (variable === undefined) {
+      throw new Error(`La Variable "${node.id}" No Existe.`);
+  }
+
+  let valor = variable.valor;
+
+  if (node.acceso) {
+      switch (node.acceso.tipo) {
+          case 'arreglo':
+              const index = this.visit(node.acceso.index);
+              if (!Array.isArray(valor)) {
+                  throw new Error(`"${node.id}" no es un arreglo.`);
+              }
+              if (index < 0 || index >= valor.length) {
+                  throw new Error(`Índice fuera de rango para "${node.id}".`);
+              }
+              valor = valor[index];
+              break;
+          case 'dimensiones':
+              for (const dim of node.acceso.valores) {
+                  const dimIndex = this.visit(dim);
+                  if (!Array.isArray(valor)) {
+                      throw new Error(`Acceso inválido a dimensiones para "${node.id}".`);
+                  }
+                  if (dimIndex < 0 || dimIndex >= valor.length) {
+                      throw new Error(`Índice fuera de rango para una dimensión de "${node.id}".`);
+                  }
+                  valor = valor[dimIndex];
+              }
+              break;
+      }
+  }
+
+  return valor;
 }
+
 
 /**
  * @type {BaseVisitor['visitPrint']}
  */
 visitPrint(node) {
-const valores = node.exps.map(exps => {
-  const valorFloat = exps.accept(this);
-    if(valorFloat.tipo === 'float') {
-      if (Number.isInteger(valorFloat.valor)) {
-        valorFloat.valor = valorFloat.valor.toFixed(1);
+  const printValue = (valor) => {
+    if (valor.valor === null) {
+      return "null";
+    } else if (Array.isArray(valor.valor)) {
+      return '[' + valor.valor.map(v => printValue({valor: v, tipo: valor.tipo})).join(',') + ']';
+    } else if (valor.tipo === 'float') {
+      if (Number.isInteger(valor.valor)) {
+        return valor.valor.toFixed(1);
       }
     }
-    return valorFloat.valor;
+    return valor.valor;
+  };
+
+  const valores = node.exps.map(exp => {
+    const valor = exp.accept(this);
+    return printValue(valor);
   });
-this.salida += valores.join(' ') + '\n';
+
+  this.salida += valores.join(',') + '\n';
 }
 
 /**
@@ -438,6 +472,8 @@ visitDeclaracion2Arreglo(node) {
           break;
       case 'boolean':
           arreglo = Array(numero.valor).fill(false);
+      case 'struct':
+          arreglo = Array(numero.valor).fill(null);
           break;
       default:
           throw new Error(`Tipo De Arreglo No Válido: "${node.tipo1}".`);
@@ -497,8 +533,14 @@ visitAsignacionArreglo(node) {
   }
   if (index.valor < 0 || index.valor >= arreglo.valor.length) {
       throw new Error(`Indice Fuera De Rango: "${index.valor}".`);
+  }  // Modificación principal: permitir asignar null si el tipo no coincide
+  if (valor.tipo !== arreglo.tipo) {
+    console.warn(`Advertencia: El Tipo Del Valor "${valor.valor}" No Coincide Con El Tipo Del Arreglo "${arreglo.tipo}". Se asignará null.`);
+    arreglo.valor[index.valor] = null;
+  } else {
+    arreglo.valor[index.valor] = valor.valor;
   }
-  arreglo.valor[index.valor] = valor.valor;
+
   return;
 }    
 
@@ -544,13 +586,48 @@ visitIndexArreglo(node) {
    * @type {BaseVisitor['visitLengthArreglo']}
    */
   visitLengthArreglo(node) {
-      const arreglo = this.entornoActual.getVariable(node.id).valor;
-      if (!Array.isArray(arreglo.valor)) {
-          throw new Error(`La Variable: "${node.id}" No Es Un Arreglo.`);
-      }
-      return {valor: arreglo.valor.length, tipo: "int"};
-  }
+    // Si no hay posición (queremos la longitud total del arreglo de la primera dimensión)
+    if (node.posicion.length === 0) {
+        const arreglo = this.entornoActual.getVariable(node.id).valor;
+        if (!Array.isArray(arreglo.valor)) {
+            throw new Error(`La Variable: "${node.id}" No Es Un Arreglo.`);
+        }
+        return {valor: arreglo.valor.length, tipo: "int"};
+    } else {
+        // Si hay posiciones, navegamos por cada una
+        const arreglo = this.entornoActual.getVariable(node.id).valor;
+        if (!Array.isArray(arreglo.valor)) {
+            throw new Error(`La Variable: "${node.id}" No Es Un Arreglo.`);
+        }
 
+        let ref = arreglo.valor;
+
+        // Recorremos las posiciones para navegar en las dimensiones del arreglo
+        for (let i = 0; i < node.posicion.length; i++) {
+            const numero = node.posicion[i].accept(this);
+
+            if (numero.tipo !== 'int') {
+                throw new Error(`El Índice De Acceso "${i + 1}" Debe Ser De Tipo Int: "${numero.tipo}".`);
+            }
+            if (!Array.isArray(ref)) {
+                throw new Error(`La Referencia En La Dimensión "${i + 1}" No Es Un Arreglo.`);
+            }
+            if (numero.valor < 0 || numero.valor >= ref.length) {
+                throw new Error(`Índice Fuera De Rango: "${numero.valor}" En Dimensión "${i + 1}".`);
+            }
+
+            // Actualizamos la referencia al siguiente nivel del arreglo
+            ref = ref[numero.valor];
+        }
+
+        // Después de recorrer las posiciones, verificamos si ref aún es un arreglo
+        if (!Array.isArray(ref)) {
+            throw new Error(`La Referencia Final No Es Un Arreglo, No Se Puede Obtener Su Longitud.`);
+        }
+
+        return {valor: ref.length, tipo: "int"};
+}
+}
 //////////////////////////////////////////// ARREGLOS N DIMENSIONALES ////////////////////////////////////////////
 
 /**
@@ -639,35 +716,41 @@ visitDeclaracion2Dimension(node) {
 visitAsignacionDimensiones(node) {
   const matriz = this.entornoActual.getVariable(node.id).valor;
   const nuevoValor = node.nuevoValor.accept(this);
+  
   // Verificar si la variable es una matriz
   if (!Array.isArray(matriz.valor)) {
-      throw new Error(`La Variable: "${node.id}" No Es Una Matriz.`);
+    throw new Error(`La Variable: "${node.id}" No Es Una Matriz.`);
   }
+  
   // Verificar tipos y rangos de los índices
   let subMatriz = matriz.valor;
   node.indices.forEach((indice, index) => {
-      const numero = indice.accept(this);
-      if (numero.tipo !== 'int') {
-          throw new Error(`El Índice De Acceso "${index + 1}" Debe Ser De Tipo Int: "${numero.tipo}".`);
+    const numero = indice.accept(this);
+    if (numero.tipo !== 'int') {
+      throw new Error(`El Índice De Acceso "${index + 1}" Debe Ser De Tipo Int: "${numero.tipo}".`);
+    }
+    if (numero.valor < 0 || numero.valor >= subMatriz.length) {
+      throw new Error(`Índice Fuera De Rango: "${numero.valor}" En Dimensión "${index + 1}".`);
+    }
+    
+    // Avanzar en la matriz multidimensional
+    if (index < node.indices.length - 1) {
+      subMatriz = subMatriz[numero.valor];
+      if (!Array.isArray(subMatriz)) {
+        throw new Error(`La Variable En Dimensión "${index + 2}" No Es Una Matriz.`);
       }
-      if (numero.valor < 0 || numero.valor >= subMatriz.length) {
-          throw new Error(`Índice Fuera De Rango: "${numero.valor}" En Dimensión "${index + 1}".`);
-      }
-      // Avanzar en la matriz multidimensional
-      if (index < node.indices.length - 1) {
-          subMatriz = subMatriz[numero.valor];
-          if (!Array.isArray(subMatriz)) {
-              throw new Error(`La Variable En Dimensión "${index + 2}" No Es Una Matriz.`);
-          }
+    } else {
+      // Último nivel, asignar el nuevo valor o null si los tipos no coinciden
+      if (nuevoValor.tipo !== matriz.tipo) {
+        console.warn(`Advertencia: El Tipo Del Valor "${nuevoValor.valor}" (${nuevoValor.tipo}) No Coincide Con El Tipo De La Matriz "${matriz.tipo}". Se asignará null.`);
+        subMatriz[numero.valor] = null;
       } else {
-          // Último nivel, asignar el nuevo valor
-          subMatriz[numero.valor] = nuevoValor.valor;
+        subMatriz[numero.valor] = nuevoValor.valor;
       }
+    }
   });
-  // Verificar si el tipo del nuevo valor coincide con el tipo de la matriz
-  if (nuevoValor.tipo !== matriz.tipo) {
-      throw new Error(`El Tipo Del Valor "${nuevoValor.tipo}" No Coincide Con El Tipo De La Matriz "${matriz.tipo}".`);
-  }
+  
+  return { tipo: 'void', valor: null };
 }
 
 

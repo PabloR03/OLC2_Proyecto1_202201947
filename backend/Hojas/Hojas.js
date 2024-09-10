@@ -1129,8 +1129,9 @@ export class ReferenciaVariable extends Expresion {
     /**
     * @param {Object} options
     * @param {string} options.id Identificador de la variable
+ * @param {object} options.acceso Información de acceso a arreglo o dimensiones
     */
-    constructor({ id }) {
+    constructor({ id, acceso }) {
         super();
         
         /**
@@ -1138,6 +1139,13 @@ export class ReferenciaVariable extends Expresion {
          * @type {string}
         */
         this.id = id;
+
+
+        /**
+         * Información de acceso a arreglo o dimensiones
+         * @type {object}
+        */
+        this.acceso = acceso;
 
     }
 
@@ -1179,7 +1187,7 @@ export class Embebidas extends Expresion {
     /**
     * @param {Object} options
     * @param {Expresion} options.Nombre Expresion embebida
- * @param {string} options.Argumento Tipo de la embebida
+ * @param {Expresion} options.Argumento Tipo de la embebida
     */
     constructor({ Nombre, Argumento }) {
         super();
@@ -1193,7 +1201,7 @@ export class Embebidas extends Expresion {
 
         /**
          * Tipo de la embebida
-         * @type {string}
+         * @type {Expresion}
         */
         this.Argumento = Argumento;
 
@@ -1450,8 +1458,9 @@ export class LengthArreglo extends Expresion {
     /**
     * @param {Object} options
     * @param {string} options.id Expresiones a unir
+ * @param {Expresion[]} options.posicion Indices a buscar
     */
-    constructor({ id }) {
+    constructor({ id, posicion }) {
         super();
         
         /**
@@ -1459,6 +1468,13 @@ export class LengthArreglo extends Expresion {
          * @type {string}
         */
         this.id = id;
+
+
+        /**
+         * Indices a buscar
+         * @type {Expresion[]}
+        */
+        this.posicion = posicion;
 
     }
 

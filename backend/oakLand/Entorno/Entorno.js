@@ -67,6 +67,8 @@ export class Entorno {
     }
 
     esAsignacionValida(tipoVariable, tipoValor, valor) {
+        console.log("HOLAAA")
+        console.log(tipoVariable, tipoValor, valor)
         if (tipoVariable === tipoValor) return true;
         if (tipoVariable === 'float' && tipoValor === 'int') return true;
         if (tipoVariable === 'string' && typeof valor === 'string') return true;

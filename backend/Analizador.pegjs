@@ -77,7 +77,7 @@ instrucciones = struct:Struct {return struct}
 //AtributoInstancia = id: identificador _ ":" _ exp: expresion _ { return { id, exp } }
 //AccederAtributo = instancia:identificador _ "." _ atributo:identificador _ restoA:("." _ atri:identificador {return atri })* _ asignacion:( "=" _ exp:expresion {return exp})? { return crearHoja('Atributo', { instancia, atributo, restoA, asignacion})}
 
-Struct = "struct" _ id: identificador _ "{" _ atributos:Atributos* _ "}" _ ";"? _ { return crearHoja('Struct', { id, atributos}) }
+Struct = _ tipoVariable _ id: identificador _ "{" _ atributos:Atributos* _ "}" _ ";"? _ { return crearHoja('Struct', { id, atributos}) }
 
 Atributos = tipo: (tipoVariable/identificador) _ id: identificador _ ";" _ 
             { return { tipo, id } }
@@ -108,9 +108,9 @@ declaracionVariable = _ tipoVar:(tipoVariable / identificador) _ id:identificado
 
     / _ tipoVar:tipoVariable _ id:identificador _ ";" _ {return crearHoja('declaracionVariable', {tipoVar, id})}
 
-    / _ arreglo:Arreglo _ {return arreglo}
-
     / _ dimension:Dimensiones _ {return dimension}
+
+    / _ arreglo:Arreglo _ {return arreglo}
 // =================================================================================================ARREGLOS===============================================================================================================
 
 Arreglo =  _ tipo:tipoVariable _ "[]" _ id:identificador _ "=" _ valores:Contenido _ ";" _ {return crearHoja('declaracionArreglo', {tipo, id, valores})}
@@ -136,13 +136,13 @@ listValDimensiones = _ "{" _ valores:listValDimensiones _ "}" valoresRestantes:(
                         / valor:expresion valoresRestantes: ( _ "," _ listValDimensiones)? {if (valoresRestantes) {return [valor].concat(valoresRestantes[3]);}return [valor];}
 // ===================================================================================================FUNCIONES============================================================================================================
 
-FuncionDeclaracion = tipo:(tipoVariable / "void") _ id:identificador _ "(" _ params:Parametros? _ ")" _ bloque:Bloque { return crearHoja('DeclaracionFuncion', { tipo, id, params: params || [], bloque }) }
+FuncionDeclaracion = tipo:(tipoVariable / "void") _(_"["_"]"_)*_ id:identificador _ "(" _ params:Parametros? _ ")" _ bloque:Bloque { return crearHoja('DeclaracionFuncion', { tipo, id, params: params || [], bloque }) }
 
 Parametros = primerParametro:ParametroDeclaracion restoParams:("," _ param:ParametroDeclaracion { return param; })* { return [primerParametro, ...restoParams]; }
 
 ParametroDeclaracion = tipo:tipoVariable dimensiones:ArregloDecFun? _ id:identificador{ return { tipo, id, dim: dimensiones || "" }; }
 
-ArregloDecFun = "[" _ "]"+  { return text(); }
+ArregloDecFun = ("[" _ "]" )*  { return text(); }
 // ========================================================================================================================================================================================================================
 // ===========================================================================================ACCESO Y ASIGNACION==========================================================================================================
 AsignacionVariable =  _ id:identificador _ "=" _ exp:expresion _ ";" _ { return crearHoja('asignacionVariable', { id, exp }) }
@@ -198,9 +198,9 @@ Sentencias = bloque:Bloque {return bloque}
 
     / asignacion:AsignacionVariable {return asignacion}
 
-    / asignarArreglo:AsignarArreglos {return asignarArreglo}
-
     / asignarDimensiones:AsignacionDimensiones {return asignarDimensiones}
+
+    / asignarArreglo:AsignarArreglos {return asignarArreglo}
 
     / exp:expresion _ ";" { return crearHoja('expresionStmt', { exp }) }
 
@@ -225,6 +225,8 @@ While = _ "while" _ "(" _ cond:expresion _ ")" _ instrucciones:Sentencias { retu
 For = _ "for" _ "(" _ init:ForInit _ cond:expresion _ ";" _ inc:AsignacionVariable _ ")" _ sentencias:Sentencias {return crearHoja('for', { init, cond, inc, sentencias })}
 
 ForInit = declaracion:declaracionVariable _  { return declaracion }
+
+    / asignacion:AsignacionVariable _ { return asignacion }
 
     / exp:expresion _ ";" _{ return exp }
 
@@ -257,6 +259,7 @@ expresion = arit:Ternario {return arit}
     / cadena:Cadena {return cadena}
 
     / numero:Numero {return numero}
+
 
 Agrupacion = _ "(" _ exp:expresion _ ")"_ {return crearHoja('agrupacion', {exp})}
 
@@ -329,17 +332,17 @@ Unaria = ("-") _ datos:Unaria _ {return crearHoja('unaria', {op: ('-'), datos: d
 
     /("!") _ datos:Datos _ {return crearHoja('unaria', {op: ('!'), datos: datos})}
 
-    / embe:("typeof") _ expresion:Datos _ {return crearHoja('Embebida', {Nombre: embe, Argumento: expresion})}
+    / embe:("typeof") _ expresion:expresion _ {return crearHoja('Embebida', {Nombre: embe, Argumento: expresion})}
 
-    / embe:("toString")"(" _ expresion:Datos _ ")" _ {return crearHoja('Embebida', {Nombre: embe, Argumento: expresion})}
+    / embe:("toString") _"(" _ expresion:expresion _ ")" _ {return crearHoja('Embebida', {Nombre: embe, Argumento: expresion})}
 
-    / embe:("Object.keys")"(" _ expresion:Datos _ ")" _ {return crearHoja('Embebida', {Nombre: embe, Argumento: expresion})}
+    / embe:("Object.keys") _ "(" _ expresion:identificador _ ")" _ {return crearHoja('Embebida', {Nombre: embe, Argumento: expresion})}
 
     / id:identificador _ ".indexOf" _ "(" _ index:Datos _ ")" _ {return crearHoja('indexArreglo', {id, index})}
 
     / id:identificador _ ".join()" _ {return crearHoja('joinArreglo', {id})}
 
-    / id:identificador _ ".length" _ {return crearHoja('lenghtArreglo', {id})}
+    / id:identificador _ posicion:opcionesLength _ ".length" _ {return crearHoja('lenghtArreglo', {id, posicion})}
 
     / id:identificador _ valores:valDimensiones _ {return crearHoja('AccesoDimensiones', {id, valores})}
 
@@ -359,12 +362,29 @@ tipoVariable =    "int"     {return text()}
                 / "boolean" {return text()}
                 / "char"    {return text()}
                 / "var"     {return text()}
+                / "struct"  {return text()}
 
+opcionesLength = ("[" _ posicion:expresion _ "]" {return posicion})* 
+    / _
 // ==========================================================================================================================================================================================================================
 // =======================================================================================DATOS PRIMITIVOS===================================================================================================================
-Datos =  Numero / Booleanos / Agrupacion / AsignacionStruct / referenciaVariable / Caracter / Cadena 
+Datos =  Numero / Booleanos / Agrupacion / AsignacionStruct /referenciaVariable / Caracter / Cadena 
 identificador = [a-zA-Z_][a-zA-Z0-9_]* {return text()}
-referenciaVariable = _ id:identificador _ {return crearHoja('referenciaVariable', {id})}
+referenciaVariable = _ id:identificador _ acceso:(AccesoArreglo / AccesoDimensiones)? _ {
+    if (acceso) {
+        return crearHoja('referenciaVariable', {id, acceso});
+    }
+    return crearHoja('referenciaVariable', {id});
+}
+
+AccesoArreglo = "[" _ index:expresion _ "]" {
+    return { tipo: 'arreglo', index };
+}
+
+AccesoDimensiones = valores:valDimensiones {
+    return { tipo: 'dimensiones', valores };
+}
+
 Numero = numero:[0-9]+ ("." [0-9]+)? {return text().includes('.') ? crearHoja('numero', {valor: parseFloat(text(), 10), tipo:"float"}): crearHoja('numero', {valor: parseInt(text(), 10), tipo:"int"})}
 Caracter = "'" carac:[\x00-\x7F] "'" {return crearHoja('caracter', { valor: carac,  tipo: "char"})}  
 Booleanos = "true" { return crearHoja('booleanos', { valor: true , tipo:"boolean"}); }
