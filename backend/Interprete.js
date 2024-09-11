@@ -107,7 +107,8 @@ visitOperacionAritmetica(node) {
         if (der.valor === 0) {
           throw new Error('Error: División por cero.');
         }
-        return { valor: izq.valor / der.valor, tipo: esEntero(izq) && esEntero(der) ? 'int' : 'float' };
+        let resultado = izq.valor / der.valor;
+        return { valor: izq.valor / der.valor, tipo: esEntero(resultado) ? 'int' : 'float' };
       } else {
         return {valor: null}        
         throw new Error(`Error: Operación '/' no permitida entre tipos ${izq.tipo} y ${der.tipo}`);
