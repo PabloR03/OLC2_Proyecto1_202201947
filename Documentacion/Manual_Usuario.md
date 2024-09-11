@@ -89,6 +89,6 @@ System.out.println(sumar());
 ```
 
 ---
-Para obtener más información sobre cómo implementar nuestro programa, consulta el manual Tecnico en la carpeta Documentacion/Manual_Tecnico.md.
+Para obtener más información sobre cómo implementar nuestro programa, consulta el manual Tecnico puedes acceder a https://github.com/PabloR03/OLC2_Proyecto1_202201947/blob/main/Documentacion/Manual_Tecnico.md
 
 Archivos de Prueba adicionales: https://github.com/damianpeaf/OLC2_2S2024/tree/main/archivos-entrada/proyecto1 
