@@ -156,19 +156,34 @@ opcionesLength = ("["  expresion  "]")*
 ===============DATOS===============
 
 Datos =  Numero / Booleanos / Agrupacion / AsignacionStruct /referenciaVariable / Caracter / Cadena 
-    identificador = [a-zA-Z_][a-zA-Z0-9_]* 
-    referenciaVariable =  identificador  (AccesoArreglo / AccesoDimensiones)?
-    AccesoArreglo = "["  expresion  "]" 
-    AccesoDimensiones = valores:valDimensiones
-    Numero = numero:[0-9]+ ("." [0-9]+)?
-    Caracter = "'" carac:[\x00-\x7F] "'" 
-    Booleanos = "true"
-                / "false"
-    Cadena = "\"" [^"]* "\""
-    _ = "whitespace" = (whitespace / comment)*
-    whitespace "whitespace" = [ \t\n\r]+
-    comment "comment" = singleLineComment / multiLineComment
-    singleLineComment "single line comment" = "//" (![\n\r] .)*
-    multiLineComment "multi line comment" = "/*" (!"*/" .)* "*/"
+
+
+identificador = [a-zA-Z_][a-zA-Z0-9_]* 
+
+referenciaVariable =  identificador  (AccesoArreglo / AccesoDimensiones)?
+
+AccesoArreglo = "["  expresion  "]" 
+
+AccesoDimensiones = valores:valDimensiones
+
+Numero = numero:[0-9]+ ("." [0-9]+)?
+
+Caracter = "'" carac:[\x00-\x7F] "'" 
+
+Booleanos = "true"
+
+            / "false"
+
+Cadena = "\"" [^"]* "\""
+
+_ = "whitespace" = (whitespace / comment)*
+
+whitespace "whitespace" = [ \t\n\r]+
+
+comment "comment" = singleLineComment / multiLineComment
+
+singleLineComment "single line comment" = "//" (![\n\r] .)*
+
+multiLineComment "multi line comment" = "/*" (!"*/" .)* "*/"
 
 
