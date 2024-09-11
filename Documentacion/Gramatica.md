@@ -1,15 +1,14 @@
 ## Inicio
-```javascript
 programa = instrucciones* 
 
-// ====================================INSTRUCCIONES====================================
+- ====================================INSTRUCCIONES====================================
 
 instrucciones = Struct 
     / declaracionVariable
     / FuncionDeclaracion
     / Sentencias
 
-// ====================================STRUCT====================================
+- ====================================STRUCT====================================
 
 Struct =  tipoVariable  identificador  "{"  Atributos*  "}"  ";"?
 
@@ -19,7 +18,7 @@ Struct =  tipoVariable  identificador  "{"  Atributos*  "}"  ";"?
     AccederAtributo = identificador  "."  identificador ("." identificador )*
     AsignacionAtributo = identificador  "." identificador  ("." identificador )*  "=" expresion  ";"
 
-// ====================================DECLARACIONES====================================
+- ====================================DECLARACIONES====================================
 
     declaracionVariable =  (tipoVariable / identificador)  identificador  "="  expresion  ";"
         / tipoVariable  identificador  ";" 
@@ -43,14 +42,14 @@ Struct =  tipoVariable  identificador  "{"  Atributos*  "}"  ";"?
                 listValDimensiones =  "{"  listValDimensiones  "}" ( ","  listValDimensiones)?
                     / expresion (  ","  listValDimensiones)?
 
-// ====================================FUNCIONES====================================
+- ====================================FUNCIONES====================================
 
     FuncionDeclaracion = (tipoVariable / "void") ("[""]")* identificador  "("  Parametros?  ")"  Bloque
         Parametros = ParametroDeclaracion ("," ParametroDeclaracion )* 
         ParametroDeclaracion = tipoVariable ArregloDecFun? identificador
         ArregloDecFun = ("["  "]" )*
 
-// ====================================ASIGNACIONES====================================
+- ====================================ASIGNACIONES====================================
 
     AsignacionVariable = identificador  "="  expresion  ";"
         / identificador "=" expresion
@@ -64,7 +63,7 @@ Struct =  tipoVariable  identificador  "{"  Atributos*  "}"  ";"?
     AsignacionDimensiones = identificador valDimensiones "=" expresion ";"
     valDimensiones =  "[" expresion  "]" valDimensiones*
 
-// ====================================SENTENCIAS====================================
+- ====================================SENTENCIAS====================================
 Sentencias = Bloque
     / print
     / FuncionDeclaracion
@@ -104,7 +103,7 @@ Sentencias = Bloque
     Return =  "return" expresion?  ";" 
     Llamada = Datos "(" expresiones? ")" 
 
-// ====================================EXPRESIONES====================================
+- ====================================EXPRESIONES====================================
 expresion = Ternario
     / Booleanos
     / Agrupacion
@@ -141,7 +140,7 @@ expresion = Ternario
             / Llamada
             / Datos
 
-// ====================================TIPOS DE DATOS====================================
+- ====================================TIPOS DE DATOS====================================
 
 tipoVariable =    "int"    
         / "float"  
@@ -154,8 +153,9 @@ tipoVariable =    "int"
 
 opcionesLength = ("["  expresion  "]")* 
 
-// ====================================DATOS====================================
+- ====================================DATOS====================================
 ![PRUEBA DE IMAGEN](image.png)
+
 Datos =  Numero / Booleanos / Agrupacion / AsignacionStruct /referenciaVariable / Caracter / Cadena 
     identificador = [a-zA-Z_][a-zA-Z0-9_]* 
     referenciaVariable =  identificador  (AccesoArreglo / AccesoDimensiones)?
