@@ -107,8 +107,8 @@ visitOperacionAritmetica(node) {
         if (der.valor === 0) {
           throw new Error('Error: División por cero.');
         }
-        Opizq = izq.valor;
-        Opder = der.valor;
+        let Opizq = izq.valor;
+        let Opder = der.valor;
         if (izq.tipo === 'int' && der.tipo === 'int') {
           return { valor: parseInt(Opizq / Opder), tipo: 'int' };
         }
