@@ -107,8 +107,13 @@ visitOperacionAritmetica(node) {
         if (der.valor === 0) {
           throw new Error('Error: División por cero.');
         }
-        let resultado = izq.valor / der.valor;
-        return { valor: izq.valor / der.valor, tipo: esEntero(resultado) ? 'int' : 'float' };
+        Opizq = izq.valor;
+        Opder = der.valor;
+        if (izq.tipo === 'int' && der.tipo === 'int') {
+          return { valor: parseInt(Opizq / Opder), tipo: 'int' };
+        }
+        return { valor: Opizq / Opder, tipo: 'float' };
+        //return { valor: izq.valor / der.valor, tipo: esEntero(izq) && esEntero(der) ? 'int' : 'float' };
       } else {
         return {valor: null}        
         throw new Error(`Error: Operación '/' no permitida entre tipos ${izq.tipo} y ${der.tipo}`);
@@ -119,7 +124,7 @@ visitOperacionAritmetica(node) {
         if (der.valor === 0) {
           throw new Error('Error: Módulo por cero.');
         }
-        return { valor: izq.valor % der.valor, tipo: 'int' };
+        return { valor: parseInt(izq.valor % der.valor), tipo: 'int' };
       } else {
         return {valor: null}        
 
