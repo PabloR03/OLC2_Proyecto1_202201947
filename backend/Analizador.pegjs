@@ -363,6 +363,7 @@ tipoVariable =    "int"     {return text()}
                 / "char"    {return text()}
                 / "var"     {return text()}
                 / "struct"  {return text()}
+                / identificador {return text()}
 
 opcionesLength = ("[" _ posicion:expresion _ "]" {return posicion})* 
     / _

@@ -288,7 +288,7 @@ visitDeclaracionVariable(node) {
   // Lista de palabras reservadas
   const palabrasReservadas = [
     'int', 'float', 'string', 'boolean', 'char', 'var', 'null', 'true', 
-    'false', 'Array', 'Struct', 'if', 'else', 'switch', 'case', 'break', 
+    'false', 'Struct', 'if', 'else', 'switch', 'case', 'break', 
     'default', 'while', 'for', 'continue', 'return', 'typeof', 'toString', 
     'Object', 'indexOf'
   ];
