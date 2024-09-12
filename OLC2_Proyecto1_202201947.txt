@@ -1,0 +1,7 @@
+Universidad San Carlos de Guatemala
+Programador: Pablo Andres Rodriguez Lima
+Carne: 202201947
+Correo: pabloa10rodriguez@gmail.com
+
+Link Repositorio: https://github.com/PabloR03/OLC2_Proyecto1_202201947.git 
+Link GithubPages: https://pablor03.github.io/OLC2_Proyecto1_202201947/frontend/ 
