@@ -404,7 +404,7 @@ visitPrint(node) {
     if (valor.valor === null) {
       return "null";
     } else if (Array.isArray(valor.valor)) {
-      return '[' + valor.valor.map(v => printValue({valor: v, tipo: valor.tipo})).join(',') + ']';
+      return '[' + valor.valor.map(v => printValue({valor: v, tipo: valor.tipo})).join('') + ']';
     } else if (valor.tipo === 'float') {
       if (Number.isInteger(valor.valor)) {
         return valor.valor.toFixed(1);
@@ -418,7 +418,7 @@ visitPrint(node) {
     return printValue(valor);
   });
 
-  this.salida += valores.join(',') + '\n';
+  this.salida += valores.join('') + '\n';
 }
 
 /**
