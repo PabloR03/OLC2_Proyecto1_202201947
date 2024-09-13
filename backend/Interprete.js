@@ -76,6 +76,9 @@ visitOperacionAritmetica(node) {
     case '+=':
     case '+':
       if (esNumero(izq) && esNumero(der)) {
+        if ( izq === null || der === null){
+          return {valor: null}
+        }
         return { valor: izq.valor + der.valor, tipo: esEntero(izq) && esEntero(der) ? 'int' : 'float' };
       } else if (esCadena(izq) && esCadena(der)) {
         return { valor: izq.valor + der.valor, tipo: 'string' };
@@ -88,6 +91,9 @@ visitOperacionAritmetica(node) {
     case '-=':
     case '-':
       if (esNumero(izq) && esNumero(der)) {
+        if ( izq === null || der === null){
+          return {valor: null}
+        }
         return { valor: izq.valor - der.valor, tipo: esEntero(izq) && esEntero(der) ? 'int' : 'float' };
       } else {
         return {valor: null}        
@@ -96,6 +102,9 @@ visitOperacionAritmetica(node) {
 
     case '*':
       if (esNumero(izq) && esNumero(der)) {
+        if ( izq === null || der === null){
+          return {valor: null}
+        }
         return { valor: izq.valor * der.valor, tipo: esEntero(izq) && esEntero(der) ? 'int' : 'float' };
       } else {
         return {valor: null}        
@@ -110,6 +119,9 @@ visitOperacionAritmetica(node) {
         let Opizq = izq.valor;
         let Opder = der.valor;
         if (izq.tipo === 'int' && der.tipo === 'int') {
+          if ( izq === null || der === null){
+            return {valor: null}
+          }
           return { valor: parseInt(Opizq / Opder), tipo: 'int' };
         }
         return { valor: Opizq / Opder, tipo: 'float' };
@@ -123,6 +135,9 @@ visitOperacionAritmetica(node) {
       if (esEntero(izq) && esEntero(der)) {
         if (der.valor === 0) {
           throw new Error('Error: Módulo por cero.');
+        }
+        if ( izq === null || der === null){
+          return {valor: null}
         }
         return { valor: parseInt(izq.valor % der.valor), tipo: 'int' };
       } else {
@@ -177,6 +192,9 @@ visitOperacionUnaria(node) {
   switch (node.op) {
     case '-':
       if (exp.tipo === 'int' || exp.tipo === 'float') {
+        if ( exp === null){
+          return {valor: null}
+        }
         return { valor: -exp.valor, tipo: exp.tipo };  // Negación para números
       } else {
         return {valor: null}        
@@ -185,8 +203,14 @@ visitOperacionUnaria(node) {
 
     case '++':
       if (exp.tipo === 'int') {
+        if ( exp === null){
+          return {valor: null}
+        }
         return { valor: exp.valor + 1, tipo: 'int' };  // Incremento para enteros
       } else if (exp.tipo === 'float') {
+        if ( exp === null){
+          return {valor: null}
+        }
         return { valor: exp.valor + 1, tipo: 'float' };  // Incremento para flotantes
       } else {
         return {valor: null}        
@@ -195,8 +219,14 @@ visitOperacionUnaria(node) {
 
     case '--':
       if (exp.tipo === 'int') {
+        if ( exp === null){
+          return {valor: null}
+        }
         return { valor: exp.valor - 1, tipo: 'int' };  // Decremento para enteros
       } else if (exp.tipo === 'float') {
+        if ( exp === null){
+          return {valor: null}
+        }
         return { valor: exp.valor - 1, tipo: 'float' };  // Decremento para flotantes
       } else {
         return {valor: null}        
