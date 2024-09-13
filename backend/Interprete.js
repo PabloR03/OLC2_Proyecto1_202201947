@@ -76,7 +76,7 @@ visitOperacionAritmetica(node) {
     case '+=':
     case '+':
       if (esNumero(izq) && esNumero(der)) {
-        if ( izq === null || der === null){
+        if ( izq.valor === null || der.valor === null){
           return {valor: null}
         }
         return { valor: izq.valor + der.valor, tipo: esEntero(izq) && esEntero(der) ? 'int' : 'float' };
@@ -91,7 +91,7 @@ visitOperacionAritmetica(node) {
     case '-=':
     case '-':
       if (esNumero(izq) && esNumero(der)) {
-        if ( izq === null || der === null){
+        if ( izq.valor === null || der.valor === null){
           return {valor: null}
         }
         return { valor: izq.valor - der.valor, tipo: esEntero(izq) && esEntero(der) ? 'int' : 'float' };
@@ -102,7 +102,7 @@ visitOperacionAritmetica(node) {
 
     case '*':
       if (esNumero(izq) && esNumero(der)) {
-        if ( izq === null || der === null){
+        if ( izq.valor === null || der.valor === null){
           return {valor: null}
         }
         return { valor: izq.valor * der.valor, tipo: esEntero(izq) && esEntero(der) ? 'int' : 'float' };
@@ -119,7 +119,7 @@ visitOperacionAritmetica(node) {
         let Opizq = izq.valor;
         let Opder = der.valor;
         if (izq.tipo === 'int' && der.tipo === 'int') {
-          if ( izq === null || der === null){
+          if ( izq.valor === null || der.valor === null){
             return {valor: null}
           }
           return { valor: parseInt(Opizq / Opder), tipo: 'int' };
@@ -136,7 +136,7 @@ visitOperacionAritmetica(node) {
         if (der.valor === 0) {
           throw new Error('Error: Módulo por cero.');
         }
-        if ( izq === null || der === null){
+        if ( izq.valor === null || der.valor === null){
           return {valor: null}
         }
         return { valor: parseInt(izq.valor % der.valor), tipo: 'int' };
