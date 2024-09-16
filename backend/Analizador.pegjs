@@ -208,7 +208,7 @@ Sentencias = bloque:Bloque {return bloque}
 
 Bloque = _ "{" _ instrucciones:Sentencias* _ "}" _ {return crearHoja('bloque', {instrucciones})}
 
-print = _ ("System.out.println" / "print") _ "(" _ exps:expresiones _ ")" _ ";" _ {return crearHoja('print', {exps})}
+print = _ ("System.out.println") _ "(" _ exps:expresiones _ ")" _ ";" _ {return crearHoja('print', {exps})}
 
 expresiones = exp:expresion resto:(_ "," _ expr:expresion {return expr})* { return [exp, ...resto] }
 
