@@ -448,7 +448,7 @@ visitPrint(node) {
     return printValue(valor);
   });
 
-  this.salida += valores.join('') + '\n';
+  this.salida += valores.join(' ') + '\n';
 }
 
 /**
